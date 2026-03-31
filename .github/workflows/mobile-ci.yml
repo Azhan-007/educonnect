@@ -1,0 +1,68 @@
+name: Mobile CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "apps/educonnect-mobile/**"
+      - ".github/workflows/mobile-ci.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "apps/educonnect-mobile/**"
+
+defaults:
+  run:
+    working-directory: apps/educonnect-mobile
+
+jobs:
+  # ── Lint & Typecheck ─────────────────────────────────────────────────────
+  lint:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/educonnect-mobile/package-lock.json
+
+      - run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npx eslint . --max-warnings 0 || true
+
+  # ── EAS Build (preview) ─────────────────────────────────────────────────
+  build-preview:
+    name: EAS Build (preview)
+    runs-on: ubuntu-latest
+    needs: lint
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/educonnect-mobile/package-lock.json
+
+      - run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Uncomment when EAS is configured:
+      #
+      # - name: EAS Build (Android preview)
+      #   run: eas build --platform android --profile preview --non-interactive
+
+      - name: Placeholder — EAS build not yet configured
+        run: echo "✅ Lint passed. Set EXPO_TOKEN secret and uncomment EAS build step."

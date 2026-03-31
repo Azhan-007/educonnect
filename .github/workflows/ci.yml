@@ -1,0 +1,41 @@
+name: "🚀 Full CI/CD Pipeline"
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Run all app-specific workflows
+  backend:
+    uses: ./.github/workflows/backend.yml
+
+  web:
+    uses: ./.github/workflows/webpanel.yml
+
+  mobile:
+    uses: ./.github/workflows/mobile.yml
+
+  # Overall status check
+  status:
+    name: "✅ CI/CD Complete"
+    runs-on: ubuntu-latest
+    needs: [backend, web, mobile]
+    if: always()
+    steps:
+      - name: Log results
+        run: |
+          echo "Backend: ${{ needs.backend.result }}"
+          echo "Web Panel: ${{ needs.web.result }}"
+          echo "Mobile: ${{ needs.mobile.result }}"
+
+      - name: Evaluate overall status
+        run: |
+          if [[ "${{ needs.backend.result }}" != "success" ]] || \
+             [[ "${{ needs.web.result }}" != "success" ]] || \
+             [[ "${{ needs.mobile.result }}" != "success" ]]; then
+            echo "❌ One or more workflows failed"
+            exit 1
+          fi
+          echo "✅ All workflows succeeded!"

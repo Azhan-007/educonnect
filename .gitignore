@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Expo / React Native
+.expo/
+.expo-shared/
+android/.gradle/
+ios/Pods/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Firebase local cache
+.firebase/
+
+# Misc
+*.tmp
+*.temp
+
+# Netlify output
+apps/educonnect-webpanel/.netlify/
