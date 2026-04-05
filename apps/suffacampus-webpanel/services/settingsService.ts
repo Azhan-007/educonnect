@@ -1,5 +1,7 @@
 import { apiFetch } from '@/lib/api';
+import { auth } from '@/lib/firebase';
 import { SchoolSettings } from '@/types';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -68,6 +70,14 @@ export class SettingsService {
     callback: (settings: SchoolSettings) => void
   ): () => void {
     let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const stopPolling = () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
 
     const poll = async () => {
       if (cancelled) return;
@@ -80,11 +90,29 @@ export class SettingsService {
       }
     };
 
-    poll();
-    const intervalId = setInterval(poll, 30_000);
+    const startPolling = () => {
+      stopPolling();
+      void poll();
+      intervalId = setInterval(poll, 30_000);
+    };
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (cancelled) return;
+
+      // /settings is a protected endpoint; do not call it when signed out.
+      if (!user) {
+        stopPolling();
+        callback(SettingsService.getDefaultSettings());
+        return;
+      }
+
+      startPolling();
+    });
+
     return () => {
       cancelled = true;
-      clearInterval(intervalId);
+      stopPolling();
+      unsubscribeAuth();
     };
   }
 
