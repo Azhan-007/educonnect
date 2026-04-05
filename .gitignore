@@ -40,4 +40,4 @@ Thumbs.db
 *.temp
 
 # Netlify output
-apps/educonnect-webpanel/.netlify/
+.netlify/
