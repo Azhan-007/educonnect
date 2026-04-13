@@ -14,15 +14,13 @@ export const metadata: Metadata = {
   title: "SuffaCampus",
   description: "SuffaCampus - Smart School Operating System",
   manifest: "/manifest.json",
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
     apple: "/favicon.png",
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "SuffaCampus",
   },
 };
 
