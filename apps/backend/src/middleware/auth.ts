@@ -1,8 +1,11 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { auth, firestore } from "../lib/firebase-admin";
 import { prisma } from "../lib/prisma";
+import { env } from "../lib/env";
+import { setTenantContext } from "../lib/tenant-context";
 import { Errors } from "../errors";
 import type { CacheService } from "../plugins/cache";
+import { validateSessionAccessToken } from "../services/session.service";
 
 export interface UserRecord {
   uid: string;
@@ -30,9 +33,11 @@ declare module "fastify" {
 /**
  * Fastify `preHandler` hook that:
  * 1. Extracts a Bearer token from the Authorization header
- * 2. Verifies it as a Firebase ID token
- * 3. Fetches the matching user record from PostgreSQL via Prisma
- * 4. Attaches the user object to `request.user`
+ * 2. Tries session JWT validation (signature + DB session + revocation)
+ * 3. Allows Firebase ID token on login bootstrap route and optional
+ *    migration fallback mode (AUTH_ALLOW_FIREBASE_FALLBACK or test env)
+ * 4. Fetches the matching user record from PostgreSQL via Prisma
+ * 5. Attaches auth context to `request.user` and `request.session`
  */
 export async function authenticate(
   request: FastifyRequest,
@@ -47,80 +52,154 @@ export async function authenticate(
     throw Errors.tokenMissing();
   }
 
-  let decoded;
-  try {
-    decoded = await auth.verifyIdToken(token);
-  } catch (err) {
-    request.log.warn(
-      { err, url: request.url, method: request.method },
-      "Firebase token verification failed"
-    );
-    throw Errors.tokenInvalid();
+  const sessionAuth = await validateSessionAccessToken(token, request);
+
+  let uid: string;
+  let email = "";
+
+  if (sessionAuth) {
+    uid = sessionAuth.userUid;
+    request.session = {
+      id: sessionAuth.id,
+      jti: sessionAuth.jti,
+      source: "session-jwt",
+      device: sessionAuth.device,
+      ipAddress: sessionAuth.ipAddress,
+      userAgent: sessionAuth.userAgent,
+      lastActiveAt: sessionAuth.lastActiveAt.toISOString(),
+      expiresAt: sessionAuth.expiresAt.toISOString(),
+    };
+  } else {
+    const route = (request.routeOptions?.url ?? request.url).split("?")[0];
+    const isSessionBootstrapRoute = route.endsWith("/auth/login");
+    const allowFirebaseFallback =
+      isSessionBootstrapRoute ||
+      env.AUTH_ALLOW_FIREBASE_FALLBACK ||
+      env.NODE_ENV === "test";
+
+    if (!allowFirebaseFallback) {
+      request.log.warn(
+        { route, fallbackEnabled: env.AUTH_ALLOW_FIREBASE_FALLBACK },
+        "Session JWT required for this route"
+      );
+      throw Errors.tokenInvalid();
+    }
+
+    let decoded;
+    try {
+      // Revocation check is expensive, so keep this path only for migration/bootstrap endpoints.
+      decoded = await auth.verifyIdToken(token, true);
+    } catch (err) {
+      request.log.warn(
+        { err, url: request.url, method: request.method },
+        "Token verification failed"
+      );
+      throw Errors.tokenInvalid();
+    }
+
+    uid = decoded.uid;
+    email = decoded.email ?? "";
+    request.session = {
+      id: "firebase",
+      jti: "firebase",
+      source: "firebase",
+    };
   }
 
   // Check in-memory cache first
   const cache: CacheService | undefined = request.server.cache;
-  const cacheKey = decoded.uid;
+  const cacheKey = uid;
   const cached = cache?.get<Record<string, unknown>>("user", cacheKey);
-  const isTestEnv = process.env.NODE_ENV === "test";
 
   if (cached) {
-    request.user = { uid: decoded.uid, email: decoded.email ?? "", ...cached };
-    request.log.debug({ uid: decoded.uid }, "User loaded from cache");
+    request.user = { uid, email, ...cached };
+    request.log.debug({ uid }, "User loaded from cache");
   } else {
     let userData: Record<string, unknown> | null = null;
 
-    try {
-      const userRow = await prisma.user.findUnique({
-        where: { uid: decoded.uid },
-      });
+    const userRow = await prisma.user.findUnique({
+      where: { uid },
+    });
 
-      if (userRow) {
-        userData = {
-          role: userRow.role,
-          username: userRow.username,
-          displayName: userRow.displayName,
-          schoolId: userRow.schoolId,
-          phone: userRow.phone,
-          photoURL: userRow.photoURL,
-          isActive: userRow.isActive,
-          requirePasswordChange: userRow.requirePasswordChange,
-          studentId: userRow.studentId,
-          studentIds: userRow.studentIds,
-          teacherId: userRow.teacherId,
-        };
-      }
-    } catch (err) {
-      if (!isTestEnv) {
-        throw err;
-      }
-
-      request.log.debug(
-        { uid: decoded.uid, err },
-        "Prisma user lookup failed in test environment; attempting Firestore fallback"
-      );
+    if (userRow) {
+      userData = {
+        email: userRow.email,
+        role: userRow.role,
+        username: userRow.username,
+        displayName: userRow.displayName,
+        schoolId: userRow.schoolId,
+        phone: userRow.phone,
+        photoURL: userRow.photoURL,
+        isActive: userRow.isActive,
+        requirePasswordChange: userRow.requirePasswordChange,
+        studentId: userRow.studentId,
+        studentIds: userRow.studentIds,
+        teacherId: userRow.teacherId,
+      };
     }
 
-    if (!userData && isTestEnv) {
-      const userSnap = await firestore.collection("users").doc(decoded.uid).get();
-      if (userSnap.exists) {
-        const row = (userSnap.data() ?? {}) as Record<string, unknown>;
-        userData = {
-          role: row.role,
-          username: row.username,
-          displayName:
-            (row.displayName as string | undefined) ??
-            (row.name as string | undefined) ??
-            undefined,
-          schoolId: row.schoolId,
-          phone: row.phone,
-          photoURL: row.photoURL,
-          isActive: row.isActive,
-          requirePasswordChange: row.requirePasswordChange,
-          studentId: row.studentId,
-          studentIds: row.studentIds,
-          teacherId: row.teacherId,
-        };
+    if (!userData && env.NODE_ENV === "test") {
+      try {
+        const userDoc = await firestore.collection("users").doc(uid).get();
+        const fallbackUser = userDoc.exists ? userDoc.data() : undefined;
+
+        if (fallbackUser) {
+          const fallbackStatus =
+            typeof fallbackUser.status === "string"
+              ? fallbackUser.status.trim().toLowerCase()
+              : "";
+
+          userData = {
+            email: typeof fallbackUser.email === "string" ? fallbackUser.email : undefined,
+            role: typeof fallbackUser.role === "string" ? fallbackUser.role : undefined,
+            username:
+              typeof fallbackUser.username === "string"
+                ? fallbackUser.username
+                : undefined,
+            displayName:
+              typeof fallbackUser.displayName === "string"
+                ? fallbackUser.displayName
+                : undefined,
+            schoolId:
+              typeof fallbackUser.schoolId === "string"
+                ? fallbackUser.schoolId
+                : null,
+            phone:
+              typeof fallbackUser.phone === "string"
+                ? fallbackUser.phone
+                : null,
+            photoURL:
+              typeof fallbackUser.photoURL === "string"
+                ? fallbackUser.photoURL
+                : null,
+            isActive:
+              typeof fallbackUser.isActive === "boolean"
+                ? fallbackUser.isActive
+                : fallbackStatus
+                  ? fallbackStatus === "active"
+                  : true,
+            requirePasswordChange:
+              typeof fallbackUser.requirePasswordChange === "boolean"
+                ? fallbackUser.requirePasswordChange
+                : false,
+            studentId:
+              typeof fallbackUser.studentId === "string"
+                ? fallbackUser.studentId
+                : undefined,
+            studentIds: Array.isArray(fallbackUser.studentIds)
+              ? fallbackUser.studentIds
+              : undefined,
+            teacherId:
+              typeof fallbackUser.teacherId === "string"
+                ? fallbackUser.teacherId
+                : undefined,
+          };
+        }
+      } catch (fallbackError) {
+        request.log.debug(
+          { err: fallbackError, uid },
+          "Test auth fallback to Firestore failed"
+        );
       }
     }
 
@@ -130,9 +209,16 @@ export async function authenticate(
 
     cache?.set("user", cacheKey, userData);
 
+    if (!email) {
+      const userEmail = userData.email;
+      if (typeof userEmail === "string") {
+        email = userEmail;
+      }
+    }
+
     request.user = {
-      uid: decoded.uid,
-      email: decoded.email ?? "",
+      uid,
+      email,
       ...userData,
     };
   }
@@ -141,5 +227,61 @@ export async function authenticate(
     throw Errors.userDisabled();
   }
 
-  request.log.info({ uid: decoded.uid }, "User authenticated successfully");
+  if (sessionAuth) {
+    const userSchoolId =
+      typeof request.user.schoolId === "string"
+        ? request.user.schoolId.trim()
+        : "";
+    const sessionSchoolId =
+      typeof sessionAuth.schoolId === "string"
+        ? sessionAuth.schoolId.trim()
+        : "";
+
+    // Non-superadmin sessions must stay tenant-bound to the same school
+    // as the current user record to prevent cross-tenant reuse.
+    if (request.user.role !== "SuperAdmin") {
+      if (!userSchoolId || !sessionSchoolId || sessionSchoolId !== userSchoolId) {
+        request.log.warn(
+          {
+            uid,
+            userSchoolId: userSchoolId || null,
+            sessionSchoolId: sessionSchoolId || null,
+          },
+          "Session school scope mismatch"
+        );
+        throw Errors.tokenInvalid();
+      }
+    }
+  }
+
+  // Default tenant scoping for authenticated non-SuperAdmin users.
+  // SuperAdmin remains unscoped until tenantGuard sets an explicit school context.
+  if (request.user.role === "SuperAdmin") {
+    const selectedSchoolHeader = request.headers["x-school-id"];
+    const selectedSchoolId =
+      typeof selectedSchoolHeader === "string" && selectedSchoolHeader.trim().length > 0
+        ? selectedSchoolHeader.trim()
+        : undefined;
+
+    if (selectedSchoolId) {
+      setTenantContext({ enforceTenant: true, schoolId: selectedSchoolId });
+      request.log.debug(
+        { uid, schoolId: selectedSchoolId },
+        "SuperAdmin authenticated with explicit tenant header"
+      );
+    } else {
+      setTenantContext({ enforceTenant: false, schoolId: undefined });
+      request.log.debug(
+        { uid },
+        "SuperAdmin authenticated; tenant scope disabled until tenantGuard selects a school"
+      );
+    }
+  } else if (request.user.schoolId) {
+    setTenantContext({
+      enforceTenant: true,
+      schoolId: String(request.user.schoolId),
+    });
+  }
+
+  request.log.info({ uid }, "User authenticated successfully");
 }

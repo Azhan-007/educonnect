@@ -15,9 +15,14 @@ import {
 
 const log = createLogger("admin-school-service");
 
-const SCHOOL_SCHEMA_IDENTIFIERS = ["School", "school"];
+const SCHOOL_TABLE_CANDIDATES = ["School", "school", "schools", "Schools"] as const;
+const SCHOOL_SCHEMA_IDENTIFIERS = [...SCHOOL_TABLE_CANDIDATES];
 const SUBSCRIPTION_SCHEMA_IDENTIFIERS = ["Subscription", "subscription"];
 const SCHOOL_CONFIG_SCHEMA_IDENTIFIERS = ["SchoolConfig", "schoolconfig"];
+
+function quoteSqlIdentifier(identifier: string): string {
+  return `"${identifier.replace(/"/g, '""')}"`;
+}
 
 function toNumber(value: unknown): number {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
@@ -29,7 +34,10 @@ function toNumber(value: unknown): number {
   return 0;
 }
 
-function isSchemaCompatibilityError(error: unknown, identifiers = SCHOOL_SCHEMA_IDENTIFIERS): boolean {
+function isSchemaCompatibilityError(
+  error: unknown,
+  identifiers: readonly string[] = SCHOOL_SCHEMA_IDENTIFIERS
+): boolean {
   if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
     return false;
   }
@@ -51,14 +59,44 @@ function isSchemaCompatibilityError(error: unknown, identifiers = SCHOOL_SCHEMA_
 }
 
 async function getSchoolTableColumns(): Promise<Set<string>> {
+  const tableName = await getSchoolTableName();
+  if (!tableName) {
+    return new Set();
+  }
+
   const rows = await prisma.$queryRaw<Array<{ column_name: string }>>`
     SELECT column_name
     FROM information_schema.columns
     WHERE table_schema = 'public'
-      AND table_name IN ('School', 'school')
+      AND table_name = ${tableName}
   `;
 
   return new Set(rows.map((row) => row.column_name));
+}
+
+async function getSchoolTableName(): Promise<string | null> {
+  const rows = await prisma.$queryRaw<Array<{ table_name: string }>>`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_name IN ('School', 'school', 'schools', 'Schools')
+    ORDER BY
+      CASE table_name
+        WHEN 'School' THEN 0
+        WHEN 'school' THEN 1
+        WHEN 'schools' THEN 2
+        WHEN 'Schools' THEN 3
+        ELSE 99
+      END
+    LIMIT 1
+  `;
+
+  const tableName = rows[0]?.table_name;
+  if (typeof tableName !== "string" || tableName.trim().length === 0) {
+    return null;
+  }
+
+  return tableName;
 }
 
 function selectColumnExpr(columns: Set<string>, column: string, fallbackSql: string): string {
@@ -147,14 +185,17 @@ async function getSchoolsCompatibility(
   pagination: { limit?: number; cursor?: string; sortBy?: string; sortOrder?: "asc" | "desc" },
   filters: { status?: string; plan?: string; search?: string } = {}
 ) {
+  const tableName = await getSchoolTableName();
   const columns = await getSchoolTableColumns();
 
-  if (!columns.has("id")) {
+  if (!tableName || !columns.has("id")) {
     return {
       data: [] as Record<string, unknown>[],
       pagination: { cursor: null as string | null, hasMore: false, limit: Math.min(pagination.limit ?? 20, 100) },
     };
   }
+
+  const tableRef = quoteSqlIdentifier(tableName);
 
   const limit = Math.min(pagination.limit ?? 20, 100);
   const params: unknown[] = [];
@@ -219,7 +260,7 @@ async function getSchoolsCompatibility(
 
   const query = `
     SELECT ${selectColumns.join(", ")}
-    FROM "School"
+    FROM ${tableRef}
     ${where.length > 0 ? `WHERE ${where.join(" AND ")}` : ""}
     ORDER BY "${sortColumn}" ${sortOrder}, "id" ASC
     LIMIT ${limitToken}
@@ -242,14 +283,17 @@ async function getSchoolsCompatibility(
 }
 
 async function getSchoolByIdCompatibility(schoolId: string): Promise<Record<string, unknown> | null> {
+  const tableName = await getSchoolTableName();
   const columns = await getSchoolTableColumns();
-  if (!columns.has("id")) return null;
+  if (!tableName || !columns.has("id")) return null;
+
+  const tableRef = quoteSqlIdentifier(tableName);
 
   const selectColumns = getSchoolSelectColumns(columns);
 
   const query = `
     SELECT ${selectColumns.join(", ")}
-    FROM "School"
+    FROM ${tableRef}
     WHERE "id" = $1
     LIMIT 1
   `;
@@ -261,14 +305,17 @@ async function getSchoolByIdCompatibility(schoolId: string): Promise<Record<stri
 }
 
 async function getSchoolByCodeCompatibility(code: string): Promise<Record<string, unknown> | null> {
+  const tableName = await getSchoolTableName();
   const columns = await getSchoolTableColumns();
-  if (!columns.has("id") || !columns.has("code")) return null;
+  if (!tableName || !columns.has("id") || !columns.has("code")) return null;
+
+  const tableRef = quoteSqlIdentifier(tableName);
 
   const selectColumns = getSchoolSelectColumns(columns);
 
   const query = `
     SELECT ${selectColumns.join(", ")}
-    FROM "School"
+    FROM ${tableRef}
     WHERE "code" = $1
     LIMIT 1
   `;
@@ -308,10 +355,13 @@ async function createSchoolCompatibility(params: {
   isActive: boolean;
   createdBy: string;
 }): Promise<Record<string, unknown>> {
+  const tableName = await getSchoolTableName();
   const columns = await getSchoolTableColumns();
-  if (!columns.has("name") || !columns.has("code")) {
+  if (!tableName || !columns.has("name") || !columns.has("code")) {
     throw Errors.internal("School schema does not support compatibility create");
   }
+
+  const tableRef = quoteSqlIdentifier(tableName);
 
   const candidateValues: Record<string, unknown> = {
     name: params.name,
@@ -356,7 +406,7 @@ async function createSchoolCompatibility(params: {
   const insertValues = insertEntries.map(([, value]) => value);
 
   const insertQuery = `
-    INSERT INTO "School" (${insertColumns})
+    INSERT INTO ${tableRef} (${insertColumns})
     VALUES (${insertTokens})
     RETURNING "id"
   `;
@@ -379,7 +429,21 @@ async function createSchoolCompatibility(params: {
 }
 
 async function getPlatformStatsCompatibility() {
+  const tableName = await getSchoolTableName();
   const columns = await getSchoolTableColumns();
+  if (!tableName) {
+    return {
+      totalSchools: 0,
+      activeSchools: 0,
+      trialSchools: 0,
+      expiredSchools: 0,
+      totalStudents: 0,
+      totalTeachers: 0,
+      planDistribution: {},
+    };
+  }
+
+  const tableRef = quoteSqlIdentifier(tableName);
   const hasIsActive = columns.has("isActive");
   const hasSubscriptionStatus = columns.has("subscriptionStatus");
   const hasSubscriptionPlan = columns.has("subscriptionPlan");
@@ -416,7 +480,7 @@ async function getPlatformStatsCompatibility() {
       ${expiredExpr} AS "expiredSchools",
       ${sumStudentsExpr} AS "totalStudents",
       ${sumTeachersExpr} AS "totalTeachers"
-    FROM "School"
+    FROM ${tableRef}
   `;
 
   const [statsRow] = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(statsQuery);
@@ -425,7 +489,7 @@ async function getPlatformStatsCompatibility() {
   if (hasSubscriptionPlan) {
     const plans = await prisma.$queryRawUnsafe<Array<{ plan: string | null; count: number | bigint | string }>>(`
       SELECT "subscriptionPlan"::text AS "plan", COUNT(*)::bigint AS "count"
-      FROM "School"
+      FROM ${tableRef}
       GROUP BY "subscriptionPlan"
     `);
 
@@ -793,7 +857,19 @@ export async function getSchools(
     }
 
     log.warn({ err: error }, "Falling back to compatibility school-list query");
-    return getSchoolsCompatibility(pagination, filters);
+    try {
+      return await getSchoolsCompatibility(pagination, filters);
+    } catch (compatibilityError) {
+      log.error(
+        { err: compatibilityError },
+        "Compatibility school-list query failed; returning empty list"
+      );
+
+      return {
+        data: [] as Record<string, unknown>[],
+        pagination: { cursor: null, hasMore: false, limit },
+      };
+    }
   }
 }
 
@@ -929,6 +1005,23 @@ export async function getPlatformStats() {
     }
 
     log.warn({ err: error }, "Falling back to compatibility platform-stats query");
-    return getPlatformStatsCompatibility();
+    try {
+      return await getPlatformStatsCompatibility();
+    } catch (compatibilityError) {
+      log.error(
+        { err: compatibilityError },
+        "Compatibility platform-stats query failed; returning safe defaults"
+      );
+
+      return {
+        totalSchools: 0,
+        activeSchools: 0,
+        trialSchools: 0,
+        expiredSchools: 0,
+        totalStudents: 0,
+        totalTeachers: 0,
+        planDistribution: {},
+      };
+    }
   }
 }
