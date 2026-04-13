@@ -95,6 +95,7 @@ function mapSchoolRow(row: Record<string, unknown>): Record<string, unknown> {
     currentStudents: row.currentStudents ?? 0,
     currentTeachers: row.currentTeachers ?? 0,
     currentStorage: row.currentStorage ?? 0,
+    autoRenew: row.autoRenew ?? false,
     timezone: row.timezone ?? "Asia/Kolkata",
     currency: row.currency ?? "INR",
     dateFormat: row.dateFormat ?? "DD/MM/YYYY",
@@ -103,6 +104,43 @@ function mapSchoolRow(row: Record<string, unknown>): Record<string, unknown> {
     createdAt: row.createdAt ?? new Date(0),
     updatedAt: row.updatedAt ?? new Date(0),
   };
+}
+
+function getSchoolSelectColumns(columns: Set<string>): string[] {
+  return [
+    selectColumnExpr(columns, "id", "''::text"),
+    selectColumnExpr(columns, "name", "''::text"),
+    selectColumnExpr(columns, "code", "''::text"),
+    selectColumnExpr(columns, "address", "NULL::text"),
+    selectColumnExpr(columns, "city", "''::text"),
+    selectColumnExpr(columns, "state", "NULL::text"),
+    selectColumnExpr(columns, "pincode", "NULL::text"),
+    selectColumnExpr(columns, "phone", "NULL::text"),
+    selectColumnExpr(columns, "email", "''::text"),
+    selectColumnExpr(columns, "website", "NULL::text"),
+    selectColumnExpr(columns, "logoURL", "NULL::text"),
+    selectColumnExpr(columns, "principalName", "NULL::text"),
+    selectColumnExpr(columns, "primaryColor", "'#1a73e8'::text"),
+    selectColumnExpr(columns, "secondaryColor", "'#4285f4'::text"),
+    selectColumnExpr(columns, "subscriptionPlan", "'free'::text"),
+    selectColumnExpr(columns, "subscriptionStatus", "'trial'::text"),
+    selectColumnExpr(columns, "subscriptionStartDate", "NULL::timestamptz"),
+    selectColumnExpr(columns, "subscriptionEndDate", "NULL::timestamptz"),
+    selectColumnExpr(columns, "maxStudents", "0::int"),
+    selectColumnExpr(columns, "maxTeachers", "0::int"),
+    selectColumnExpr(columns, "maxStorage", "0::int"),
+    selectColumnExpr(columns, "currentStudents", "0::int"),
+    selectColumnExpr(columns, "currentTeachers", "0::int"),
+    selectColumnExpr(columns, "currentStorage", "0::int"),
+    selectColumnExpr(columns, "autoRenew", "false"),
+    selectColumnExpr(columns, "timezone", "'Asia/Kolkata'::text"),
+    selectColumnExpr(columns, "currency", "'INR'::text"),
+    selectColumnExpr(columns, "dateFormat", "'DD/MM/YYYY'::text"),
+    selectColumnExpr(columns, "currentSession", "NULL::text"),
+    selectColumnExpr(columns, "isActive", "true"),
+    selectColumnExpr(columns, "createdAt", "now()"),
+    selectColumnExpr(columns, "updatedAt", "now()"),
+  ];
 }
 
 async function getSchoolsCompatibility(
@@ -174,39 +212,7 @@ async function getSchoolsCompatibility(
   const sortColumn = columns.has(preferredSort) ? preferredSort : "id";
   const sortOrder = pagination.sortOrder === "asc" ? "ASC" : "DESC";
 
-  const selectColumns = [
-    selectColumnExpr(columns, "id", "''::text"),
-    selectColumnExpr(columns, "name", "''::text"),
-    selectColumnExpr(columns, "code", "''::text"),
-    selectColumnExpr(columns, "address", "NULL::text"),
-    selectColumnExpr(columns, "city", "''::text"),
-    selectColumnExpr(columns, "state", "NULL::text"),
-    selectColumnExpr(columns, "pincode", "NULL::text"),
-    selectColumnExpr(columns, "phone", "NULL::text"),
-    selectColumnExpr(columns, "email", "''::text"),
-    selectColumnExpr(columns, "website", "NULL::text"),
-    selectColumnExpr(columns, "logoURL", "NULL::text"),
-    selectColumnExpr(columns, "principalName", "NULL::text"),
-    selectColumnExpr(columns, "primaryColor", "'#1a73e8'::text"),
-    selectColumnExpr(columns, "secondaryColor", "'#4285f4'::text"),
-    selectColumnExpr(columns, "subscriptionPlan", "'free'::text"),
-    selectColumnExpr(columns, "subscriptionStatus", "'trial'::text"),
-    selectColumnExpr(columns, "subscriptionStartDate", "NULL::timestamptz"),
-    selectColumnExpr(columns, "subscriptionEndDate", "NULL::timestamptz"),
-    selectColumnExpr(columns, "maxStudents", "0::int"),
-    selectColumnExpr(columns, "maxTeachers", "0::int"),
-    selectColumnExpr(columns, "maxStorage", "0::int"),
-    selectColumnExpr(columns, "currentStudents", "0::int"),
-    selectColumnExpr(columns, "currentTeachers", "0::int"),
-    selectColumnExpr(columns, "currentStorage", "0::int"),
-    selectColumnExpr(columns, "timezone", "'Asia/Kolkata'::text"),
-    selectColumnExpr(columns, "currency", "'INR'::text"),
-    selectColumnExpr(columns, "dateFormat", "'DD/MM/YYYY'::text"),
-    selectColumnExpr(columns, "currentSession", "NULL::text"),
-    selectColumnExpr(columns, "isActive", "true"),
-    selectColumnExpr(columns, "createdAt", "now()"),
-    selectColumnExpr(columns, "updatedAt", "now()"),
-  ];
+  const selectColumns = getSchoolSelectColumns(columns);
 
   params.push(limit + 1);
   const limitToken = `$${params.length}`;
@@ -239,39 +245,7 @@ async function getSchoolByIdCompatibility(schoolId: string): Promise<Record<stri
   const columns = await getSchoolTableColumns();
   if (!columns.has("id")) return null;
 
-  const selectColumns = [
-    selectColumnExpr(columns, "id", "''::text"),
-    selectColumnExpr(columns, "name", "''::text"),
-    selectColumnExpr(columns, "code", "''::text"),
-    selectColumnExpr(columns, "address", "NULL::text"),
-    selectColumnExpr(columns, "city", "''::text"),
-    selectColumnExpr(columns, "state", "NULL::text"),
-    selectColumnExpr(columns, "pincode", "NULL::text"),
-    selectColumnExpr(columns, "phone", "NULL::text"),
-    selectColumnExpr(columns, "email", "''::text"),
-    selectColumnExpr(columns, "website", "NULL::text"),
-    selectColumnExpr(columns, "logoURL", "NULL::text"),
-    selectColumnExpr(columns, "principalName", "NULL::text"),
-    selectColumnExpr(columns, "primaryColor", "'#1a73e8'::text"),
-    selectColumnExpr(columns, "secondaryColor", "'#4285f4'::text"),
-    selectColumnExpr(columns, "subscriptionPlan", "'free'::text"),
-    selectColumnExpr(columns, "subscriptionStatus", "'trial'::text"),
-    selectColumnExpr(columns, "subscriptionStartDate", "NULL::timestamptz"),
-    selectColumnExpr(columns, "subscriptionEndDate", "NULL::timestamptz"),
-    selectColumnExpr(columns, "maxStudents", "0::int"),
-    selectColumnExpr(columns, "maxTeachers", "0::int"),
-    selectColumnExpr(columns, "maxStorage", "0::int"),
-    selectColumnExpr(columns, "currentStudents", "0::int"),
-    selectColumnExpr(columns, "currentTeachers", "0::int"),
-    selectColumnExpr(columns, "currentStorage", "0::int"),
-    selectColumnExpr(columns, "timezone", "'Asia/Kolkata'::text"),
-    selectColumnExpr(columns, "currency", "'INR'::text"),
-    selectColumnExpr(columns, "dateFormat", "'DD/MM/YYYY'::text"),
-    selectColumnExpr(columns, "currentSession", "NULL::text"),
-    selectColumnExpr(columns, "isActive", "true"),
-    selectColumnExpr(columns, "createdAt", "now()"),
-    selectColumnExpr(columns, "updatedAt", "now()"),
-  ];
+  const selectColumns = getSchoolSelectColumns(columns);
 
   const query = `
     SELECT ${selectColumns.join(", ")}
@@ -284,6 +258,124 @@ async function getSchoolByIdCompatibility(schoolId: string): Promise<Record<stri
   if (rows.length === 0) return null;
 
   return mapSchoolRow(rows[0]);
+}
+
+async function getSchoolByCodeCompatibility(code: string): Promise<Record<string, unknown> | null> {
+  const columns = await getSchoolTableColumns();
+  if (!columns.has("id") || !columns.has("code")) return null;
+
+  const selectColumns = getSchoolSelectColumns(columns);
+
+  const query = `
+    SELECT ${selectColumns.join(", ")}
+    FROM "School"
+    WHERE "code" = $1
+    LIMIT 1
+  `;
+
+  const rows = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(query, code);
+  if (rows.length === 0) return null;
+
+  return mapSchoolRow(rows[0]);
+}
+
+async function createSchoolCompatibility(params: {
+  name: string;
+  code: string;
+  address?: string;
+  city: string;
+  state?: string;
+  pincode?: string;
+  phone?: string;
+  email: string;
+  website?: string;
+  principalName?: string;
+  logoURL?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  subscriptionPlan: string;
+  subscriptionStatus: string;
+  subscriptionStartDate: Date;
+  subscriptionEndDate?: Date;
+  trialEndDate: Date;
+  maxStudents: number;
+  maxTeachers: number;
+  maxStorage: number;
+  timezone: string;
+  currency: string;
+  dateFormat: string;
+  currentSession?: string;
+  isActive: boolean;
+  createdBy: string;
+}): Promise<Record<string, unknown>> {
+  const columns = await getSchoolTableColumns();
+  if (!columns.has("name") || !columns.has("code")) {
+    throw Errors.internal("School schema does not support compatibility create");
+  }
+
+  const candidateValues: Record<string, unknown> = {
+    name: params.name,
+    code: params.code,
+    address: params.address,
+    city: params.city,
+    state: params.state,
+    pincode: params.pincode,
+    phone: params.phone,
+    email: params.email,
+    website: params.website,
+    principalName: params.principalName,
+    logoURL: params.logoURL,
+    primaryColor: params.primaryColor,
+    secondaryColor: params.secondaryColor,
+    subscriptionPlan: params.subscriptionPlan,
+    subscriptionStatus: params.subscriptionStatus,
+    subscriptionStartDate: params.subscriptionStartDate,
+    subscriptionEndDate: params.subscriptionEndDate,
+    trialEndDate: params.trialEndDate,
+    maxStudents: params.maxStudents,
+    maxTeachers: params.maxTeachers,
+    maxStorage: params.maxStorage,
+    timezone: params.timezone,
+    currency: params.currency,
+    dateFormat: params.dateFormat,
+    currentSession: params.currentSession,
+    isActive: params.isActive,
+    createdBy: params.createdBy,
+  };
+
+  const insertEntries = Object.entries(candidateValues).filter(
+    ([column, value]) => columns.has(column) && value !== undefined
+  );
+
+  if (insertEntries.length === 0) {
+    throw Errors.internal("No compatible School columns available for create");
+  }
+
+  const insertColumns = insertEntries.map(([column]) => `"${column}"`).join(", ");
+  const insertTokens = insertEntries.map((_, index) => `$${index + 1}`).join(", ");
+  const insertValues = insertEntries.map(([, value]) => value);
+
+  const insertQuery = `
+    INSERT INTO "School" (${insertColumns})
+    VALUES (${insertTokens})
+    RETURNING "id"
+  `;
+
+  const insertedRows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+    insertQuery,
+    ...insertValues
+  );
+
+  const insertedId = insertedRows[0]?.id;
+  if (insertedId) {
+    const inserted = await getSchoolByIdCompatibility(insertedId);
+    if (inserted) return inserted;
+  }
+
+  const byCode = await getSchoolByCodeCompatibility(params.code);
+  if (byCode) return byCode;
+
+  throw Errors.internal("School created but retrieval failed in compatibility mode");
 }
 
 async function getPlatformStatsCompatibility() {
@@ -482,7 +574,20 @@ export async function createSchool(
   const code = data.code || generateSchoolCode(data.name);
 
   // Check for duplicate code
-  const existing = await prisma.school.findUnique({ where: { code } });
+  let existing: { id: string } | Record<string, unknown> | null = null;
+  try {
+    existing = await prisma.school.findUnique({
+      where: { code },
+      select: { id: true },
+    });
+  } catch (error) {
+    if (!isSchemaCompatibilityError(error)) {
+      throw error;
+    }
+
+    existing = await getSchoolByCodeCompatibility(code);
+  }
+
   if (existing) throw Errors.alreadyExists("School", code);
 
   // Default trial end: 14 days
@@ -502,64 +607,91 @@ export async function createSchool(
   const maxStudents = resolveStudentLimitForPlan(initialPlan, data.maxStudents);
   const maxTeachers = resolveTeacherLimitForPlan(initialPlan, data.maxTeachers);
 
-  const school = await prisma.school.create({
-    data: {
-      name: data.name,
-      code,
-      address: data.address,
-      city: data.city,
-      state: data.state,
-      pincode: data.pincode,
-      phone: data.phone,
-      email: data.email,
-      website: data.website,
-      principalName: data.principalName,
-      logoURL: data.logoURL,
-      primaryColor: data.primaryColor ?? "#1a73e8",
-      secondaryColor: data.secondaryColor ?? "#4285f4",
-      subscriptionPlan: initialPlan,
-      subscriptionStatus: initialStatus,
-      subscriptionStartDate,
-      subscriptionEndDate,
-      trialEndDate: trialEnd,
-      maxStudents,
-      maxTeachers,
-      maxStorage: data.maxStorage ?? 1024,
-      timezone: data.timezone ?? "Asia/Kolkata",
-      currency: data.currency ?? "INR",
-      dateFormat: data.dateFormat ?? "DD/MM/YYYY",
-      currentSession: data.currentSession,
-      isActive: true,
-      createdBy: performedBy,
-    },
-  });
+  const createPayload = {
+    name: data.name,
+    code,
+    address: data.address,
+    city: data.city,
+    state: data.state,
+    pincode: data.pincode,
+    phone: data.phone,
+    email: data.email,
+    website: data.website,
+    principalName: data.principalName,
+    logoURL: data.logoURL,
+    primaryColor: data.primaryColor ?? "#1a73e8",
+    secondaryColor: data.secondaryColor ?? "#4285f4",
+    subscriptionPlan: initialPlan,
+    subscriptionStatus: initialStatus,
+    subscriptionStartDate,
+    subscriptionEndDate,
+    trialEndDate,
+    maxStudents,
+    maxTeachers,
+    maxStorage: data.maxStorage ?? 1024,
+    timezone: data.timezone ?? "Asia/Kolkata",
+    currency: data.currency ?? "INR",
+    dateFormat: data.dateFormat ?? "DD/MM/YYYY",
+    currentSession: data.currentSession,
+    isActive: true,
+    createdBy: performedBy,
+  };
+
+  let school: Record<string, unknown>;
+  try {
+    const created = await prisma.school.create({
+      data: createPayload as Prisma.SchoolCreateInput,
+    });
+    school = created as unknown as Record<string, unknown>;
+  } catch (error) {
+    if (!isSchemaCompatibilityError(error)) {
+      throw error;
+    }
+
+    log.warn({ err: error }, "Falling back to compatibility school-create path");
+    school = await createSchoolCompatibility(createPayload);
+  }
+
+  const schoolId = String(school.id ?? "");
+  assertSchoolScope(schoolId, "School created without valid id");
+
+  const schoolName = typeof school.name === "string" ? school.name : data.name;
+  const schoolCode = typeof school.code === "string" ? school.code : code;
+  const schoolPlan =
+    typeof school.subscriptionPlan === "string" ? school.subscriptionPlan : initialPlan;
+  const schoolAutoRenew =
+    typeof school.autoRenew === "boolean" ? school.autoRenew : false;
+  const schoolCurrency =
+    typeof school.currency === "string" && school.currency.trim().length > 0
+      ? school.currency
+      : "INR";
 
   await createSubscriptionBootstrapSafe({
-    schoolId: school.id,
+    schoolId,
     plan: initialPlan,
     status: initialStatus,
     subscriptionStartDate,
     subscriptionEndDate,
     trialEndDate,
-    autoRenew: school.autoRenew,
-    currency: school.currency,
+    autoRenew: schoolAutoRenew,
+    currency: schoolCurrency,
   });
 
   await createSchoolConfigBootstrapSafe({
-    schoolId: school.id,
+    schoolId,
     initialPlan,
     maxStudents,
     maxTeachers,
   });
 
   try {
-    await writeAuditLog("CREATE_SCHOOL", performedBy, school.id, {
-      schoolName: school.name,
-      schoolCode: school.code,
-      plan: school.subscriptionPlan,
+    await writeAuditLog("CREATE_SCHOOL", performedBy, schoolId, {
+      schoolName,
+      schoolCode,
+      plan: schoolPlan,
     });
   } catch (error) {
-    log.warn({ err: error, schoolId: school.id }, "Skipping CREATE_SCHOOL audit write");
+    log.warn({ err: error, schoolId }, "Skipping CREATE_SCHOOL audit write");
   }
 
   // Auto-create admin user
@@ -577,7 +709,7 @@ export async function createSchool(
 
       await auth.setCustomUserClaims(userRecord.uid, {
         role: "Admin",
-        schoolId: school.id,
+        schoolId,
       });
 
       await prisma.user.create({
@@ -586,7 +718,7 @@ export async function createSchool(
           email: data.adminEmail,
           displayName: adminName,
           role: "Admin",
-          schoolId: school.id,
+          schoolId,
           isActive: true,
         },
       });
@@ -599,19 +731,28 @@ export async function createSchool(
       };
 
       try {
-        await writeAuditLog("CREATE_ADMIN", performedBy, school.id, {
+        await writeAuditLog("CREATE_ADMIN", performedBy, schoolId, {
           adminUid: userRecord.uid,
           adminEmail: data.adminEmail,
         });
       } catch (error) {
-        log.warn({ err: error, schoolId: school.id }, "Skipping CREATE_ADMIN audit write");
+        log.warn({ err: error, schoolId }, "Skipping CREATE_ADMIN audit write");
       }
     } catch (err: any) {
       log.error({ err }, "Failed to auto-create admin user");
     }
   }
 
-  return { ...school, adminCredentials };
+  return {
+    ...school,
+    id: schoolId,
+    name: schoolName,
+    code: schoolCode,
+    subscriptionPlan: schoolPlan,
+    autoRenew: schoolAutoRenew,
+    currency: schoolCurrency,
+    adminCredentials,
+  };
 }
 
 export async function getSchools(
