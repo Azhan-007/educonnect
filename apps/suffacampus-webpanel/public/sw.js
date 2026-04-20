@@ -1,5 +1,5 @@
 ﻿// SuffaCampus Service Worker â€” offline shell + API cache
-const CACHE_NAME = 'SuffaCampus-v2';
+const CACHE_NAME = 'SuffaCampus-v3';
 const SHELL_ASSETS = [
   '/',
   '/dashboard',
