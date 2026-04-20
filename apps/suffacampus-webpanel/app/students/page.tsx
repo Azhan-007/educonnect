@@ -305,10 +305,9 @@ export default function StudentsPage() {
             id: `sec-${Date.now()}`,
             sectionName: defaultSectionName,
             capacity: 60,
-            studentsCount: 0,
           },
         ],
-      } as any);
+      });
 
       await queryClient.invalidateQueries({ queryKey: ['classes', schoolId] });
 

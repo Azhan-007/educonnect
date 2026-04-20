@@ -1,12 +1,20 @@
 import { apiFetch, ApiError } from '@/lib/api';
 import { Class, Section } from '@/types';
 
+type CreateSectionPayload = {
+  id?: string;
+  sectionName: string;
+  capacity: number;
+  teacherId?: string;
+  teacherName?: string;
+};
+
 type CreateClassPayload = {
   className: string;
   grade: number;
   capacity: number;
   isActive: boolean;
-  sections: string[] | Section[];
+  sections: CreateSectionPayload[];
 };
 
 // ---------------------------------------------------------------------------
