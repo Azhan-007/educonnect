@@ -271,7 +271,8 @@ export default function StudentsPage() {
         await StudentService.updateStudent(schoolId, modal.editingEntity.id, payload);
         toast.success('Student updated successfully');
       } else {
-        const result = await StudentService.createStudent(schoolId, payload as any);
+        const { classId, ...studentData } = payload as Record<string, unknown>;
+        const result = await StudentService.createStudent(studentData as any, String(classId ?? ''));
         toast.success('Student created successfully');
         queryClient.invalidateQueries({ queryKey: ['students'] });
         handleCloseModal();

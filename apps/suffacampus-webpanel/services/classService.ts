@@ -1,6 +1,14 @@
 import { apiFetch, ApiError } from '@/lib/api';
 import { Class, Section } from '@/types';
 
+type CreateClassPayload = {
+  className: string;
+  grade: number;
+  capacity: number;
+  isActive: boolean;
+  sections: string[] | Section[];
+};
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -61,7 +69,7 @@ export const getClassById = async (id: string): Promise<Class | null> => {
  * Create a new class — backend: POST /classes
  */
 export const createClass = async (
-  data: Omit<Class, 'id' | 'createdAt' | 'updatedAt'>
+  data: CreateClassPayload
 ): Promise<string> => {
   const raw = await apiFetch<Record<string, unknown>>('/classes', {
     method: 'POST',

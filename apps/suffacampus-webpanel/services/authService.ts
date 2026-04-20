@@ -30,7 +30,12 @@ interface AuthProfileResponse {
   requirePasswordChange?: boolean;
   createdAt?: string | null;
   lastLogin?: string | null;
+  // The accessToken is nested in the 'data' object on the /auth/login response
+  // but is at the top level for /auth/me. This interface handles both.
   accessToken?: string;
+  data?: {
+    accessToken?: string;
+  };
 }
 
 function mapProfileToUser(profile: AuthProfileResponse): User {
@@ -52,16 +57,16 @@ export class AuthService {
   private static async bootstrapSessionProfile(
     firebaseIdToken?: string
   ): Promise<AuthProfileResponse> {
-    let token = firebaseIdToken;
+    let firebaseToken = firebaseIdToken;
 
-    if (!token) {
+    if (!firebaseToken) {
       const currentUser = auth.currentUser;
       if (!currentUser) {
         throw new Error('No authenticated Firebase user found');
       }
 
       // Force-refresh during session bootstrap to avoid stale/revoked token races.
-      token = await currentUser.getIdToken(true);
+      firebaseToken = await currentUser.getIdToken(true);
     }
 
     const profile = await apiFetch<AuthProfileResponse>('/auth/login', {
@@ -69,12 +74,14 @@ export class AuthService {
       body: JSON.stringify({}),
       authMode: 'none',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${firebaseToken}`,
       },
     });
 
-    if (profile.accessToken) {
-      setSessionAccessToken(profile.accessToken);
+    const sessionToken = profile.accessToken ?? profile.data?.accessToken;
+
+    if (sessionToken) {
+      setSessionAccessToken(sessionToken);
     } else {
       // Backward compatibility: older backend builds may not return a session JWT.
       // In that case, API layer will fall back to Firebase ID tokens.
@@ -178,21 +185,24 @@ export class AuthService {
           let profile: AuthProfileResponse;
 
           try {
+            // This call might succeed initially if the token is still valid
             profile = await apiFetch<AuthProfileResponse>('/auth/me');
           } catch (error) {
             const hasSessionToken = Boolean(getSessionAccessToken());
-            const shouldBootstrapFromFirebase =
-              !hasSessionToken ||
-              (error instanceof ApiError &&
-                error.status === 401 &&
-                (error.code === 'AUTH_TOKEN_INVALID' ||
-                  error.code === 'AUTH_TOKEN_MISSING'));
+            const isAuthError =
+              error instanceof ApiError &&
+              error.status === 401 &&
+              (error.code === 'AUTH_TOKEN_INVALID' || error.code === 'AUTH_TOKEN_MISSING');
 
-            if (!shouldBootstrapFromFirebase) {
+            // Only bootstrap a new session if the token is explicitly invalid/missing.
+            // Do not bootstrap on other network errors, as that could clear a valid
+            // token during transient network failures.
+            if (!hasSessionToken || isAuthError) {
+              profile = await this.bootstrapSessionProfile();
+            } else {
+              // For any other error, re-throw it to avoid clearing the session.
               throw error;
             }
-
-            profile = await this.bootstrapSessionProfile();
           }
 
           callback(mapProfileToUser(profile));

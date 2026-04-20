@@ -197,7 +197,7 @@ export default function ClassesPage() {
         queryClient.invalidateQueries({ queryKey: ['classes'] });
         toast.success('Class updated successfully');
       } else {
-        await ClassService.createClass({ ...classFormData, sections: [] });
+        await ClassService.createClass({ ...classFormData, sections: ['A'] });
         queryClient.invalidateQueries({ queryKey: ['classes'] });
         toast.success('Class created successfully');
       }
