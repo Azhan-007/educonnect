@@ -193,7 +193,7 @@ export default function ClassesPage() {
     setIsSaving(true);
     try {
       if (editingClass) {
-        await ClassService.updateClass(editingClass.id, { ...classFormData, sections: editingClass.sections });
+        await ClassService.updateClass(editingClass.id, classFormData);
         queryClient.invalidateQueries({ queryKey: ['classes'] });
         toast.success('Class updated successfully');
       } else {
