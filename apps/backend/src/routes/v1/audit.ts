@@ -28,18 +28,23 @@ export default async function auditRoutes(server: FastifyInstance) {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const {
         limit = "50",
+        offset = "0",
         action,
+        performedBy,
         entity,
         resource,
         cursor,
       } = request.query as Record<string, string | undefined>;
 
       const parsedLimit = Math.min(Number(limit) || 50, 100);
+      const parsedOffset = Math.max(Number(offset) || 0, 0);
 
       const result = await getAuditLogs(request.schoolId, {
         limit: parsedLimit,
+        offset: parsedOffset,
         cursor,
         action,
+        userId: performedBy,
         entity,
         resource,
       });

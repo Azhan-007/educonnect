@@ -57,7 +57,7 @@ const ACTION_GROUPS: Record<string, { label: string; icon: React.ElementType; co
 
 function getActionGroup(action: string): { label: string; icon: React.ElementType; color: string } {
   // Extract entity keyword from action (e.g. "CREATE_STUDENT" → "STUDENT")
-  const parts = action.split('_');
+  const parts = (action ?? '').split('_');
   const keyword = parts.slice(1).join('_'); // Take everything after the verb
   // Try direct match, then first keyword
   if (ACTION_GROUPS[keyword]) return ACTION_GROUPS[keyword];
@@ -66,6 +66,7 @@ function getActionGroup(action: string): { label: string; icon: React.ElementTyp
 }
 
 function formatAction(action: string): string {
+  if (!action) return 'System Event';
   return action
     .split('_')
     .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
@@ -217,10 +218,18 @@ export default function AuditLogsPage() {
                 </thead>
                 <tbody>
                   {logs.map((log) => {
-                    const group = getActionGroup(log.action);
+                    const safeAction = typeof log.action === 'string' ? log.action : '';
+                    const group = getActionGroup(safeAction);
                     const Icon = group.icon;
-                    const verb = log.action.split('_')[0];
+                    const verb = safeAction.split('_')[0];
                     const verbColor = VERB_COLORS[verb] ?? 'text-slate-600';
+                    const performer = typeof log.performedBy === 'string' && log.performedBy.length > 0
+                      ? log.performedBy
+                      : 'system';
+                    const metadata = log.metadata && typeof log.metadata === 'object'
+                      ? log.metadata
+                      : {};
+                    const metadataEntries = Object.entries(metadata);
 
                     return (
                       <tr key={log.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
@@ -231,18 +240,18 @@ export default function AuditLogsPage() {
                         </td>
                         <td className="px-5 py-3">
                           <span className={`text-sm font-medium ${verbColor}`}>
-                            {formatAction(log.action)}
+                            {formatAction(safeAction)}
                           </span>
                         </td>
                         <td className="px-5 py-3">
                           <code className="text-xs bg-slate-100 rounded px-1.5 py-0.5 text-slate-600 font-mono">
-                            {log.performedBy === 'system' ? 'System' : log.performedBy.slice(0, 12) + '...'}
+                            {performer === 'system' ? 'System' : performer.slice(0, 12) + '...'}
                           </code>
                         </td>
                         <td className="px-5 py-3">
-                          {Object.keys(log.metadata).length > 0 ? (
+                          {metadataEntries.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
-                              {Object.entries(log.metadata).slice(0, 3).map(([k, v]) => (
+                              {metadataEntries.slice(0, 3).map(([k, v]) => (
                                 <span
                                   key={k}
                                   className="inline-flex text-[10px] rounded-full bg-slate-100 text-slate-500 px-2 py-0.5"

@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+import { apiFetchPaginated } from '@/lib/api';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -22,16 +22,42 @@ export type AuditAction =
 
 export interface AuditLog {
   id: string;
-  action: AuditAction;
+  action: string;
   performedBy: string;
   schoolId: string;
   timestamp: { _seconds: number; _nanoseconds: number } | string;
   metadata: Record<string, unknown>;
 }
 
+interface RawAuditLog {
+  id?: string;
+  action?: string;
+  performedBy?: string;
+  userId?: string;
+  schoolId?: string;
+  timestamp?: { _seconds: number; _nanoseconds: number } | string;
+  createdAt?: string;
+  metadata?: unknown;
+}
+
 export interface AuditLogResponse {
   data: AuditLog[];
   total: number;
+}
+
+function normalizeAuditLog(raw: RawAuditLog): AuditLog {
+  const metadata = raw.metadata && typeof raw.metadata === 'object'
+    ? (raw.metadata as Record<string, unknown>)
+    : {};
+
+  return {
+    id: raw.id ?? `audit-${Math.random().toString(36).slice(2, 10)}`,
+    action: raw.action ?? 'SYSTEM_EVENT',
+    performedBy: raw.performedBy ?? raw.userId ?? 'system',
+    schoolId: raw.schoolId ?? '',
+    timestamp: raw.timestamp ?? raw.createdAt ?? new Date(0).toISOString(),
+    metadata,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -48,24 +74,18 @@ export class AuditService {
     action?: AuditAction;
     performedBy?: string;
   }): Promise<AuditLogResponse> {
-    const params = new URLSearchParams();
-    if (options?.limit) params.set('limit', String(options.limit));
-    if (options?.offset) params.set('offset', String(options.offset));
-    if (options?.action) params.set('action', options.action);
-    if (options?.performedBy) params.set('performedBy', options.performedBy);
-    const qs = params.toString();
+    const raw = await apiFetchPaginated<RawAuditLog>('/audit-logs', {
+      limit: options?.limit,
+      offset: options?.offset,
+      action: options?.action,
+      performedBy: options?.performedBy,
+    });
 
-    // The backend returns { data: [...], pagination: { total } }
-    // apiFetch unwraps `success` envelope, but pagination is on the response
-    const raw = await apiFetch<any>(`/audit-logs${qs ? `?${qs}` : ''}`);
+    const data = (raw.data ?? []).map(normalizeAuditLog);
 
-    // Handle both paginated shape and simple array
-    if (Array.isArray(raw)) {
-      return { data: raw, total: raw.length };
-    }
     return {
-      data: raw.data ?? raw,
-      total: raw.pagination?.total ?? raw.total ?? 0,
+      data,
+      total: raw.pagination?.total ?? data.length,
     };
   }
 }

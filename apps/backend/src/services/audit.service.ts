@@ -126,6 +126,7 @@ export async function getAuditLogs(
     // Backward-compatible query alias.
     resource?: string;
     limit?: number;
+    offset?: number;
     cursor?: string;
   } = {}
 ) {
@@ -146,13 +147,18 @@ export async function getAuditLogs(
   }
 
   const limit = Math.min(options.limit ?? 50, 100);
+  const offset = Math.max(options.offset ?? 0, 0);
 
-  const logs = await prisma.auditLog.findMany({
-    where: where as any,
-    orderBy: { createdAt: "desc" },
-    take: limit + 1,
-    ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
-  });
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      where: where as any,
+      orderBy: { createdAt: "desc" },
+      take: limit + 1,
+      ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
+      ...(!options.cursor && offset > 0 ? { skip: offset } : {}),
+    }),
+    prisma.auditLog.count({ where: where as any }),
+  ]);
 
   const hasMore = logs.length > limit;
   const data = hasMore ? logs.slice(0, limit) : logs;
@@ -163,6 +169,7 @@ export async function getAuditLogs(
       cursor: data.length > 0 ? data[data.length - 1].id : null,
       hasMore,
       limit,
+      total,
     },
   };
 }
