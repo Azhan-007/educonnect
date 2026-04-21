@@ -26,6 +26,14 @@ function deserializeTeacher(raw: Record<string, unknown>): Teacher {
   };
 }
 
+function stripEmptyStringFields<T extends Record<string, unknown>>(input: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(input).filter(
+      ([, value]) => !(typeof value === 'string' && value.trim() === '')
+    )
+  ) as Partial<T>;
+}
+
 // ---------------------------------------------------------------------------
 
 export class TeacherService {
@@ -65,9 +73,11 @@ export class TeacherService {
    * Returns the new teacher's id and auto-generated login credentials.
    */
   static async createTeacher(teacherData: Omit<Teacher, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ id: string; credentials?: { email: string; password: string } }> {
+    const payload = stripEmptyStringFields(teacherData as unknown as Record<string, unknown>);
+
     const raw = await apiFetch<Record<string, unknown>>('/teachers', {
       method: 'POST',
-      body: JSON.stringify(teacherData),
+      body: JSON.stringify(payload),
     });
     return {
       id: raw.id as string,
@@ -79,9 +89,11 @@ export class TeacherService {
    * Update an existing teacher — backend: PATCH /teachers/:id
    */
   static async updateTeacher(id: string, teacherData: Partial<Teacher>): Promise<void> {
+    const payload = stripEmptyStringFields(teacherData as unknown as Record<string, unknown>);
+
     await apiFetch(`/teachers/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify(teacherData),
+      body: JSON.stringify(payload),
     });
   }
 

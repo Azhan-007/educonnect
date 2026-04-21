@@ -90,7 +90,6 @@ export class StudentService {
 
     const payload = {
       ...studentData,
-      schoolId,
       classId,
     };
 
