@@ -1,4 +1,4 @@
-﻿{
+{
   "expo": {
     "name": "SuffaCampus",
     "slug": "suffacampus",
@@ -54,16 +54,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3c7cca5f-4b57-4f06-bfba-01dc7a95c094"
+        "projectId": "cae77dd2-512a-400c-8fea-cb053738b488"
       }
     },
-    "owner": "azhanfizz",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/3c7cca5f-4b57-4f06-bfba-01dc7a95c094"
-    }
+    "owner": "azhanfizz"
   }
 }
-
