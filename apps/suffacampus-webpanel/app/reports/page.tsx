@@ -158,7 +158,7 @@ export default function ReportsPage() {
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
-  // "€"€ Data fetching via React Query (7 parallel queries) "€"€
+  // "- Data fetching via React Query (7 parallel queries) "-
   const { data: students = [], isLoading: studentsLoading } = useApiQuery<Student[]>({ queryKey: ['students', schoolId], path: '/students' });
   const { data: teachers = [], isLoading: teachersLoading } = useApiQuery<Teacher[]>({ queryKey: ['teachers', schoolId], path: '/teachers' });
   const { data: classes = [], isLoading: classesLoading } = useApiQuery<Class[]>({ queryKey: ['classes', schoolId], path: '/classes/all' });
@@ -190,7 +190,7 @@ export default function ReportsPage() {
     return fees.filter((f) => f.classId === classFilter);
   }, [fees, classFilter]);
 
-  // "€"€ Core computed stats "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
+  // "- Core computed stats "-----------------------------------------
   const activeStudents = useMemo(() => students.filter((s) => s.isActive).length, [students]);
   const activeTeachers = useMemo(() => teachers.filter((t) => t.isActive).length, [teachers]);
   const totalFeeAmount = useMemo(() => filteredFees.reduce((s, f) => s + (f.amount || 0), 0), [filteredFees]);
@@ -211,7 +211,7 @@ export default function ReportsPage() {
     return Math.round(filteredResults.reduce((s, r) => s + (r.percentage || 0), 0) / filteredResults.length);
   }, [filteredResults]);
 
-  // "€"€ Analytics computations "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
+  // "- Analytics computations "--------------------------------------
   const gradeDistribution = useMemo(() => computeGradeDistribution(filteredResults), [filteredResults]);
   const classPerformance = useMemo(() => computeClassPerformance(filteredResults, classes), [filteredResults, classes]);
   const subjectPerformance = useMemo(() => computeSubjectPerformance(filteredResults), [filteredResults]);
@@ -243,10 +243,10 @@ export default function ReportsPage() {
     [classes],
   );
 
-  // "€"€ Export handler "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
+  // "- Export handler "----------------------------------------------
   const handleExportReport = () => {
     exportReportWithStats({
-      title: `Analytics Report €" ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`,
+      title: `Analytics Report - ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`,
       schoolName: currentSchool?.name || 'SuffaCampus School',
       headers: ['Metric', 'Value'],
       rows: [
@@ -271,7 +271,7 @@ export default function ReportsPage() {
     toast.success('Report exported');
   };
 
-  // "€"€ Loading state "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
+  // "- Loading state "-----------------------------------------------
   if (loading) {
     return (
       <DashboardLayout>
@@ -288,7 +288,7 @@ export default function ReportsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* "€"€ Header "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
+        {/* "- Header "------------------------------------- */}
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Analytics & Insights</h1>
@@ -315,7 +315,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* "€"€ Tab Navigation "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
+        {/* "- Tab Navigation "----------------------------- */}
         <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
           {TABS.map((tab) => (
             <button
@@ -333,7 +333,7 @@ export default function ReportsPage() {
           ))}
         </div>
 
-        {/* "€"€ Tab Content "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
+        {/* "- Tab Content "-------------------------------- */}
         {activeTab === 'overview' && (
           <OverviewTab
             students={students} activeStudents={activeStudents} teachers={teachers} activeTeachers={activeTeachers}
@@ -452,7 +452,7 @@ function OverviewTab({
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Attendance Trend */}
-        <ChartCard title="Attendance €" Last 7 Days" icon={TrendingUp} color="blue" loading={false}>
+        <ChartCard title="Attendance - Last 7 Days" icon={TrendingUp} color="blue" loading={false}>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={attendanceTrends}>
               <defs>
@@ -526,7 +526,7 @@ function OverviewTab({
             <BarChart data={monthlyFees} barGap={2}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="monthLabel" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `‚¹${Math.round(v / 1000)}K`} />
+              <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `Rs.${Math.round(v / 1000)}K`} />
               <Tooltip content={<ChartTooltip />} />
               <Bar dataKey="collected" name="Collected" fill="#10b981" radius={[6, 6, 0, 0]} barSize={20} />
               <Bar dataKey="pending" name="Pending" fill="#fbbf24" radius={[6, 6, 0, 0]} barSize={20} />
@@ -564,7 +564,7 @@ function OverviewTab({
                       <span className={`font-medium ${s.attendanceRate < 60 ? 'text-red-600' : s.attendanceRate < 75 ? 'text-amber-600' : 'text-slate-600'}`}>{s.attendanceRate}%</span>
                     </td>
                     <td className="px-5 py-3 text-sm text-center tabular-nums">
-                      <span className={`font-medium ${s.avgPercentage < 40 ? 'text-red-600' : s.avgPercentage < 60 ? 'text-amber-600' : 'text-slate-600'}`}>{s.avgPercentage >= 0 ? `${s.avgPercentage}%` : '€"'}</span>
+                      <span className={`font-medium ${s.avgPercentage < 40 ? 'text-red-600' : s.avgPercentage < 60 ? 'text-amber-600' : 'text-slate-600'}`}>{s.avgPercentage >= 0 ? `${s.avgPercentage}%` : '-'}</span>
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex flex-wrap gap-1">
@@ -942,7 +942,7 @@ function AttendanceTab({
         </div>
       </div>
 
-      {/* Daily Breakdown €" Stacked */}
+      {/* Daily Breakdown - Stacked */}
       <ChartCard title="Daily Attendance Breakdown" icon={Activity} color="emerald" loading={false}
         headerRight={
           <div className="flex items-center gap-3">
@@ -1055,7 +1055,7 @@ function FinancialTab({
               <BarChart data={monthlyFees}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="monthLabel" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `‚¹${Math.round(v / 1000)}K`} />
+                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `Rs.${Math.round(v / 1000)}K`} />
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="collected" name="Collected" fill="#10b981" radius={[4, 4, 0, 0]} barSize={18} />
                 <Bar dataKey="pending" name="Pending" fill="#fbbf24" radius={[4, 4, 0, 0]} barSize={18} />
@@ -1095,7 +1095,7 @@ function FinancialTab({
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={feeTypeBreakdown.slice(0, 6)} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-              <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `‚¹${Math.round(v / 1000)}K`} />
+              <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v: number) => `Rs.${Math.round(v / 1000)}K`} />
               <YAxis dataKey="type" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} width={80} />
               <Tooltip content={<ChartTooltip />} />
               <Bar dataKey="collected" name="Collected" fill="#10b981" radius={[0, 4, 4, 0]} barSize={16} stackId="a" />
