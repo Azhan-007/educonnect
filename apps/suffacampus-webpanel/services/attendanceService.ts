@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Attendance } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ function deserializeAttendance(raw: Record<string, unknown>): Attendance {
 
 export class AttendanceService {
   /**
-   * Get attendance records for a school on a specific date — backend: GET /attendance?date=YYYY-MM-DD
+   * Get attendance records for a school on a specific date  -  backend: GET /attendance?date=YYYY-MM-DD
    * Client-side filtering applied for classId / sectionId / status.
    */
   static async getAttendance(
@@ -57,7 +57,7 @@ export class AttendanceService {
 
   /**
    * Get a single attendance record by ID.
-   * No dedicated backend route — fetches by date and finds by id client-side.
+   * No dedicated backend route  -  fetches by date and finds by id client-side.
    */
   static async getAttendanceById(schoolId: string, id: string): Promise<Attendance | null> {
     const records = await AttendanceService.getAttendance(schoolId);
@@ -65,7 +65,7 @@ export class AttendanceService {
   }
 
   /**
-   * Mark attendance for a student — backend: POST /attendance
+   * Mark attendance for a student  -  backend: POST /attendance
    * Returns the new record's id.
    */
   static async createAttendance(
@@ -87,7 +87,7 @@ export class AttendanceService {
   }
 
   /**
-   * Update attendance record — backend: PATCH /attendance/:id
+   * Update attendance record  -  backend: PATCH /attendance/:id
    */
   static async updateAttendance(
     schoolId: string,
@@ -101,7 +101,7 @@ export class AttendanceService {
   }
 
   /**
-   * Delete attendance record — backend: DELETE /attendance/:id
+   * Delete attendance record  -  backend: DELETE /attendance/:id
    */
   static async deleteAttendance(schoolId: string, id: string): Promise<void> {
     await apiFetch(`/attendance/${id}`, { method: 'DELETE' });
@@ -138,7 +138,7 @@ export class AttendanceService {
 
   /**
    * Get weekly attendance data for dashboard charts.
-   * Makes one backend request per day (Mon–Sun relative to today).
+   * Makes one backend request per day (Mon-Sun relative to today).
    */
   static async getWeeklyAttendance(schoolId: string): Promise<Array<{
     day: string;
@@ -178,7 +178,7 @@ export class AttendanceService {
   }
 
   /**
-   * Bulk mark attendance — fires POST /attendance for each record sequentially.
+   * Bulk mark attendance  -  fires POST /attendance for each record sequentially.
    */
   static async bulkMarkAttendance(
     schoolId: string,

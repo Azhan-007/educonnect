@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -58,7 +58,7 @@ function ChildCard({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-900 truncate">{child.name}</p>
           <p className="text-xs text-slate-500">
-            {child.class} {child.section} {child.rollNumber ? `• Roll ${child.rollNumber}` : ''}
+            {child.class} {child.section} {child.rollNumber ? `* Roll ${child.rollNumber}` : ''}
           </p>
         </div>
         <ChevronRight className={`w-4 h-4 shrink-0 ${selected ? 'text-blue-500' : 'text-slate-300'}`} />
@@ -73,7 +73,7 @@ function ChildCard({
               ? child.attendanceRate >= 75 ? 'text-emerald-600' : 'text-amber-600'
               : 'text-slate-400'
           }`}>
-            {child.attendanceRate !== null ? `${child.attendanceRate}%` : '—'}
+            {child.attendanceRate !== null ? `${child.attendanceRate}%` : ' - '}
           </p>
         </div>
         <div className="flex-1 text-center">
@@ -84,7 +84,7 @@ function ChildCard({
         </div>
         <div className="flex-1 text-center">
           <p className="text-xs text-slate-400">Last Exam</p>
-          <p className="text-sm font-bold text-slate-700">{child.lastExamScore ?? '—'}</p>
+          <p className="text-sm font-bold text-slate-700">{child.lastExamScore ?? ' - '}</p>
         </div>
       </div>
     </button>
@@ -133,7 +133,7 @@ export default function ParentPortalPage() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'attendance' | 'fees' | 'results' | 'events'>('attendance');
 
-  // ── Data fetching via React Query ──
+  // -- Data fetching via React Query --
   const { data: children = [], isLoading: loading } = useQuery<ChildSummary[]>({
     queryKey: ['parent-children'],
     queryFn: () => ParentService.getChildren(),
@@ -144,7 +144,7 @@ export default function ParentPortalPage() {
   // Auto-select first child once loaded
   const effectiveChild = selectedChild ?? (children.length > 0 ? children[0].studentId : null);
 
-  // Child detail queries — only the active tab fetches
+  // Child detail queries  -  only the active tab fetches
   const { data: attendance = [], isLoading: attendanceLoading } = useQuery<AttendanceRecord[]>({
     queryKey: ['parent-attendance', effectiveChild],
     queryFn: () => ParentService.getChildAttendance(effectiveChild!),
@@ -338,7 +338,7 @@ export default function ParentPortalPage() {
                                 <tr key={a.id} className="border-b border-slate-50 last:border-0">
                                   <td className="py-2.5 text-slate-700">{a.date}</td>
                                   <td className="py-2.5"><AttendanceStatusBadge status={a.status} /></td>
-                                  <td className="py-2.5 text-slate-400 text-xs">{a.remarks ?? '—'}</td>
+                                  <td className="py-2.5 text-slate-400 text-xs">{a.remarks ?? ' - '}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -428,7 +428,7 @@ export default function ParentPortalPage() {
                                     </td>
                                     <td className="py-2.5">
                                       <span className="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
-                                        {r.grade ?? '—'}
+                                        {r.grade ?? ' - '}
                                       </span>
                                     </td>
                                   </tr>

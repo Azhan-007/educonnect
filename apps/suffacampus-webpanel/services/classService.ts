@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Class, Section } from '@/types';
 
 type SectionPayload = {
@@ -80,11 +80,11 @@ function deserializeClass(raw: Record<string, unknown>): Class {
 }
 
 // ---------------------------------------------------------------------------
-// Service Functions — Backend: /classes
+// Service Functions  -  Backend: /classes
 // ---------------------------------------------------------------------------
 
 /**
- * Get all active classes (unpaginated) — backend: GET /classes/all
+ * Get all active classes (unpaginated)  -  backend: GET /classes/all
  */
 export const getClasses = async (): Promise<Class[]> => {
   const raw = await apiFetch<Record<string, unknown>[]>('/classes/all');
@@ -92,7 +92,7 @@ export const getClasses = async (): Promise<Class[]> => {
 };
 
 /**
- * Get a single class by ID — backend: GET /classes/:id
+ * Get a single class by ID  -  backend: GET /classes/:id
  */
 export const getClassById = async (id: string): Promise<Class | null> => {
   try {
@@ -105,7 +105,7 @@ export const getClassById = async (id: string): Promise<Class | null> => {
 };
 
 /**
- * Create a new class — backend: POST /classes
+ * Create a new class  -  backend: POST /classes
  */
 export const createClass = async (
   data: CreateClassPayload
@@ -121,7 +121,7 @@ export const createClass = async (
 };
 
 /**
- * Update a class — backend: PATCH /classes/:id
+ * Update a class  -  backend: PATCH /classes/:id
  */
 export const updateClass = async (
   id: string,
@@ -138,14 +138,14 @@ export const updateClass = async (
 };
 
 /**
- * Delete a class (soft-delete) — backend: DELETE /classes/:id
+ * Delete a class (soft-delete)  -  backend: DELETE /classes/:id
  */
 export const deleteClass = async (id: string): Promise<void> => {
   await apiFetch(`/classes/${id}`, { method: 'DELETE' });
 };
 
 /**
- * Add a section to a class — backend: POST /classes/:id/sections
+ * Add a section to a class  -  backend: POST /classes/:id/sections
  */
 export const addSection = async (
   classId: string,
@@ -159,7 +159,7 @@ export const addSection = async (
 
 /**
  * Update a section within a class.
- * Backend has no dedicated section-update route — fetch class,
+ * Backend has no dedicated section-update route  -  fetch class,
  * merge sections, PATCH class.
  */
 export const updateSection = async (
@@ -177,7 +177,7 @@ export const updateSection = async (
 };
 
 /**
- * Delete a section — backend: DELETE /classes/:id/sections/:sectionId
+ * Delete a section  -  backend: DELETE /classes/:id/sections/:sectionId
  */
 export const deleteSection = async (
   classId: string,
@@ -189,7 +189,7 @@ export const deleteSection = async (
 };
 
 /**
- * Get class statistics — computed client-side from getClasses().
+ * Get class statistics  -  computed client-side from getClasses().
  */
 export const getClassStats = async () => {
   const classes = await getClasses();

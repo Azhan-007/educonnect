@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
@@ -76,7 +76,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  // Notifications — live from API with graceful fallback
+  // Notifications  -  live from API with graceful fallback
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -90,7 +90,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
       setNotifications(notifs);
       setUnreadCount(count);
     } catch {
-      // Silently fail — demo/offline mode keeps empty state
+      // Silently fail  -  demo/offline mode keeps empty state
     }
   }, []);
 
@@ -160,7 +160,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   return (
     <header className="shrink-0 bg-white border-b border-slate-200 sticky top-0 z-30">
       <div className="flex items-center h-16 px-4 sm:px-6 gap-3">
-        {/* ── Mobile hamburger ────────────────────────── */}
+        {/* -- Mobile hamburger -------------------------- */}
         <button
           onClick={onMenuClick}
           className="p-2 -ml-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 lg:hidden"
@@ -169,7 +169,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* ── Page title + breadcrumb ─────────────────── */}
+        {/* -- Page title + breadcrumb ------------------- */}
         <div className="hidden sm:flex flex-col min-w-0">
           <h2 className="text-sm font-semibold text-slate-800 leading-tight truncate">
             {pageTitle}
@@ -194,21 +194,21 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           )}
         </div>
 
-        {/* ── Mobile title ────────────────────────────── */}
+        {/* -- Mobile title ------------------------------ */}
         <h2 className="text-sm font-semibold text-slate-800 sm:hidden truncate">
           {pageTitle}
         </h2>
 
-        {/* ── Spacer ──────────────────────────────────── */}
+        {/* -- Spacer ------------------------------------ */}
         <div className="flex-1" />
 
-        {/* ── Search (Command Palette) ─────────────── */}
+        {/* -- Search (Command Palette) --------------- */}
         <CommandPalette />
 
-        {/* ── Language switcher ────────────────────────── */}
+        {/* -- Language switcher -------------------------- */}
         <LanguageSwitcher />
 
-        {/* ── Notifications ───────────────────────────── */}
+        {/* -- Notifications ----------------------------- */}
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => { setShowNotifications((p) => !p); setShowProfileMenu(false); }}
@@ -295,10 +295,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           )}
         </div>
 
-        {/* ── Divider ─────────────────────────────────── */}
+        {/* -- Divider ----------------------------------- */}
         <div className="hidden sm:block w-px h-7 bg-slate-200" />
 
-        {/* ── Profile ─────────────────────────────────── */}
+        {/* -- Profile ----------------------------------- */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowProfileMenu((p) => !p)}
@@ -326,7 +326,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             />
           </button>
 
-          {/* ── Dropdown ────────────────────────────── */}
+          {/* -- Dropdown ------------------------------ */}
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl border border-slate-200 py-1 z-50 animate-slide-down" style={{ boxShadow: 'var(--shadow-dropdown)' }}>
               {/* User info */}

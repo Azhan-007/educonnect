@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+﻿import { apiFetch } from '@/lib/api';
 import {
   Subscription,
   SubscriptionPlan,
@@ -278,7 +278,7 @@ export class SubscriptionService {
   // ---------------------------------------------------------------------------
 
   /**
-   * Get current subscription — backend: GET /subscriptions/status
+   * Get current subscription  -  backend: GET /subscriptions/status
    */
   static async getSubscription(
     _schoolId: string
@@ -322,7 +322,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Get invoices — backend: GET /subscriptions/invoices
+   * Get invoices  -  backend: GET /subscriptions/invoices
    */
   static async getInvoices(_schoolId: string): Promise<Invoice[]> {
     try {
@@ -336,7 +336,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Get payments — derived from invoices (backend has no separate payments list).
+   * Get payments  -  derived from invoices (backend has no separate payments list).
    * Returns empty array if backend does not support a payments endpoint.
    */
   static async getPayments(_schoolId: string): Promise<Payment[]> {
@@ -355,7 +355,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Change subscription plan — backend: POST /payments/create-order
+   * Change subscription plan  -  backend: POST /payments/create-order
    * Creates a Razorpay order for the new plan amount.
    */
   static async changePlan(
@@ -378,7 +378,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Cancel subscription — backend: POST /subscriptions/cancel
+   * Cancel subscription  -  backend: POST /subscriptions/cancel
    */
   static async cancelSubscription(
     _schoolId: string,
@@ -391,7 +391,7 @@ export class SubscriptionService {
   }
 
   /**
-   * Get usage stats — backend: GET /subscriptions/usage
+   * Get usage stats  -  backend: GET /subscriptions/usage
    */
   static async getUsageStats(
     _schoolId: string

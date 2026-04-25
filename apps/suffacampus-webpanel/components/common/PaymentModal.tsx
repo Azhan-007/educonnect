@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Modal from '@/components/common/Modal';
@@ -35,9 +35,9 @@ interface PaymentModalProps {
   customerName: string;
   customerEmail?: string;
   customerPhone?: string;
-  /** Optional fee ID — when paying a fee */
+  /** Optional fee ID  -  when paying a fee */
   feeId?: string;
-  /** Optional plan + billing — when paying for a subscription */
+  /** Optional plan + billing  -  when paying for a subscription */
   plan?: string;
   billingCycle?: string;
   /** Callback on successful payment */
@@ -161,7 +161,7 @@ export default function PaymentModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Payment" size="md">
       <div className="p-5">
-        {/* ── Confirm Stage ─────────────────────────────────────────── */}
+        {/* -- Confirm Stage ------------------------------------------- */}
         {stage === 'confirm' && (
           <div className="space-y-5">
             {/* Sandbox Badge */}
@@ -169,7 +169,7 @@ export default function PaymentModal({
               <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <p className="text-xs text-amber-700">
-                  <span className="font-semibold">Sandbox Mode</span> — No real charges will be applied. This is a simulated payment.
+                  <span className="font-semibold">Sandbox Mode</span>  -  No real charges will be applied. This is a simulated payment.
                 </p>
               </div>
             )}
@@ -190,7 +190,7 @@ export default function PaymentModal({
               {plan && (
                 <DetailRow
                   label="Plan"
-                  value={`${plan.charAt(0).toUpperCase() + plan.slice(1)} — ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'}`}
+                  value={`${plan.charAt(0).toUpperCase() + plan.slice(1)}  -  ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'}`}
                 />
               )}
               {feeId && <DetailRow label="Fee ID" value={feeId} mono />}
@@ -218,7 +218,7 @@ export default function PaymentModal({
           </div>
         )}
 
-        {/* ── Processing Stage ──────────────────────────────────────── */}
+        {/* -- Processing Stage ---------------------------------------- */}
         {stage === 'processing' && (
           <div className="py-12 text-center space-y-4">
             <div className="w-16 h-16 mx-auto bg-blue-50 rounded-2xl flex items-center justify-center">
@@ -247,7 +247,7 @@ export default function PaymentModal({
           </div>
         )}
 
-        {/* ── Success Stage ─────────────────────────────────────────── */}
+        {/* -- Success Stage ------------------------------------------- */}
         {stage === 'success' && result && (
           <div className="space-y-5">
             {/* Success Icon */}
@@ -320,7 +320,7 @@ export default function PaymentModal({
                 <div className="pt-2 mt-2 border-t border-slate-200">
                   <p className="text-xs text-amber-600 flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
-                    Sandbox payment — not a real transaction
+                    Sandbox payment  -  not a real transaction
                   </p>
                 </div>
               )}
@@ -335,7 +335,7 @@ export default function PaymentModal({
           </div>
         )}
 
-        {/* ── Failure Stage ─────────────────────────────────────────── */}
+        {/* -- Failure Stage ------------------------------------------- */}
         {stage === 'failure' && result && (
           <div className="space-y-5">
             {/* Failure Icon */}

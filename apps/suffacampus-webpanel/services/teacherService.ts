@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Teacher } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ function stripEmptyStringFields<T extends Record<string, unknown>>(input: T): Pa
 
 export class TeacherService {
   /**
-   * Get all teachers — backend: GET /teachers
+   * Get all teachers  -  backend: GET /teachers
    * schoolId enforced server-side. Client-side filtering applied for optional params.
    */
   static async getTeachers(filters?: {
@@ -55,7 +55,7 @@ export class TeacherService {
   }
 
   /**
-   * Get a single teacher by ID — backend: GET /teachers/:id
+   * Get a single teacher by ID  -  backend: GET /teachers/:id
    * Returns null on 404.
    */
   static async getTeacherById(id: string): Promise<Teacher | null> {
@@ -69,7 +69,7 @@ export class TeacherService {
   }
 
   /**
-   * Create a new teacher — backend: POST /teachers
+   * Create a new teacher  -  backend: POST /teachers
    * Returns the new teacher's id and auto-generated login credentials.
    */
   static async createTeacher(teacherData: Omit<Teacher, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ id: string; credentials?: { email: string; password: string } }> {
@@ -86,7 +86,7 @@ export class TeacherService {
   }
 
   /**
-   * Update an existing teacher — backend: PATCH /teachers/:id
+   * Update an existing teacher  -  backend: PATCH /teachers/:id
    */
   static async updateTeacher(id: string, teacherData: Partial<Teacher>): Promise<void> {
     const payload = stripEmptyStringFields(teacherData as unknown as Record<string, unknown>);
@@ -98,14 +98,14 @@ export class TeacherService {
   }
 
   /**
-   * Soft-delete a teacher — backend: DELETE /teachers/:id
+   * Soft-delete a teacher  -  backend: DELETE /teachers/:id
    */
   static async deleteTeacher(id: string): Promise<void> {
     await apiFetch(`/teachers/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Permanently delete a soft-deleted teacher — backend: DELETE /teachers/:id/permanent
+   * Permanently delete a soft-deleted teacher  -  backend: DELETE /teachers/:id/permanent
    * SuperAdmin only.
    */
   static async permanentDeleteTeacher(id: string): Promise<void> {

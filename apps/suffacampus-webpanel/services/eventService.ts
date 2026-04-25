@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Event } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ function deserializeEvent(raw: Record<string, unknown>): Event {
 
 export class EventService {
   /**
-   * Get all events — backend: GET /events
+   * Get all events  -  backend: GET /events
    * schoolId is enforced server-side via the auth token (tenant guard).
    */
   static async getEvents(_schoolId: string): Promise<Event[]> {
@@ -40,7 +40,7 @@ export class EventService {
   }
 
   /**
-   * Get event by ID — backend: GET /events/:id
+   * Get event by ID  -  backend: GET /events/:id
    */
   static async getEventById(_schoolId: string, id: string): Promise<Event | null> {
     try {
@@ -53,7 +53,7 @@ export class EventService {
   }
 
   /**
-   * Create a new event — backend: POST /events
+   * Create a new event  -  backend: POST /events
    */
   static async createEvent(
     _schoolId: string,
@@ -67,7 +67,7 @@ export class EventService {
   }
 
   /**
-   * Update event — backend: PATCH /events/:id
+   * Update event  -  backend: PATCH /events/:id
    */
   static async updateEvent(
     _schoolId: string,
@@ -81,14 +81,14 @@ export class EventService {
   }
 
   /**
-   * Soft-delete event — backend: DELETE /events/:id
+   * Soft-delete event  -  backend: DELETE /events/:id
    */
   static async deleteEvent(_schoolId: string, id: string): Promise<void> {
     await apiFetch(`/events/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Get upcoming events — backend: GET /events?upcoming=true
+   * Get upcoming events  -  backend: GET /events?upcoming=true
    */
   static async getUpcomingEvents(
     _schoolId: string,
@@ -130,7 +130,7 @@ export class EventService {
   }
 
   /**
-   * Get events statistics — computed client-side.
+   * Get events statistics  -  computed client-side.
    */
   static async getEventStats(schoolId: string): Promise<{
     totalEvents: number;
@@ -158,7 +158,7 @@ export class EventService {
   }
 
   /**
-   * Get events by type — backend: GET /events?eventType=…
+   * Get events by type  -  backend: GET /events?eventType=…
    */
   static async getEventsByType(
     _schoolId: string,
@@ -171,7 +171,7 @@ export class EventService {
   }
 
   /**
-   * Get recent events (past 7 days) — computed client-side.
+   * Get recent events (past 7 days)  -  computed client-side.
    */
   static async getRecentEvents(schoolId: string): Promise<Event[]> {
     const events = await EventService.getEvents(schoolId);

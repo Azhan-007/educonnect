@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Component, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
@@ -18,7 +18,7 @@ interface ErrorBoundaryState {
 }
 
 /**
- * React Error Boundary — catches render errors in child components
+ * React Error Boundary  -  catches render errors in child components
  * and shows a recovery UI instead of crashing the entire page.
  *
  * Usage:
@@ -39,7 +39,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log to console (and Sentry if available)
     console.error(
-      `[ErrorBoundary${this.props.context ? ` — ${this.props.context}` : ''}]`,
+      `[ErrorBoundary${this.props.context ? `  -  ${this.props.context}` : ''}]`,
       error,
       errorInfo.componentStack
     );

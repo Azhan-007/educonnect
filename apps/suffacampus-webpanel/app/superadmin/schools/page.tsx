@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -278,7 +278,7 @@ export default function SuperAdminSchoolsPage() {
     });
   };
 
-  // ── Filtering & Sorting ─────────────────────────
+  // -- Filtering & Sorting -------------------------
   const filteredSchools = schools
     .filter((school) => {
       const matchesSearch =
@@ -305,7 +305,7 @@ export default function SuperAdminSchoolsPage() {
       return sortAsc ? cmp : -cmp;
     });
 
-  // ── Status / Plan badge helpers ──────────────────
+  // -- Status / Plan badge helpers ------------------
   const getStatusVariant = (status: SubscriptionStatus): 'success' | 'warning' | 'danger' | 'default' => {
     switch (status) {
       case 'active': return 'success';
@@ -350,7 +350,7 @@ export default function SuperAdminSchoolsPage() {
     );
   };
 
-  // ── Form JSX ────────────────────────────────────
+  // -- Form JSX ------------------------------------
   const formContent = (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -478,7 +478,7 @@ export default function SuperAdminSchoolsPage() {
         </div>
       </div>
 
-      {/* Admin Account — only show in create mode */}
+      {/* Admin Account  -  only show in create mode */}
       {!selectedSchool && (
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <h4 className="text-sm font-semibold text-blue-700 mb-3">School Admin Account (Optional)</h4>
@@ -514,7 +514,7 @@ export default function SuperAdminSchoolsPage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Header ────────────────────────────────── */}
+      {/* -- Header ---------------------------------- */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Schools Management</h1>
@@ -528,7 +528,7 @@ export default function SuperAdminSchoolsPage() {
         </Button>
       </div>
 
-      {/* ── Stats Cards ─────────────────────────────── */}
+      {/* -- Stats Cards ------------------------------- */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
           <div className="flex items-center space-x-3">
@@ -578,7 +578,7 @@ export default function SuperAdminSchoolsPage() {
         </div>
       </div>
 
-      {/* ── Filters ───────────────────────────────── */}
+      {/* -- Filters --------------------------------- */}
       <div className="bg-white rounded-xl p-5 border border-slate-200">
         <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
           <div className="flex-1 relative">
@@ -618,7 +618,7 @@ export default function SuperAdminSchoolsPage() {
         </div>
       </div>
 
-      {/* ── Schools Table ─────────────────────────── */}
+      {/* -- Schools Table --------------------------- */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
@@ -726,7 +726,7 @@ export default function SuperAdminSchoolsPage() {
         )}
       </div>
 
-      {/* ── Create Modal ──────────────────────────── */}
+      {/* -- Create Modal ---------------------------- */}
       <Modal
         isOpen={showCreateModal}
         onClose={() => { setShowCreateModal(false); resetForm(); }}
@@ -744,7 +744,7 @@ export default function SuperAdminSchoolsPage() {
         </div>
       </Modal>
 
-      {/* ── Edit Modal ────────────────────────────── */}
+      {/* -- Edit Modal ------------------------------ */}
       <Modal
         isOpen={showEditModal}
         onClose={() => { setShowEditModal(false); setSelectedSchool(null); resetForm(); }}
@@ -762,7 +762,7 @@ export default function SuperAdminSchoolsPage() {
         </div>
       </Modal>
 
-      {/* ── Delete Confirmation ───────────────────── */}
+      {/* -- Delete Confirmation --------------------- */}
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onClose={() => { setShowDeleteConfirm(false); setSelectedSchool(null); }}
@@ -773,7 +773,7 @@ export default function SuperAdminSchoolsPage() {
         type="danger"
       />
 
-      {/* ── Admin Credentials Modal ──────────────── */}
+      {/* -- Admin Credentials Modal ---------------- */}
       <Modal
         isOpen={showCredentials}
         onClose={() => { setShowCredentials(false); setAdminCredentials(null); }}
@@ -784,7 +784,7 @@ export default function SuperAdminSchoolsPage() {
           <div className="space-y-4">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-green-800 font-medium mb-2">
-                Save these credentials — the password cannot be retrieved later!
+                Save these credentials  -  the password cannot be retrieved later!
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center bg-white rounded px-3 py-2 border">

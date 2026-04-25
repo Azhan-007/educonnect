@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
-// ── Types ────────────────────────────────────────────────────────────
+// -- Types ------------------------------------------------------------
 
 interface SortableHeaderProps<F extends string> {
   /** The field this column sorts by */
@@ -19,7 +19,7 @@ interface SortableHeaderProps<F extends string> {
   className?: string;
 }
 
-// ── Component ────────────────────────────────────────────────────────
+// -- Component --------------------------------------------------------
 
 /**
  * Sortable table column header.

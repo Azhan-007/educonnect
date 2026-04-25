@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+﻿import { apiFetch } from '@/lib/api';
 import { auth } from '@/lib/firebase';
 import { PUBLIC_API_URL } from '@/lib/runtime-config';
 import { getSessionAccessToken, setSessionAccessToken } from '@/lib/session-token';
@@ -34,7 +34,7 @@ function deserializeSettings(raw: Record<string, unknown>): SchoolSettings {
 
 export class SettingsService {
   /**
-   * Get school settings — backend: GET /settings
+   * Get school settings  -  backend: GET /settings
    */
   static async getSettings(): Promise<SchoolSettings> {
     try {
@@ -46,7 +46,7 @@ export class SettingsService {
   }
 
   /**
-   * Update school settings — backend: PATCH /settings
+   * Update school settings  -  backend: PATCH /settings
    */
   static async updateSettings(
     updates: Partial<Omit<SchoolSettings, 'id' | 'createdAt'>>
@@ -58,7 +58,7 @@ export class SettingsService {
   }
 
   /**
-   * Reset settings to default — PATCH /settings with defaults
+   * Reset settings to default  -  PATCH /settings with defaults
    */
   static async resetToDefaults(): Promise<void> {
     const defaults = SettingsService.getDefaultSettings();
@@ -188,7 +188,7 @@ export class SettingsService {
   }
 
   /**
-   * Upload school logo — backend: POST /uploads/photos (multipart)
+   * Upload school logo  -  backend: POST /uploads/photos (multipart)
    */
   static async uploadLogo(file: File): Promise<string> {
     let token = getSessionAccessToken();

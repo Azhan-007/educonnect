@@ -1,13 +1,13 @@
 ﻿/* ------------------------------------------------------------------ */
-/*  i18n â€” Lightweight internationalisation for SuffaCampus WebPanel    */
+/*  i18n €" Lightweight internationalisation for SuffaCampus WebPanel    */
 /*                                                                     */
 /*  Supported locales:                                                 */
-/*    en  â€” English (default)                                          */
-/*    hi  â€” à¤¹à¤¿à¤¨à¥à¤¦à¥€   (Hindi)                                             */
-/*    ta  â€” à®¤à®®à®¿à®´à¯   (Tamil)                                             */
-/*    te  â€” à°¤à±†à°²à±à°—à±  (Telugu)                                            */
-/*    kn  â€” à²•à²¨à³à²¨à²¡   (Kannada)                                           */
-/*    bn  â€” à¦¬à¦¾à¦‚à¦²à¦¾   (Bengali)                                           */
+/*    en  €" English (default)                                          */
+/*    hi  €" à¤¹à¤¿à¤¨à¥à¤¦à¥€   (Hindi)                                             */
+/*    ta  €" à®¤à®®à®¿à®´à¯   (Tamil)                                             */
+/*    te  €" à°¤à±†à°²à±à° - à±  (Telugu)                                            */
+/*    kn  €" à²*à²¨à³à²¨à²¡   (Kannada)                                           */
+/*    bn  €" à¦¬à¦¾à¦‚à¦²à¦¾   (Bengali)                                           */
 /* ------------------------------------------------------------------ */
 
 export type Locale = "en" | "hi" | "ta" | "te" | "kn" | "bn";
@@ -16,8 +16,8 @@ export const SUPPORTED_LOCALES: { code: Locale; label: string; nativeLabel: stri
   { code: "en", label: "English",  nativeLabel: "English" },
   { code: "hi", label: "Hindi",    nativeLabel: "à¤¹à¤¿à¤¨à¥à¤¦à¥€" },
   { code: "ta", label: "Tamil",    nativeLabel: "à®¤à®®à®¿à®´à¯" },
-  { code: "te", label: "Telugu",   nativeLabel: "à°¤à±†à°²à±à°—à±" },
-  { code: "kn", label: "Kannada",  nativeLabel: "à²•à²¨à³à²¨à²¡" },
+  { code: "te", label: "Telugu",   nativeLabel: "à°¤à±†à°²à±à° - à±" },
+  { code: "kn", label: "Kannada",  nativeLabel: "à²*à²¨à³à²¨à²¡" },
   { code: "bn", label: "Bengali",  nativeLabel: "à¦¬à¦¾à¦‚à¦²à¦¾" },
 ];
 

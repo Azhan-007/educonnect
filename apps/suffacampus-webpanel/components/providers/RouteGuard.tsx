@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ const ROUTE_ACL: { prefix: string; roles: UserRole[] }[] = [
   // Parent-only
   { prefix: '/parent',                   roles: ['Parent', 'SuperAdmin'] },
 
-  // Management routes — no Parent access
+  // Management routes  -  no Parent access
   { prefix: '/students',                 roles: ['SuperAdmin', 'Admin', 'Staff', 'Principal'] },
   { prefix: '/teachers',                 roles: ['SuperAdmin', 'Admin', 'Principal'] },
   { prefix: '/classes',                  roles: ['SuperAdmin', 'Admin', 'Staff', 'Principal'] },
@@ -31,7 +31,7 @@ const ROUTE_ACL: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/timetable',               roles: ['SuperAdmin', 'Admin', 'Staff', 'Principal'] },
   { prefix: '/reports',                  roles: ['SuperAdmin', 'Admin', 'Principal'] },
 
-  // Settings — admin/super only (except subscription for Principal too)
+  // Settings  -  admin/super only (except subscription for Principal too)
   { prefix: '/settings/subscription',    roles: ['SuperAdmin', 'Admin', 'Principal'] },
   { prefix: '/settings/parent-invites',  roles: ['SuperAdmin', 'Admin'] },
   { prefix: '/settings/audit-logs',      roles: ['SuperAdmin', 'Admin'] },

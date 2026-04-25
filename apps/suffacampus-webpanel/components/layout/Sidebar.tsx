@@ -137,7 +137,7 @@ export default function Sidebar({ collapsed, onToggle, onCloseMobile }: SidebarP
         borderRight: '1px solid var(--sidebar-border, #e2e8f0)',
       }}
     >
-      {/* â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€"€ Header "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <div className={`flex items-center shrink-0 ${collapsed ? 'flex-col gap-1.5 pt-4 pb-2 px-2' : 'gap-3 px-5 py-5'}`}>
         <div
           className={`
@@ -195,17 +195,17 @@ export default function Sidebar({ collapsed, onToggle, onCloseMobile }: SidebarP
         )}
       </div>
 
-      {/* â”€â”€â”€ School selector (SuperAdmin, expanded) â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€"€ School selector (SuperAdmin, expanded) "€"€"€"€"€"€ */}
       {!collapsed && superAdmin && availableSchools.length > 1 && (
         <div className="px-4 pb-3">
           <SchoolSelector compact />
         </div>
       )}
 
-      {/* â”€â”€â”€ Divider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€"€ Divider "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <div className={`shrink-0 mx-auto ${collapsed ? 'w-8 h-px' : 'w-[calc(100%-32px)] h-px'}`} style={{ backgroundColor: 'var(--sidebar-divider, #f1f5f9)' }} />
 
-      {/* â”€â”€â”€ Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€"€ Nav "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <nav ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden sidebar-scroll py-3" aria-label="Main navigation">
         <ul className={`flex flex-col gap-0.5 ${collapsed ? 'items-center px-2' : 'px-3'}`}>
           {items.map((item, index) => {
@@ -288,11 +288,11 @@ export default function Sidebar({ collapsed, onToggle, onCloseMobile }: SidebarP
         </ul>
       </nav>
 
-      {/* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€"€ Footer "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       {!collapsed && (
         <div className="shrink-0 px-5 py-3" style={{ borderTop: '1px solid var(--sidebar-footer-border, #f1f5f9)' }}>
           <p className="text-xs text-center font-medium select-none" style={{ color: 'var(--sidebar-footer, #94a3b8)' }}>
-            {branding.footerText || 'Â© 2026 SuffaCampus'}
+            {branding.footerText || '(c) 2026 SuffaCampus'}
           </p>
         </div>
       )}

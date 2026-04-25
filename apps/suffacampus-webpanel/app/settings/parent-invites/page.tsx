@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -108,7 +108,7 @@ function StudentPicker({
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-slate-700 truncate">{s.name}</p>
                 <p className="text-xs text-slate-400">
-                  {s.class} {s.section} {s.rollNumber ? `• Roll ${s.rollNumber}` : ''}
+                  {s.class} {s.section} {s.rollNumber ? `* Roll ${s.rollNumber}` : ''}
                 </p>
               </div>
             </button>
@@ -136,7 +136,7 @@ export default function ParentInvitesPage() {
       const data = await ParentService.getInvites();
       setInvites(data);
     } catch {
-      // Silent — may fail in demo mode
+      // Silent  -  may fail in demo mode
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+﻿import { apiFetch } from '@/lib/api';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -114,7 +114,7 @@ export class ParentService {
     });
   }
 
-  /* ─── Admin invite management ─────────────────────────────────── */
+  /* --- Admin invite management ----------------------------------- */
 
   /**
    * Generate a new parent invite code for a student (Admin only).

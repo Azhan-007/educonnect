@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useDocumentTitle, useApiQuery } from '@/hooks';
@@ -60,7 +60,7 @@ export default function AttendancePage() {
   const schoolId = currentSchool?.id || user?.schoolId || '';
   const queryClient = useQueryClient();
 
-  // â”€â”€ Data fetching via React Query â”€â”€
+  // "€"€ Data fetching via React Query "€"€
   const { data: attendance = [], isLoading: attendanceLoading, dataUpdatedAt } = useApiQuery<Attendance[]>({
     queryKey: ['attendance', schoolId],
     path: '/attendance',
@@ -98,7 +98,7 @@ export default function AttendancePage() {
   const loading = attendanceLoading || studentsLoading;
   const lastSynced = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
 
-  // â”€â”€ UI state â”€â”€
+  // "€"€ UI state "€"€
   const [isMarkModalOpen, setIsMarkModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingRecord, setViewingRecord] = useState<Attendance | null>(null);
@@ -106,20 +106,20 @@ export default function AttendancePage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // â”€â”€ Filter state â”€â”€
+  // "€"€ Filter state "€"€
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('');
   const [filterSection, setFilterSection] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterDate, setFilterDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
-  // â”€â”€ Sort & pagination â”€â”€
+  // "€"€ Sort & pagination "€"€
   const [sortField, setSortField] = useState<SortField>('studentName');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  // â”€â”€ Mark attendance form â”€â”€
+  // "€"€ Mark attendance form "€"€
   const [markClass, setMarkClass] = useState('');
   const [markSection, setMarkSection] = useState('');
   const [markDate, setMarkDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -128,7 +128,7 @@ export default function AttendancePage() {
 
 
 
-  // â”€â”€ Derived stats â”€â”€
+  // "€"€ Derived stats "€"€
   const todayRecords = useMemo(() => {
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     return attendance.filter((a) => {
@@ -142,7 +142,7 @@ export default function AttendancePage() {
   const lateToday = todayRecords.filter((a) => a.status === 'Late').length;
   const attendanceRate = totalToday > 0 ? Math.round((presentToday / totalToday) * 100) : 0;
 
-  // â”€â”€ Filtered & sorted list â”€â”€
+  // "€"€ Filtered & sorted list "€"€
   const filteredRecords = useMemo(() => {
     let list = attendance;
 
@@ -187,7 +187,7 @@ export default function AttendancePage() {
 
   useEffect(() => { setPage(1); }, [searchTerm, filterClass, filterSection, filterStatus, filterDate, sortField, sortDir]);
 
-  // â”€â”€ Sort helpers â”€â”€
+  // "€"€ Sort helpers "€"€
   const toggleSort = (f: SortField) => {
     if (sortField === f) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortField(f); setSortDir('asc'); }
@@ -198,7 +198,7 @@ export default function AttendancePage() {
     return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 text-blue-500" /> : <ArrowDown className="w-3 h-3 text-blue-500" />;
   };
 
-  // â”€â”€ Active filters â”€â”€
+  // "€"€ Active filters "€"€
   const activeFilters = useMemo(() => {
     const chips: { key: string; label: string; clear: () => void }[] = [];
     if (filterClass) {
@@ -213,7 +213,7 @@ export default function AttendancePage() {
 
   const clearAllFilters = () => { setSearchTerm(''); setFilterClass(''); setFilterSection(''); setFilterStatus(''); };
 
-  // â”€â”€ Mark attendance modal handlers â”€â”€
+  // "€"€ Mark attendance modal handlers "€"€
   const studentsForMark = useMemo(() => {
     if (!markClass) return [];
     let filtered = students.filter((s) => s.isActive && s.classId === markClass);
@@ -266,7 +266,7 @@ export default function AttendancePage() {
     }
   };
 
-  // â”€â”€ Delete â”€â”€
+  // "€"€ Delete "€"€
   const handleDelete = async () => {
     if (!deleteDialog.id) return;
     setIsDeleting(true);
@@ -282,7 +282,7 @@ export default function AttendancePage() {
     }
   };
 
-  // â”€â”€ Export â”€â”€
+  // "€"€ Export "€"€
   const handleExport = (type: 'csv' | 'print') => {
     const headers = ['Student', 'Class', 'Section', 'Date', 'Status', 'Remarks', 'Marked By'];
     const rows = sortedRecords.map((a) => [
@@ -299,7 +299,7 @@ export default function AttendancePage() {
     else exportToPrint(config);
   };
 
-  // â”€â”€ Quick date navigation â”€â”€
+  // "€"€ Quick date navigation "€"€
   const goToPrevDay = () => {
     const d = new Date(filterDate);
     d.setDate(d.getDate() - 1);
@@ -314,12 +314,12 @@ export default function AttendancePage() {
 
   const isFilterDateToday = filterDate === format(new Date(), 'yyyy-MM-dd');
 
-  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // "€"€"€ Render "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
   return (
     <DashboardLayout>
       <div className="space-y-8">
 
-        {/* â”€â”€ Page Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Page Header "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Attendance</h1>
@@ -327,7 +327,7 @@ export default function AttendancePage() {
             {lastSynced && (
               <div className="flex items-center gap-1.5 mt-2">
                 <RefreshCw className="w-3 h-3 text-emerald-500 animate-spin" style={{ animationDuration: '3s' }} />
-                <span className="text-xs text-emerald-600 font-medium">Live synced Â· {format(lastSynced, 'h:mm:ss a')}</span>
+                <span className="text-xs text-emerald-600 font-medium">Live synced - {format(lastSynced, 'h:mm:ss a')}</span>
               </div>
             )}
           </div>
@@ -344,7 +344,7 @@ export default function AttendancePage() {
           </div>
         </div>
 
-        {/* â”€â”€ Stat Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Stat Cards "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard title="Total Marked" value={totalToday} icon={Users} color="blue" subtitle="Today" loading={loading} />
           <StatCard title="Present" value={presentToday} icon={UserCheck} color="emerald" subtitle={`${attendanceRate}% rate`} loading={loading} />
@@ -352,7 +352,7 @@ export default function AttendancePage() {
           <StatCard title="Late" value={lateToday} icon={Clock} color="amber" loading={loading} />
         </div>
 
-        {/* â”€â”€ Date Navigation + Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Date Navigation + Filters "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-5" style={{ boxShadow: 'var(--shadow-card)' }}>
           <div className="flex flex-col lg:flex-row lg:items-center gap-4">
             {/* Date navigator */}
@@ -433,7 +433,7 @@ export default function AttendancePage() {
           )}
         </div>
 
-        {/* â”€â”€ Attendance Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Attendance Table "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
           {filteredRecords.length === 0 && !loading ? (
             <EmptyState
@@ -511,7 +511,7 @@ export default function AttendancePage() {
                               <Badge variant={statusCfg.badge} size="sm">{record.status}</Badge>
                             </td>
                             <td className="px-6 py-4 text-sm text-slate-400 max-w-[200px] truncate">
-                              {record.remarks || 'â€”'}
+                              {record.remarks || '€"'}
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="flex items-center justify-end gap-1">
@@ -579,7 +579,7 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      {/* â”€â”€ Mark Attendance Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€ Mark Attendance Modal "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <Modal
         isOpen={isMarkModalOpen}
         onClose={() => setIsMarkModalOpen(false)}
@@ -726,7 +726,7 @@ export default function AttendancePage() {
         </div>
       </Modal>
 
-      {/* â”€â”€ View Record Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€ View Record Modal "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <Modal
         isOpen={isViewModalOpen}
         onClose={() => { setIsViewModalOpen(false); setViewingRecord(null); }}
@@ -774,7 +774,7 @@ export default function AttendancePage() {
         )}
       </Modal>
 
-      {/* â”€â”€ Delete Confirmation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* "€"€ Delete Confirmation "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
         onClose={() => setDeleteDialog({ isOpen: false, id: null, name: '' })}

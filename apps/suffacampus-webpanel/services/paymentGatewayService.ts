@@ -62,7 +62,7 @@ const SANDBOX_KEY = 'rzp_test_sandbox_demo';
 
 /**
  * Returns true when running in production build without a Razorpay key.
- * In this case, payment features should be disabled â€” never serve demo data.
+ * In this case, payment features should be disabled €" never serve demo data.
  */
 function isPaymentUnconfigured(): boolean {
   return process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
@@ -343,12 +343,12 @@ export class PaymentGatewayService {
   ): Promise<PaymentResult> {
     const config = getConfig();
 
-    // â”€â”€ Sandbox mode: simulate payment â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // "€"€ Sandbox mode: simulate payment "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
     if (config.sandboxMode) {
       return simulateSandboxPayment(request);
     }
 
-    // â”€â”€ Production mode: Razorpay Checkout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // "€"€ Production mode: Razorpay Checkout "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
     // 1. Load the SDK
     const loaded = await loadRazorpayScript();
     if (!loaded || !window.Razorpay) {
@@ -443,7 +443,7 @@ export class PaymentGatewayService {
 
   /**
    * Pay a fee online via payment gateway.
-   * Creates order â†’ opens checkout â†’ verifies â†’ returns result.
+   * Creates order †' opens checkout †' verifies †' returns result.
    */
   static async payFeeOnline(
     schoolId: string,
@@ -456,7 +456,7 @@ export class PaymentGatewayService {
   ): Promise<PaymentResult> {
     return PaymentGatewayService.initiatePayment(schoolId, {
       amount,
-      description: `${feeType} Fee â€” ${studentName}`,
+      description: `${feeType} Fee €" ${studentName}`,
       feeId,
       customerName: studentName,
       customerEmail: email,
@@ -485,7 +485,7 @@ export class PaymentGatewayService {
   ): Promise<PaymentResult> {
     return PaymentGatewayService.initiatePayment(schoolId, {
       amount,
-      description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan â€” ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} Subscription`,
+      description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan €" ${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} Subscription`,
       plan: plan as import('@/types').SubscriptionPlan,
       billingCycle: billingCycle as import('@/types').BillingCycle,
       customerName: schoolName,
@@ -505,14 +505,14 @@ export class PaymentGatewayService {
 function generateDemoPaymentHistory(): PaymentResult[] {
   const methods: PaymentMethod[] = ['card', 'upi', 'netbanking', 'wallet'];
   const descriptions = [
-    'Tuition Fee â€” Rahul Sharma',
-    'Transport Fee â€” Priya Patel',
-    'Annual Fee â€” Amit Kumar',
-    'Lab Fee â€” Sneha Gupta',
-    'Pro Plan â€” Monthly Subscription',
-    'Library Fee â€” Rohit Singh',
-    'Exam Fee â€” Meera Joshi',
-    'Sports Fee â€” Vikram Chauhan',
+    'Tuition Fee €" Rahul Sharma',
+    'Transport Fee €" Priya Patel',
+    'Annual Fee €" Amit Kumar',
+    'Lab Fee €" Sneha Gupta',
+    'Pro Plan €" Monthly Subscription',
+    'Library Fee €" Rohit Singh',
+    'Exam Fee €" Meera Joshi',
+    'Sports Fee €" Vikram Chauhan',
   ];
 
   return descriptions.map((desc, i) => ({

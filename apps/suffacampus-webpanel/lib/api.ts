@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from 'firebase/auth';
+﻿import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -7,9 +7,9 @@ import { clearSessionAccessToken, getSessionAccessToken } from '@/lib/session-to
 
 const BASE_URL = PUBLIC_API_URL;
 
-// ─── Retry configuration ──────────────────────────────────────────────────────
+// --- Retry configuration ------------------------------------------------------
 const MAX_RETRIES = 3;
-const RETRY_BASE_MS = 500;     // exponential backoff: 500 → 1000 → 2000
+const RETRY_BASE_MS = 500;     // exponential backoff: 500 -> 1000 -> 2000
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /** Status codes that should trigger a retry. */
@@ -67,7 +67,7 @@ async function resolveAuthToken(authMode: AuthMode): Promise<string | null> {
 }
 
 /**
- * Typed API error — carries the HTTP status and machine-readable code.
+ * Typed API error  -  carries the HTTP status and machine-readable code.
  */
 export class ApiError extends Error {
   public readonly code: string;
@@ -189,14 +189,14 @@ export async function apiFetch<T = unknown>(
     } catch (err) {
       clearTimeout(timeoutId);
 
-      // AbortError = timeout — retryable
+      // AbortError = timeout  -  retryable
       if (err instanceof DOMException && err.name === 'AbortError') {
         lastError = new ApiError(0, 'Request timed out', 'TIMEOUT');
         if (attempt < MAX_RETRIES) continue;
         throw lastError;
       }
 
-      // Network error (TypeError: Failed to fetch) — retryable
+      // Network error (TypeError: Failed to fetch)  -  retryable
       if (err instanceof TypeError && attempt < MAX_RETRIES) {
         lastError = err;
         continue;
@@ -210,7 +210,7 @@ export async function apiFetch<T = unknown>(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Paginated variant — returns { data, pagination } without unwrap   */
+/*  Paginated variant  -  returns { data, pagination } without unwrap   */
 /* ------------------------------------------------------------------ */
 
 export interface PaginationMeta {
@@ -250,7 +250,7 @@ function toQueryString(params: PaginationParams): string {
 
 /**
  * Fetch a paginated endpoint with retry + timeout.
- * Does NOT auto-unwrap — returns the full { data[], pagination } envelope
+ * Does NOT auto-unwrap  -  returns the full { data[], pagination } envelope
  * so callers retain cursor/hasMore metadata.
  */
 export async function apiFetchPaginated<T>(

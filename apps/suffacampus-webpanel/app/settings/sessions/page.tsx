@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 
-// ─── Device icon resolver ────────────────────────────────
+// --- Device icon resolver --------------------------------
 function DeviceIcon({ device }: { device: string }) {
   const d = device.toLowerCase();
   if (d.includes('mobile') || d.includes('iphone') || d.includes('android'))
@@ -127,12 +127,12 @@ export default function SessionsPage() {
                 <div className="flex flex-wrap items-center gap-3 mt-1.5">
                   <BrowserBadge browser={currentSession.browser} />
                   <span className="text-xs text-slate-500">{currentSession.os}</span>
-                  <span className="text-xs text-slate-400">•</span>
+                  <span className="text-xs text-slate-400">*</span>
                   <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                     <MapPin className="w-3 h-3" />
                     {currentSession.location || 'Unknown'}
                   </span>
-                  <span className="text-xs text-slate-400">•</span>
+                  <span className="text-xs text-slate-400">*</span>
                   <span className="text-xs text-slate-500">IP: {currentSession.ipAddress}</span>
                 </div>
                 <p className="text-xs text-green-600 font-medium mt-2 flex items-center gap-1">
@@ -168,9 +168,9 @@ export default function SessionsPage() {
                           <MapPin className="w-3 h-3" />
                           {session.location || 'Unknown'}
                         </span>
-                        <span>•</span>
+                        <span>*</span>
                         <span>IP: {session.ipAddress}</span>
-                        <span>•</span>
+                        <span>*</span>
                         <span className="inline-flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           Active {formatDistanceToNow(new Date(session.lastActiveAt), { addSuffix: true })}

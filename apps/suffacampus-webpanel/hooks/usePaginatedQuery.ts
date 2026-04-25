@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback, useMemo } from 'react';
 import {
@@ -94,7 +94,7 @@ export function usePaginatedQuery<T, TFilters extends Record<string, any> = {}>(
 
   const queryClient = useQueryClient();
 
-  // Cursor stack — enables "previous page" navigation
+  // Cursor stack  -  enables "previous page" navigation
   const [cursorStack, setCursorStack] = useState<(string | null)[]>([null]);
   const [pageSize, setPageSizeState] = useState(defaultPageSize);
   const [sortBy, setSortBy] = useState(defaultSortBy);

@@ -1,4 +1,4 @@
-﻿// â”€â”€ White-Label Branding Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+﻿// "€"€ White-Label Branding Utilities "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 // Pure helpers for generating CSS custom properties, colour variants,
 // and font configuration from a SchoolBranding object.
 
@@ -301,7 +301,7 @@ export const DEFAULT_BRANDING: SchoolBranding = {
   borderRadius: 'rounded',
   loginTagline: 'Streamline your institution with our comprehensive management platform.',
   loginLogoSize: 'md',
-  footerText: 'Â© 2026 SuffaCampus',
+  footerText: '(c) 2026 SuffaCampus',
 };
 
 /** Merge partial branding with defaults */

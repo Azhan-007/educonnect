@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -56,7 +56,7 @@ const ACTION_GROUPS: Record<string, { label: string; icon: React.ElementType; co
 };
 
 function getActionGroup(action: string): { label: string; icon: React.ElementType; color: string } {
-  // Extract entity keyword from action (e.g. "CREATE_STUDENT" → "STUDENT")
+  // Extract entity keyword from action (e.g. "CREATE_STUDENT" -> "STUDENT")
   const parts = (action ?? '').split('_');
   const keyword = parts.slice(1).join('_'); // Take everything after the verb
   // Try direct match, then first keyword
@@ -76,7 +76,7 @@ function formatAction(action: string): string {
 function formatTimestamp(ts: { _seconds: number; _nanoseconds: number } | string): string {
   if (typeof ts === 'string') return new Date(ts).toLocaleString();
   if (ts && '_seconds' in ts) return new Date(ts._seconds * 1000).toLocaleString();
-  return '—';
+  return ' - ';
 }
 
 const VERB_COLORS: Record<string, string> = {
@@ -160,7 +160,7 @@ export default function AuditLogsPage() {
               Audit Logs
             </h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Activity trail — who did what and when
+              Activity trail  -  who did what and when
             </p>
           </div>
           <button
@@ -261,7 +261,7 @@ export default function AuditLogsPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-xs text-slate-300">—</span>
+                            <span className="text-xs text-slate-300"> - </span>
                           )}
                         </td>
                         <td className="px-5 py-3 text-xs text-slate-500 whitespace-nowrap">

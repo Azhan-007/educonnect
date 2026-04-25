@@ -1,4 +1,4 @@
-import { apiFetch, apiFetchPaginated, ApiError, PaginatedResponse } from '@/lib/api';
+﻿import { apiFetch, apiFetchPaginated, ApiError, PaginatedResponse } from '@/lib/api';
 import { Student } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -8,9 +8,9 @@ import { Student } from '@/types';
 /**
  * Convert a raw JSON date value coming from the backend into a JS Date.
  * Handles:
- *  - ISO / numeric strings  →  new Date(value)
- *  - Firestore Timestamp.toJSON()  →  { seconds, nanoseconds }
- *  - Internal Firestore shape  →  { _seconds, _nanoseconds }
+ *  - ISO / numeric strings  ->  new Date(value)
+ *  - Firestore Timestamp.toJSON()  ->  { seconds, nanoseconds }
+ *  - Internal Firestore shape  ->  { _seconds, _nanoseconds }
  */
 function toDate(value: unknown): Date {
   if (!value) return new Date(0);
@@ -89,7 +89,7 @@ async function fetchAllStudents(
 export class StudentService {
 
   /**
-   * Get all students — backend: GET /students (paginated, server-side filtered)
+   * Get all students  -  backend: GET /students (paginated, server-side filtered)
    *
    * Pushes classId / sectionId / isActive filters to the backend query params
    * and loops through all pages so callers receive the complete dataset.
@@ -118,7 +118,7 @@ export class StudentService {
   }
 
   /**
-   * Get students with cursor-based pagination — for paginated UI tables.
+   * Get students with cursor-based pagination  -  for paginated UI tables.
    * Returns the raw paginated response so callers can use cursor / hasMore.
    */
   static async getStudentsPaginated(
@@ -155,7 +155,7 @@ export class StudentService {
   }
 
   /**
-   * Get a single student by ID — backend: GET /students/:id
+   * Get a single student by ID  -  backend: GET /students/:id
    * Returns null when the server responds with 404.
    */
   static async getStudentById(schoolId: string, id: string): Promise<Student | null> {
@@ -169,7 +169,7 @@ export class StudentService {
   }
 
   /**
-   * Create a new student — backend: POST /students
+   * Create a new student  -  backend: POST /students
    * Returns the new student ID plus auto-generated login credentials.
    */
   static async createStudent(
@@ -196,7 +196,7 @@ export class StudentService {
   }
 
   /**
-   * Update an existing student — backend: PATCH /students/:id
+   * Update an existing student  -  backend: PATCH /students/:id
    */
   static async updateStudent(
     schoolId: string,
@@ -210,14 +210,14 @@ export class StudentService {
   }
 
   /**
-   * Soft-delete a student — backend: DELETE /students/:id
+   * Soft-delete a student  -  backend: DELETE /students/:id
    */
   static async deleteStudent(schoolId: string, id: string): Promise<void> {
     await apiFetch(`/students/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Permanently delete a soft-deleted student — backend: DELETE /students/:id/permanent
+   * Permanently delete a soft-deleted student  -  backend: DELETE /students/:id/permanent
    * SuperAdmin only.
    */
   static async permanentDeleteStudent(schoolId: string, id: string): Promise<void> {
@@ -225,7 +225,7 @@ export class StudentService {
   }
 
   /**
-   * Search students by name — uses backend server-side search.
+   * Search students by name  -  uses backend server-side search.
    * The backend's GET /students?search= param does case-insensitive
    * firstName / lastName matching in PostgreSQL.
    */

@@ -613,7 +613,7 @@ export interface SummaryConfig {
   lastUpdated: Date;
 }
 
-// â”€â”€ White-Label Branding Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€ White-Label Branding Types â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 export type SidebarStyle = 'light' | 'dark' | 'branded';
 export type FontFamily = 'inter' | 'poppins' | 'roboto' | 'nunito' | 'outfit';
@@ -639,7 +639,7 @@ export interface SchoolBranding {
   loginLogoSize?: 'sm' | 'md' | 'lg'; // Logo size on login page
 
   // Footer
-  footerText?: string;           // Custom footer text (replaces "Â© 2026 SuffaCampus")
+  footerText?: string;           // Custom footer text (replaces "Â(c) 2026 SuffaCampus")
 }
 
 export interface BrandingPreset {

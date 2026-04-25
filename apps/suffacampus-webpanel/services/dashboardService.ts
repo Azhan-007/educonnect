@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+﻿import { apiFetch } from '@/lib/api';
 import { SummaryConfig } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -21,7 +21,7 @@ function toDate(value: unknown): Date {
 
 export class DashboardService {
   /**
-   * Get dashboard summary — backend: GET /dashboard/stats
+   * Get dashboard summary  -  backend: GET /dashboard/stats
    * Maps backend response to SummaryConfig shape.
    */
   static async getSummary(schoolId: string): Promise<SummaryConfig | null> {
@@ -44,14 +44,14 @@ export class DashboardService {
   }
 
   /**
-   * Update dashboard summary — not typically needed (backend auto-computes).
+   * Update dashboard summary  -  not typically needed (backend auto-computes).
    * Kept for API compatibility.
    */
   static async updateSummary(
     _schoolId: string,
     _data: Partial<Omit<SummaryConfig, 'schoolId'>>
   ): Promise<void> {
-    // Backend auto-computes stats — nothing to update
+    // Backend auto-computes stats  -  nothing to update
   }
 
   /**
@@ -83,7 +83,7 @@ export class DashboardService {
   }
 
   /**
-   * Get recent activity — backend: GET /dashboard/activity
+   * Get recent activity  -  backend: GET /dashboard/activity
    */
   static async getRecentActivity(
     limit: number = 20
@@ -98,7 +98,7 @@ export class DashboardService {
   }
 
   /**
-   * Get upcoming events for dashboard — backend: GET /dashboard/upcoming-events
+   * Get upcoming events for dashboard  -  backend: GET /dashboard/upcoming-events
    */
   static async getDashboardUpcomingEvents(
     limit: number = 5
@@ -113,9 +113,9 @@ export class DashboardService {
   }
 
   /**
-   * Initialize summary for a new school — no-op (backend handles).
+   * Initialize summary for a new school  -  no-op (backend handles).
    */
   static async initializeSummary(_schoolId: string): Promise<void> {
-    // Backend auto-computes — nothing to initialize
+    // Backend auto-computes  -  nothing to initialize
   }
 }

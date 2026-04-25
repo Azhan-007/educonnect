@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { School } from '@/types';
 import { useAuthStore } from '@/store/authStore';
@@ -135,7 +135,7 @@ export default function SchoolSelector({ compact = false }: SchoolSelectorProps)
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-slate-800">{school.name}</p>
                 <p className="text-[11px] text-slate-500">
-                  {school.code} • {school.city}, {school.state}
+                  {school.code} * {school.city}, {school.state}
                 </p>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${

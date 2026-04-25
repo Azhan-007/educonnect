@@ -288,7 +288,7 @@ export default function SchoolsPage() {
       <div className="space-y-1">
         <div className="flex items-center space-x-2 text-sm">
           <Users className="w-4 h-4 text-slate-300" />
-          <span>{studentUsage} / {studentLimit === Infinity ? 'âˆž' : studentLimit}</span>
+          <span>{studentUsage} / {studentLimit === Infinity ? 'ˆž' : studentLimit}</span>
         </div>
         {studentLimit !== Infinity && (
           <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">

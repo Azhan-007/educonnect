@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { School, SubscriptionPlan } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ function deserializeSchool(raw: Record<string, unknown>): School {
 
 export class SchoolService {
   /**
-   * Get all schools (SuperAdmin) — backend: GET /admin/schools
+   * Get all schools (SuperAdmin)  -  backend: GET /admin/schools
    */
   static async getSchools(): Promise<School[]> {
     const raw = await apiFetch<Record<string, unknown>[]>(
@@ -115,7 +115,7 @@ export class SchoolService {
   }
 
   /**
-   * Get schools by IDs — fetches each individually.
+   * Get schools by IDs  -  fetches each individually.
    */
   static async getSchoolsByIds(schoolIds: string[]): Promise<School[]> {
     const results = await Promise.all(
@@ -127,7 +127,7 @@ export class SchoolService {
   }
 
   /**
-   * Get school by ID — backend: GET /admin/schools/:id (SuperAdmin)
+   * Get school by ID  -  backend: GET /admin/schools/:id (SuperAdmin)
    * or GET /school/me (for current user's school)
    */
   static async getSchoolById(id: string): Promise<School | null> {
@@ -138,14 +138,14 @@ export class SchoolService {
       return deserializeSchool(raw);
     } catch (err) {
       if (err instanceof ApiError && err.status === 404) return null;
-      // If forbidden (not SuperAdmin), swallow — caller should use getMySchool
+      // If forbidden (not SuperAdmin), swallow  -  caller should use getMySchool
       if (err instanceof ApiError && (err.status === 403 || err.status === 401)) return null;
       throw err;
     }
   }
 
   /**
-   * Get the current user's school — backend: GET /school/me
+   * Get the current user's school  -  backend: GET /school/me
    * Works for any authenticated user (Admin, Teacher, Student, etc.)
    */
   static async getMySchool(): Promise<School | null> {
@@ -159,7 +159,7 @@ export class SchoolService {
   }
 
   /**
-   * Create a new school — backend: POST /admin/schools
+   * Create a new school  -  backend: POST /admin/schools
    * Optionally creates an admin user if adminEmail is provided.
    * Returns the school ID and optional admin credentials.
    */
@@ -178,7 +178,7 @@ export class SchoolService {
   }
 
   /**
-   * Update school — backend: PATCH /admin/schools/:id
+   * Update school  -  backend: PATCH /admin/schools/:id
    */
   static async updateSchool(
     id: string,
@@ -191,7 +191,7 @@ export class SchoolService {
   }
 
   /**
-   * Delete school (deactivate) — backend: DELETE /admin/schools/:id
+   * Delete school (deactivate)  -  backend: DELETE /admin/schools/:id
    */
   static async deleteSchool(id: string): Promise<void> {
     await apiFetch(`/admin/schools/${id}`, { method: 'DELETE' });
@@ -225,7 +225,7 @@ export class SchoolService {
   }
 
   /**
-   * Update school plan — backend: PATCH /admin/schools/:id/plan
+   * Update school plan  -  backend: PATCH /admin/schools/:id/plan
    */
   static async updateSchoolPlan(
     id: string,
@@ -243,7 +243,7 @@ export class SchoolService {
   }
 
   /**
-   * Get platform-wide stats — backend: GET /admin/stats
+   * Get platform-wide stats  -  backend: GET /admin/stats
    */
   static async getPlatformStats(): Promise<Record<string, unknown>> {
     try {

@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+﻿import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Core palette — blue-based modern educational theme
+        // Core palette  -  blue-based modern educational theme
         primary: {
           DEFAULT: "#f0f5fa",    // page bg
           light: "#f8fafc",      // slate-50
@@ -44,7 +44,7 @@ const config: Config = {
           DEFAULT: "#2563eb",    // blue-600
           light: "#eff6ff",      // blue-50
         },
-        // Text colors — slate palette
+        // Text colors  -  slate palette
         heading: "#0f172a",      // slate-900
         body: "#334155",         // slate-700
         muted: "#94a3b8",        // slate-400

@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Fee } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ function deserializeFee(raw: Record<string, unknown>): Fee {
 
 export class FeeService {
   /**
-   * Get all fees with optional filters — backend: GET /fees
+   * Get all fees with optional filters  -  backend: GET /fees
    * schoolId is enforced server-side via the auth token (tenant guard).
    */
   static async getFees(
@@ -54,7 +54,7 @@ export class FeeService {
   }
 
   /**
-   * Get fee by ID — backend: GET /fees/:id
+   * Get fee by ID  -  backend: GET /fees/:id
    */
   static async getFeeById(_schoolId: string, id: string): Promise<Fee | null> {
     try {
@@ -67,7 +67,7 @@ export class FeeService {
   }
 
   /**
-   * Create fee — backend: POST /fees
+   * Create fee  -  backend: POST /fees
    */
   static async createFee(
     _schoolId: string,
@@ -81,7 +81,7 @@ export class FeeService {
   }
 
   /**
-   * Update fee — backend: PATCH /fees/:id
+   * Update fee  -  backend: PATCH /fees/:id
    */
   static async updateFee(
     _schoolId: string,
@@ -95,14 +95,14 @@ export class FeeService {
   }
 
   /**
-   * Delete fee — backend: DELETE /fees/:id
+   * Delete fee  -  backend: DELETE /fees/:id
    */
   static async deleteFee(_schoolId: string, id: string): Promise<void> {
     await apiFetch(`/fees/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Get fee statistics — backend: GET /fees/stats
+   * Get fee statistics  -  backend: GET /fees/stats
    */
   static async getFeeStats(
     _schoolId: string
@@ -169,7 +169,7 @@ export class FeeService {
   }
 
   /**
-   * Mark fee as paid — backend: PATCH /fees/:id
+   * Mark fee as paid  -  backend: PATCH /fees/:id
    */
   static async markAsPaid(
     schoolId: string,

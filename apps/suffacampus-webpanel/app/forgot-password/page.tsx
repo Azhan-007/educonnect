@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Footer */}
-        <p className="absolute bottom-6 text-slate-500 text-[13px] font-medium tracking-wide opacity-80">Â© 2026 SuffaCampus</p>
+        <p className="absolute bottom-6 text-slate-500 text-[13px] font-medium tracking-wide opacity-80">(c) 2026 SuffaCampus</p>
       </div>
 
       {/* Right Panel - Form */}
@@ -210,7 +210,7 @@ export default function ForgotPasswordPage() {
 
           {/* Mobile Footer */}
           <p className="lg:hidden text-center text-slate-500 text-xs font-medium mt-6 opacity-80">
-            Â© 2026 SuffaCampus
+            (c) 2026 SuffaCampus
           </p>
         </div>
       </div>

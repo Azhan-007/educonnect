@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { X } from 'lucide-react';
 import { ReactNode, useEffect, useRef, useCallback } from 'react';
@@ -41,7 +41,7 @@ export default function Modal({
     }
   }, [isOpen, onClose]);
 
-  // Focus trap — cycle Tab/Shift+Tab within the modal panel
+  // Focus trap  -  cycle Tab/Shift+Tab within the modal panel
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {

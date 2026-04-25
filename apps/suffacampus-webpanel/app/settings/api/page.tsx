@@ -96,7 +96,7 @@ export default function ApiPage() {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('docs');
 
-  // â”€â”€ Data fetching via React Query â”€â”€
+  // "€"€ Data fetching via React Query "€"€
   const { data: apiKeys = [], isLoading: keysLoading } = useQuery<ApiKey[]>({
     queryKey: ['api-keys', schoolId],
     queryFn: () => ApiKeyService.getApiKeys(schoolId),
@@ -226,7 +226,7 @@ export default function ApiPage() {
             <div className="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-blue-600" />
               <h3 className="text-[14px] font-semibold text-slate-700">
-                API Usage â€” Last 30 Days
+                API Usage €" Last 30 Days
               </h3>
             </div>
             <div className="p-5">
@@ -510,7 +510,7 @@ function DocsTab() {
                               {param.name}
                             </code>
                             <span className="text-xs text-slate-400">
-                              {param.in} Â· {param.type}
+                              {param.in} - {param.type}
                               {param.required && (
                                 <span className="text-red-500 ml-1">*</span>
                               )}
@@ -765,7 +765,7 @@ function KeysTab({
         title={createdRawKey ? 'API Key Created' : 'Create API Key'}
         subtitle={
           createdRawKey
-            ? 'Save this key â€” it won\'t be shown again'
+            ? 'Save this key €" it won\'t be shown again'
             : 'Configure permissions and rate limits'
         }
         size="lg"
@@ -927,17 +927,17 @@ function KeyCard({
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <code className="text-xs font-mono text-slate-500">{apiKey.key}</code>
-            <span className="text-xs text-slate-400">Â·</span>
+            <span className="text-xs text-slate-400">-</span>
             <span className="text-xs text-slate-400">
               {apiKey.rateLimit} req/min
             </span>
-            <span className="text-xs text-slate-400">Â·</span>
+            <span className="text-xs text-slate-400">-</span>
             <span className="text-xs text-slate-400">
               {apiKey.permissions.length} permissions
             </span>
             {apiKey.lastUsedAt && (
               <>
-                <span className="text-xs text-slate-400">Â·</span>
+                <span className="text-xs text-slate-400">-</span>
                 <span className="text-xs text-slate-400">
                   Last used{' '}
                   {format(new Date(apiKey.lastUsedAt), 'MMM dd, HH:mm')}

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { apiFetch, ApiError } from '@/lib/api';
 
 /* ------------------------------------------------------------------ */
-/*  useApiQuery — Wraps apiFetch in React Query                        */
+/*  useApiQuery  -  Wraps apiFetch in React Query                        */
 /*                                                                     */
 /*  Replaces the manual useEffect + setInterval polling pattern with   */
 /*  automatic caching, background refetch, stale-while-revalidate,     */
@@ -49,7 +49,7 @@ export function useApiQuery<T = unknown>(options: UseApiQueryOptions<T>) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  useApiMutation — Wraps mutations with auto-invalidation            */
+/*  useApiMutation  -  Wraps mutations with auto-invalidation            */
 /* ------------------------------------------------------------------ */
 
 export interface UseApiMutationOptions<TInput, TOutput = void> {

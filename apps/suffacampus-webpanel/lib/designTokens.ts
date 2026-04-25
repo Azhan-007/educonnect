@@ -1,4 +1,4 @@
-// ── Design System Tokens ─────────────────────────────────────────────
+﻿// -- Design System Tokens ---------------------------------------------
 // Centralized theme tokens for consistent styling across the application
 
 export const colors = {

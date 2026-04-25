@@ -1,4 +1,4 @@
-﻿// â”€â”€ Export Utility Service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+﻿// "€"€ Export Utility Service "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 // Generates professional, school-branded, printable documents for all modules.
 
 import { formatCurrency } from '@/lib/designTokens';
@@ -16,7 +16,7 @@ export interface ExportConfig {
   footerNote?: string;
 }
 
-// â”€â”€ CSS for print documents â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ CSS for print documents "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 const PRINT_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
   
@@ -42,7 +42,7 @@ const PRINT_CSS = `
     padding: 0;
   }
   
-  /* â”€â”€ Header â”€â”€ */
+  /* "€"€ Header "€"€ */
   .doc-header {
     display: flex;
     align-items: center;
@@ -82,7 +82,7 @@ const PRINT_CSS = `
     margin-top: 2px;
   }
   
-  /* â”€â”€ Title Section â”€â”€ */
+  /* "€"€ Title Section "€"€ */
   .doc-title-section {
     text-align: center;
     margin-bottom: 20px;
@@ -99,7 +99,7 @@ const PRINT_CSS = `
     margin-top: 4px;
   }
   
-  /* â”€â”€ Table â”€â”€ */
+  /* "€"€ Table "€"€ */
   .doc-table {
     width: 100%;
     border-collapse: collapse;
@@ -133,7 +133,7 @@ const PRINT_CSS = `
     background: #f1f5f9;
   }
   
-  /* â”€â”€ Footer â”€â”€ */
+  /* "€"€ Footer "€"€ */
   .doc-footer {
     margin-top: 24px;
     padding-top: 12px;
@@ -150,7 +150,7 @@ const PRINT_CSS = `
     text-align: right;
   }
   
-  /* â”€â”€ Summary Stats â”€â”€ */
+  /* "€"€ Summary Stats "€"€ */
   .doc-stats {
     display: flex;
     gap: 16px;
@@ -187,7 +187,7 @@ const PRINT_CSS = `
   }
 `;
 
-// â”€â”€ Generate HTML Document â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Generate HTML Document "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 function generateHTMLDocument(config: ExportConfig): string {
   const {
     schoolName,
@@ -265,7 +265,7 @@ function generateHTMLDocument(config: ExportConfig): string {
 </html>`;
 }
 
-// â”€â”€ Export to Print (HTML) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Export to Print (HTML) "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 export function exportToPrint(config: ExportConfig): void {
   const html = generateHTMLDocument(config);
   const printWindow = window.open('', '_blank');
@@ -275,7 +275,7 @@ export function exportToPrint(config: ExportConfig): void {
   }
 }
 
-// â”€â”€ Export to CSV â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Export to CSV "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 export function exportToCSV(config: ExportConfig): void {
   const { headers, rows, filename } = config;
   const csvContent = [
@@ -301,7 +301,7 @@ export function exportToCSV(config: ExportConfig): void {
   URL.revokeObjectURL(url);
 }
 
-// â”€â”€ Generate Report with Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Generate Report with Stats "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 export function exportReportWithStats(
   config: ExportConfig & {
     stats?: { label: string; value: string }[];
@@ -342,7 +342,7 @@ export function exportReportWithStats(
   exportToPrint(config);
 }
 
-// â”€â”€ Helper: Format date for export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Helper: Format date for export "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 export function formatDateForExport(date: Date | string): string {
   try {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -352,7 +352,7 @@ export function formatDateForExport(date: Date | string): string {
   }
 }
 
-// â”€â”€ Helper: Format currency for export â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€ Helper: Format currency for export "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 export function formatCurrencyForExport(amount: number): string {
   return formatCurrency(amount);
 }

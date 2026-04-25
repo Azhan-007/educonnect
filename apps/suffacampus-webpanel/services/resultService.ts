@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Result } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -43,7 +43,7 @@ export class ResultService {
   }
 
   /**
-   * Get all results — backend: GET /results
+   * Get all results  -  backend: GET /results
    */
   static async getResults(): Promise<Result[]> {
     const raw = await apiFetch<Record<string, unknown>[]>('/results?limit=1000');
@@ -51,7 +51,7 @@ export class ResultService {
   }
 
   /**
-   * Get result by ID — backend: GET /results/:id
+   * Get result by ID  -  backend: GET /results/:id
    */
   static async getResultById(id: string): Promise<Result | null> {
     try {
@@ -64,7 +64,7 @@ export class ResultService {
   }
 
   /**
-   * Create new result — backend: POST /results
+   * Create new result  -  backend: POST /results
    * Percentage, grade, and status are calculated client-side before sending.
    */
   static async createResult(
@@ -82,7 +82,7 @@ export class ResultService {
   }
 
   /**
-   * Update result — backend: PATCH /results/:id
+   * Update result  -  backend: PATCH /results/:id
    */
   static async updateResult(
     id: string,
@@ -110,14 +110,14 @@ export class ResultService {
   }
 
   /**
-   * Delete result (soft-delete) — backend: DELETE /results/:id
+   * Delete result (soft-delete)  -  backend: DELETE /results/:id
    */
   static async deleteResult(id: string): Promise<void> {
     await apiFetch(`/results/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Get result statistics — computed client-side.
+   * Get result statistics  -  computed client-side.
    */
   static async getResultStats(): Promise<{
     totalResults: number;
@@ -159,7 +159,7 @@ export class ResultService {
   }
 
   /**
-   * Get results by student — backend: GET /results/student/:studentId
+   * Get results by student  -  backend: GET /results/student/:studentId
    */
   static async getResultsByStudent(studentId: string): Promise<Result[]> {
     const raw = await apiFetch<Record<string, unknown>[]>(
@@ -169,7 +169,7 @@ export class ResultService {
   }
 
   /**
-   * Get results by class — backend: GET /results?classId=…&sectionId=…
+   * Get results by class  -  backend: GET /results?classId=…&sectionId=…
    */
   static async getResultsByClass(
     classId: string,
@@ -183,7 +183,7 @@ export class ResultService {
   }
 
   /**
-   * Get results by exam — backend: GET /results?examType=…&examName=…
+   * Get results by exam  -  backend: GET /results?examType=…&examName=…
    */
   static async getResultsByExam(
     examType: string,

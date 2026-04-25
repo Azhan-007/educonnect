@@ -136,7 +136,7 @@ export default function BrandingPage() {
     setDraft(DEFAULT_BRANDING);
     previewBranding(DEFAULT_BRANDING);
     setHasChanges(true);
-    toast('Reset to default branding', { icon: 'â†©ï¸' });
+    toast('Reset to default branding', { icon: '†(c)ï¸' });
   };
 
   const handleDiscard = () => {
@@ -158,7 +158,7 @@ export default function BrandingPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Header "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Branding</h1>
@@ -181,15 +181,15 @@ export default function BrandingPage() {
           </div>
         </div>
 
-        {/* â”€â”€ Live preview banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Live preview banner "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         {isPreviewing && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-blue-200 bg-blue-50">
             <Eye className="w-4 h-4 text-blue-600 shrink-0" />
-            <p className="text-xs text-blue-700 font-medium">Live preview is active â€” changes are visible in real-time. Save to keep them.</p>
+            <p className="text-xs text-blue-700 font-medium">Live preview is active €" changes are visible in real-time. Save to keep them.</p>
           </div>
         )}
 
-        {/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Tabs "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit">
           {tabs.map(tab => {
             const Icon = tab.icon;
@@ -207,9 +207,9 @@ export default function BrandingPage() {
           })}
         </div>
 
-        {/* â”€â”€ Tab content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Tab content "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ LEFT (Settings) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ LEFT (Settings) "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
           <div className="xl:col-span-2 space-y-5">
             {/* COLORS TAB */}
             {activeTab === 'colors' && (
@@ -526,7 +526,7 @@ export default function BrandingPage() {
                         type="text"
                         value={draft.footerText || ''}
                         onChange={e => handleChange('footerText', e.target.value)}
-                        placeholder="Â© 2026 SuffaCampus"
+                        placeholder="(c) 2026 SuffaCampus"
                         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 bg-white"
                       />
                       <p className="text-xs text-slate-400 mt-1">Appears in the sidebar footer and login page</p>
@@ -537,7 +537,7 @@ export default function BrandingPage() {
             )}
           </div>
 
-          {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ RIGHT (Live Preview) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {/* "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ RIGHT (Live Preview) "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
           <div className="xl:col-span-1">
             <div className="sticky top-8 space-y-5">
               {/* Mini preview card */}
@@ -670,12 +670,12 @@ export default function BrandingPage() {
           </div>
         </div>
 
-        {/* â”€â”€ Sticky save bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* "€"€ Sticky save bar "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€ */}
         {hasChanges && (
           <div className="sticky bottom-4 bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-blue-500" />
-              <p className="text-sm text-slate-600">Preview active â€” save to apply permanently</p>
+              <p className="text-sm text-slate-600">Preview active €" save to apply permanently</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={handleDiscard}>Discard</Button>

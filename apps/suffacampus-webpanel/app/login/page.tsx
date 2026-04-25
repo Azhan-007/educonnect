@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  // â”€â”€ White-label branding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // "€"€ White-label branding "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
   const [branding, setBranding] = useState<SchoolBranding | null>(null);
   useEffect(() => {
     const unsub = SettingsService.subscribeToSettings((settings) => {
@@ -140,7 +140,7 @@ export default function LoginPage() {
 
         {/* Footer - more subtle */}
         {/* Footer - more subtle */}
-        <p className="absolute bottom-6 text-slate-500 text-[13px] font-medium tracking-wide opacity-80">{b.footerText || 'Â© 2026 SuffaCampus'}</p>
+        <p className="absolute bottom-6 text-slate-500 text-[13px] font-medium tracking-wide opacity-80">{b.footerText || '(c) 2026 SuffaCampus'}</p>
       </div>
 
       {/* Right Panel - Form */}
@@ -214,7 +214,7 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                    placeholder="€¢€¢€¢€¢€¢€¢€¢€¢€¢€¢"
                     disabled={isLoading}
                     style={{ caretColor: '#000000', color: '#1e293b' }}
                     className={`block w-full h-[52px] pl-12 pr-4 bg-slate-200 border-2 ${errors.password
@@ -277,7 +277,7 @@ export default function LoginPage() {
 
           {/* Mobile Footer */}
           <p className="lg:hidden text-center text-slate-500 text-xs font-medium mt-6 opacity-80">
-            {b.footerText || 'Â© 2026 SuffaCampus'}
+            {b.footerText || '(c) 2026 SuffaCampus'}
           </p>
         </div>
       </div>

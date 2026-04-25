@@ -1,4 +1,4 @@
-// Firebase Configuration and Initialization
+﻿// Firebase Configuration and Initialization
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import {
@@ -8,7 +8,7 @@ import {
   type Messaging,
 } from 'firebase/messaging';
 
-// ─── Firebase config (env vars are inlined at build time by Next.js) ──────────
+// --- Firebase config (env vars are inlined at build time by Next.js) ----------
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,

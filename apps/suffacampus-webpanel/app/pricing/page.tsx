@@ -106,7 +106,7 @@ export default function PricingPage() {
             Simple, Transparent Pricing
           </h1>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto mb-10">
-            Welcome to SuffaCampus â€” choose the plan that best fits your school&apos;s needs.
+            Welcome to SuffaCampus €" choose the plan that best fits your school&apos;s needs.
             From free starter tools to enterprise-grade solutions, we have a tier for every institution.
           </p>
 
@@ -360,7 +360,7 @@ export default function PricingPage() {
               <span className="font-bold">SuffaCampus</span>
             </div>
             <p className="text-slate-400 text-sm">
-              Â© 2026 SuffaCampus. All rights reserved.
+              (c) 2026 SuffaCampus. All rights reserved.
             </p>
           </div>
         </div>

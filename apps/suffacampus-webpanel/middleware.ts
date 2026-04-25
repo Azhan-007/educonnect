@@ -1,7 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Next.js Edge Middleware â€” server-side auth guard.
+ * Next.js Edge Middleware â€" server-side auth guard.
  *
  * Checks for the `SuffaCampus-auth` cookie (set by Zustand persist) to determine
  * if the user is authenticated. Redirects unauthenticated users to /login.
@@ -150,7 +150,7 @@ export function middleware(request: NextRequest) {
   // auth session cookie instead.)
   // Strategy: Check for the __session cookie or the presence of a token cookie
   if (!isAuthenticated) {
-    // No auth cookie â€” redirect to login
+    // No auth cookie â€" redirect to login
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', `${pathname}${search}`);
     return NextResponse.redirect(loginUrl);

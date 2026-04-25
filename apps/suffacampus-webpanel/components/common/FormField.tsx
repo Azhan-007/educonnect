@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ReactNode } from 'react';
 import { AlertCircle, LucideIcon } from 'lucide-react';
@@ -29,7 +29,7 @@ const SECTION_COLORS = {
 };
 
 /**
- * FormField — lightweight wrapper for individual form fields.
+ * FormField  -  lightweight wrapper for individual form fields.
  * Provides consistent label, error, and hint rendering.
  */
 export function FormField({
@@ -61,7 +61,7 @@ export function FormField({
 }
 
 /**
- * FormSection — groups related fields under a titled header with icon.
+ * FormSection  -  groups related fields under a titled header with icon.
  */
 export function FormSection({
   title,

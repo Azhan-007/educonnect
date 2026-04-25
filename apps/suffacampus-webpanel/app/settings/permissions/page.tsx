@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// ─── Constants ───────────────────────────────────────────
+// --- Constants -------------------------------------------
 const ROLES: UserRole[] = ['SuperAdmin', 'Admin', 'Principal', 'Staff', 'Accountant', 'Parent'];
 const ACTIONS: { key: PermissionAction; label: string; icon: React.ElementType; color: string }[] = [
   { key: 'view',   label: 'View',   icon: Eye,      color: 'text-blue-500' },
@@ -38,7 +38,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   Parent:     'bg-green-50 text-green-700 border-green-200',
 };
 
-// ─── Default matrix ─────────────────────────────────────
+// --- Default matrix -------------------------------------
 function buildDefaultMatrix(): RolePermissionMatrix[] {
   const fullAccess = (): Record<PermissionAction, boolean> => ({ view: true, create: true, edit: true, delete: true, export: true });
   const readOnly = (): Record<PermissionAction, boolean> => ({ view: true, create: false, edit: false, delete: false, export: false });
@@ -292,7 +292,7 @@ export default function PermissionsPage() {
                             } disabled:cursor-not-allowed`}
                             title={allEnabled ? 'Revoke all' : 'Grant all'}
                           >
-                            {allEnabled ? '✓' : noneEnabled ? '–' : '~'}
+                            {allEnabled ? '✓' : noneEnabled ? '-' : '~'}
                           </button>
                         </td>
                       </tr>

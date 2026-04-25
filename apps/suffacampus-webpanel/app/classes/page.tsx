@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useDocumentTitle, useApiQuery } from '@/hooks';
@@ -27,7 +27,7 @@ export default function ClassesPage() {
   const { currentSchool } = useAuthStore();
   const queryClient = useQueryClient();
 
-  // â”€â”€ Data fetching via React Query â”€â”€
+  // "€"€ Data fetching via React Query "€"€
   const { data: classes = [], isLoading: loading, dataUpdatedAt } = useApiQuery<Class[]>({
     queryKey: ['classes'],
     path: '/classes/all',
@@ -78,7 +78,7 @@ export default function ClassesPage() {
     loadStats();
   }, [classes]);
 
-  // Filter â†’ Sort â†’ Paginate
+  // Filter †' Sort †' Paginate
   const filteredClasses = useMemo(() => {
     let list = classes;
     if (filterStatus === 'active') list = list.filter(c => c.isActive !== false);
@@ -153,7 +153,7 @@ export default function ClassesPage() {
     return chips;
   }, [searchTerm]);
 
-  // â”€â”€ Form Helpers â”€â”€
+  // "€"€ Form Helpers "€"€
   const resetClassForm = () => { setClassFormData({ className: '', grade: 1, capacity: 60, isActive: true }); setFormErrors({}); setEditingClass(null); };
   const resetSectionForm = () => { setSectionFormData({ id: '', sectionName: '', capacity: 60, teacherId: '', teacherName: '' }); setFormErrors({}); setEditingSection(null); };
 
@@ -321,7 +321,7 @@ export default function ClassesPage() {
               {lastSynced && (
                 <div className="flex items-center gap-1.5 mt-2">
                   <RefreshCw className="w-3 h-3 text-emerald-500 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span className="text-xs text-emerald-600 font-medium">Live synced Â· {format(lastSynced, 'h:mm:ss a')}</span>
+                  <span className="text-xs text-emerald-600 font-medium">Live synced - {format(lastSynced, 'h:mm:ss a')}</span>
                 </div>
               )}
           </div>
@@ -382,7 +382,7 @@ export default function ClassesPage() {
               <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-0.5 rounded tabular-nums border border-slate-100">{sortedClasses.length}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400">Showing {sortedClasses.length > 0 ? (page - 1) * pageSize + 1 : 0}â€“{Math.min(page * pageSize, sortedClasses.length)}</span>
+              <span className="text-xs text-slate-400">Showing {sortedClasses.length > 0 ? (page - 1) * pageSize + 1 : 0}€"{Math.min(page * pageSize, sortedClasses.length)}</span>
               <div className="w-[100px]">
                 <Select value={String(pageSize)} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }} options={PAGE_SIZE_OPTIONS.map(n => ({ value: String(n), label: `${n} rows` }))} />
               </div>
@@ -589,7 +589,7 @@ export default function ClassesPage() {
                     <span className="text-xs font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">Grade {viewingClass.grade}</span>
                     <Badge variant={viewingClass.isActive ? 'success' : 'danger'} size="sm" dot>{viewingClass.isActive ? 'Active' : 'Inactive'}</Badge>
                   </div>
-                  <p className="text-xs text-slate-400 mt-1">{viewingClass.sections.length} sections â€¢ Capacity: {viewingClass.capacity}</p>
+                  <p className="text-xs text-slate-400 mt-1">{viewingClass.sections.length} sections €¢ Capacity: {viewingClass.capacity}</p>
                 </div>
               </div>
               <div>

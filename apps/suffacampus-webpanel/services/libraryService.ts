@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Library } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ function deserializeBook(raw: Record<string, unknown>): Library {
 
 export class LibraryService {
   /**
-   * Get all books — backend: GET /library/books
+   * Get all books  -  backend: GET /library/books
    */
   static async getBooks(): Promise<Library[]> {
     const raw = await apiFetch<Record<string, unknown>[]>('/library/books?limit=1000');
@@ -37,7 +37,7 @@ export class LibraryService {
   }
 
   /**
-   * Get book by ID — backend: GET /library/books/:id
+   * Get book by ID  -  backend: GET /library/books/:id
    */
   static async getBookById(id: string): Promise<Library | null> {
     try {
@@ -50,7 +50,7 @@ export class LibraryService {
   }
 
   /**
-   * Create new book — backend: POST /library/books
+   * Create new book  -  backend: POST /library/books
    */
   static async createBook(
     data: Omit<Library, 'id' | 'createdAt' | 'updatedAt' | 'issuedCount' | 'status'>
@@ -63,7 +63,7 @@ export class LibraryService {
   }
 
   /**
-   * Update book — backend: PATCH /library/books/:id
+   * Update book  -  backend: PATCH /library/books/:id
    */
   static async updateBook(
     id: string,
@@ -76,14 +76,14 @@ export class LibraryService {
   }
 
   /**
-   * Delete book (soft-delete) — backend: DELETE /library/books/:id
+   * Delete book (soft-delete)  -  backend: DELETE /library/books/:id
    */
   static async deleteBook(id: string): Promise<void> {
     await apiFetch(`/library/books/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Get library statistics — backend: GET /library/stats
+   * Get library statistics  -  backend: GET /library/stats
    */
   static async getLibraryStats(): Promise<{
     totalBooks: number;
@@ -113,7 +113,7 @@ export class LibraryService {
   }
 
   /**
-   * Get books by category — backend: GET /library/books?category=…
+   * Get books by category  -  backend: GET /library/books?category=…
    */
   static async getBooksByCategory(category: string): Promise<Library[]> {
     const raw = await apiFetch<Record<string, unknown>[]>(
@@ -123,7 +123,7 @@ export class LibraryService {
   }
 
   /**
-   * Issue book (decrease available copies) — PATCH /library/books/:id
+   * Issue book (decrease available copies)  -  PATCH /library/books/:id
    */
   static async issueBook(id: string): Promise<void> {
     const book = await LibraryService.getBookById(id);
@@ -137,7 +137,7 @@ export class LibraryService {
   }
 
   /**
-   * Return book (increase available copies) — PATCH /library/books/:id
+   * Return book (increase available copies)  -  PATCH /library/books/:id
    */
   static async returnBook(id: string): Promise<void> {
     const book = await LibraryService.getBookById(id);

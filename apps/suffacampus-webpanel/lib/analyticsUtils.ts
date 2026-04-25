@@ -1,11 +1,11 @@
-// ── Analytics Utilities ───────────────────────────────────────────────
+﻿// -- Analytics Utilities -----------------------------------------------
 // Computation helpers for deriving insights from school data.
 // All functions are pure, stateless, and operate on typed domain arrays.
 
 import { Student, Teacher, Fee, Attendance, Result, Class, Event } from '@/types';
 import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, eachMonthOfInterval, subMonths, differenceInDays } from 'date-fns';
 
-// ── Types ────────────────────────────────────────────────────────────
+// -- Types ------------------------------------------------------------
 
 export interface GradeDistribution {
   grade: string;
@@ -93,7 +93,7 @@ export interface DayAttendanceHeatmap {
   date: string;
 }
 
-// ── Grade Distribution ───────────────────────────────────────────────
+// -- Grade Distribution -----------------------------------------------
 
 const GRADE_COLORS: Record<string, string> = {
   'A+': '#059669', 'A': '#10b981', 'B+': '#3b82f6', 'B': '#60a5fa',
@@ -119,7 +119,7 @@ export function computeGradeDistribution(results: Result[]): GradeDistribution[]
     }));
 }
 
-// ── Class-wise Performance ───────────────────────────────────────────
+// -- Class-wise Performance -------------------------------------------
 
 export function computeClassPerformance(results: Result[], classes: Class[]): ClassPerformance[] {
   const grouped: Record<string, Result[]> = {};
@@ -148,7 +148,7 @@ export function computeClassPerformance(results: Result[], classes: Class[]): Cl
     .sort((a, b) => b.avgPercentage - a.avgPercentage);
 }
 
-// ── Subject Performance ──────────────────────────────────────────────
+// -- Subject Performance ----------------------------------------------
 
 export function computeSubjectPerformance(results: Result[]): SubjectPerformance[] {
   const grouped: Record<string, Result[]> = {};
@@ -175,7 +175,7 @@ export function computeSubjectPerformance(results: Result[]): SubjectPerformance
     .sort((a, b) => b.avgPercentage - a.avgPercentage);
 }
 
-// ── Student Rankings ─────────────────────────────────────────────────
+// -- Student Rankings -------------------------------------------------
 
 export function computeStudentRankings(results: Result[]): { top: StudentRanking[]; bottom: StudentRanking[] } {
   const grouped: Record<string, Result[]> = {};
@@ -207,7 +207,7 @@ export function computeStudentRankings(results: Result[]): { top: StudentRanking
   };
 }
 
-// ── Attendance Trends ────────────────────────────────────────────────
+// -- Attendance Trends ------------------------------------------------
 
 export function computeAttendanceTrends(attendance: Attendance[], days: number = 30): AttendanceTrend[] {
   const now = new Date();
@@ -235,7 +235,7 @@ export function computeAttendanceTrends(attendance: Attendance[], days: number =
   return trends;
 }
 
-// ── Class-wise Attendance ────────────────────────────────────────────
+// -- Class-wise Attendance --------------------------------------------
 
 export function computeClassAttendanceRates(attendance: Attendance[], classes: Class[]): { classId: string; className: string; rate: number; total: number }[] {
   const grouped: Record<string, Attendance[]> = {};
@@ -259,7 +259,7 @@ export function computeClassAttendanceRates(attendance: Attendance[], classes: C
     .sort((a, b) => b.rate - a.rate);
 }
 
-// ── Monthly Fee Analytics ────────────────────────────────────────────
+// -- Monthly Fee Analytics --------------------------------------------
 
 export function computeMonthlyFees(fees: Fee[], months: number = 6): MonthlyFeeData[] {
   const now = new Date();
@@ -287,7 +287,7 @@ export function computeMonthlyFees(fees: Fee[], months: number = 6): MonthlyFeeD
   return result;
 }
 
-// ── Fee Defaulters ───────────────────────────────────────────────────
+// -- Fee Defaulters ---------------------------------------------------
 
 export function computeFeeDefaulters(fees: Fee[]): FeeDefaulter[] {
   const grouped: Record<string, Fee[]> = {};
@@ -318,7 +318,7 @@ export function computeFeeDefaulters(fees: Fee[]): FeeDefaulter[] {
     .slice(0, 15);
 }
 
-// ── Fee Type Breakdown ───────────────────────────────────────────────
+// -- Fee Type Breakdown -----------------------------------------------
 
 export function computeFeeTypeBreakdown(fees: Fee[]): { type: string; total: number; collected: number; pending: number; percentage: number }[] {
   const grouped: Record<string, Fee[]> = {};
@@ -346,7 +346,7 @@ export function computeFeeTypeBreakdown(fees: Fee[]): { type: string; total: num
     .sort((a, b) => b.total - a.total);
 }
 
-// ── At-Risk Students ─────────────────────────────────────────────────
+// -- At-Risk Students -------------------------------------------------
 
 export function computeAtRiskStudents(
   students: Student[],
@@ -410,7 +410,7 @@ export function computeAtRiskStudents(
   });
 }
 
-// ── Fee Collection Forecast ──────────────────────────────────────────
+// -- Fee Collection Forecast ------------------------------------------
 
 export function computeFeeCollectionForecast(fees: Fee[]): { projected: number; confidence: number } {
   const totalAmount = fees.reduce((s, f) => s + f.amount, 0);
@@ -425,7 +425,7 @@ export function computeFeeCollectionForecast(fees: Fee[]): { projected: number; 
   return { projected, confidence };
 }
 
-// ── Attendance Prediction ────────────────────────────────────────────
+// -- Attendance Prediction --------------------------------------------
 
 export function computeAttendancePrediction(attendance: Attendance[]): { predictedRate: number; trend: 'improving' | 'declining' | 'stable' } {
   if (attendance.length === 0) return { predictedRate: 0, trend: 'stable' };
@@ -455,7 +455,7 @@ export function computeAttendancePrediction(attendance: Attendance[]): { predict
   return { predictedRate, trend };
 }
 
-// ── Exam-wise Score Distribution ─────────────────────────────────────
+// -- Exam-wise Score Distribution -------------------------------------
 
 export function computeExamScoreDistribution(results: Result[]): { range: string; count: number; color: string }[] {
   const ranges = [

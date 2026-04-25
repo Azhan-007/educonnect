@@ -7,7 +7,7 @@
 export function useDocumentTitle(title: string) {
   useEffect(() => {
     const prev = document.title;
-    document.title = `${title} Â· SuffaCampus`;
+    document.title = `${title} Â- SuffaCampus`;
     return () => { document.title = prev; };
   }, [title]);
 }

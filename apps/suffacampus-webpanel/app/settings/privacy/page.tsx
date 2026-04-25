@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -15,7 +15,7 @@ import {
 import toast from 'react-hot-toast';
 import { format, formatDistanceToNow, addDays } from 'date-fns';
 
-// ─── Status config ──────────────────────────────────────
+// --- Status config --------------------------------------
 const STATUS_CONFIG: Record<DataRequestStatus, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   pending:    { label: 'Pending',    color: 'text-amber-700',   bg: 'bg-amber-50',   icon: Clock },
   processing: { label: 'Processing', color: 'text-blue-600',    bg: 'bg-blue-50',    icon: RefreshCw },

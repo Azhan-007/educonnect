@@ -1,6 +1,6 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
-// ─── Reusable validators ────────────────────────────────────────────────────
+// --- Reusable validators ----------------------------------------------------
 
 const requiredString = (label: string) =>
   z.string().min(1, `${label} is required`);
@@ -23,7 +23,7 @@ const requiredPhone = (label: string) =>
 const dateString = (label: string) =>
   z.string().min(1, `${label} is required`);
 
-// ─── Student Schema ─────────────────────────────────────────────────────────
+// --- Student Schema ---------------------------------------------------------
 
 export const studentSchema = z.object({
   studentId: requiredString('Student ID'),
@@ -46,7 +46,7 @@ export const studentSchema = z.object({
 
 export type StudentFormData = z.infer<typeof studentSchema>;
 
-// ─── Teacher Schema ─────────────────────────────────────────────────────────
+// --- Teacher Schema ---------------------------------------------------------
 
 export const teacherSchema = z.object({
   teacherId: requiredString('Teacher ID'),
@@ -65,7 +65,7 @@ export const teacherSchema = z.object({
 
 export type TeacherFormData = z.infer<typeof teacherSchema>;
 
-// ─── Fee Schema ─────────────────────────────────────────────────────────────
+// --- Fee Schema -------------------------------------------------------------
 
 export const feeSchema = z.object({
   studentId: optionalString,
@@ -85,7 +85,7 @@ export const feeSchema = z.object({
 
 export type FeeFormData = z.infer<typeof feeSchema>;
 
-// ─── Event Schema ───────────────────────────────────────────────────────────
+// --- Event Schema -----------------------------------------------------------
 
 export const eventSchema = z.object({
   title: requiredString('Title'),
@@ -101,7 +101,7 @@ export const eventSchema = z.object({
 
 export type EventFormData = z.infer<typeof eventSchema>;
 
-// ─── Result Schema ──────────────────────────────────────────────────────────
+// --- Result Schema ----------------------------------------------------------
 
 export const resultSchema = z
   .object({
@@ -130,7 +130,7 @@ export const resultSchema = z
 
 export type ResultFormData = z.infer<typeof resultSchema>;
 
-// ─── Library (Book) Schema ──────────────────────────────────────────────────
+// --- Library (Book) Schema --------------------------------------------------
 
 export const bookSchema = z.object({
   title: requiredString('Title'),
@@ -147,7 +147,7 @@ export const bookSchema = z.object({
 
 export type BookFormData = z.infer<typeof bookSchema>;
 
-// ─── Timetable Schema ──────────────────────────────────────────────────────
+// --- Timetable Schema ------------------------------------------------------
 
 const periodSchema = z.object({
   periodNumber: z.number(),
@@ -172,7 +172,7 @@ export const timetableSchema = z.object({
 
 export type TimetableFormData = z.infer<typeof timetableSchema>;
 
-// ─── Validation helper ─────────────────────────────────────────────────────
+// --- Validation helper -----------------------------------------------------
 
 /**
  * Validate form data against a Zod schema and return a flat error map.

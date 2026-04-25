@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { X } from 'lucide-react';
 
-// ── Types ────────────────────────────────────────────────────────────
+// -- Types ------------------------------------------------------------
 
 export interface FilterChip {
   key: string;
@@ -17,7 +17,7 @@ interface FilterChipsProps {
   onClearAll: () => void;
 }
 
-// ── Component ────────────────────────────────────────────────────────
+// -- Component --------------------------------------------------------
 
 /**
  * Active-filter pills with individual dismiss and "Clear all" button.

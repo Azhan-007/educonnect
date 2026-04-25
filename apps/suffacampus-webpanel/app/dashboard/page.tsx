@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -113,7 +113,7 @@ export default function DashboardPage() {
 
   const firstName = (user?.displayName || 'Admin').split(' ')[0];
 
-  // ── Data fetching via React Query ──
+  // -- Data fetching via React Query --
   const { data: students = [], isLoading: studentsLoading, dataUpdatedAt } = useApiQuery<Student[]>({
     queryKey: ['students', schoolId],
     path: '/students',
@@ -153,7 +153,7 @@ export default function DashboardPage() {
   const loading = studentsLoading || teachersLoading || feesLoading || eventsLoading || attendanceLoading || classesLoading;
   const lastSync = dataUpdatedAt ? new Date(dataUpdatedAt) : new Date();
 
-  // ── Derived stats ──
+  // -- Derived stats --
   const activeStudents = students.filter((s) => s.isActive);
   const activeTeachers = teachers.filter((t) => t.isActive);
   const activeClasses = classes.filter((c: Class) => c.isActive);
@@ -174,7 +174,7 @@ export default function DashboardPage() {
   const totalPending = fees.filter((f) => f.status === 'Pending' || f.status === 'Overdue').reduce((sum, f) => sum + f.amount - (f.amountPaid || 0), 0);
   const feeCollectionRate = (totalCollected + totalPending) > 0 ? Math.round((totalCollected / (totalCollected + totalPending)) * 100) : 0;
 
-  // ── Attendance chart data (7d / 30d toggle) ──
+  // -- Attendance chart data (7d / 30d toggle) --
   const attendanceChartData = useMemo(() => {
     const now = new Date();
     const days = attendanceRange === '7d' ? 7 : 30;
@@ -196,7 +196,7 @@ export default function DashboardPage() {
     return dataPoints;
   }, [attendance, attendanceRange]);
 
-  // ── Fee collection chart data (rolling 6 months) ──
+  // -- Fee collection chart data (rolling 6 months) --
   const feeChartData = useMemo(() => {
     const now = new Date();
     return Array.from({ length: 6 }, (_, i) => {
@@ -212,7 +212,7 @@ export default function DashboardPage() {
     });
   }, [fees]);
 
-  // ── Upcoming events ──
+  // -- Upcoming events --
   const upcomingEvents = useMemo(() =>
     events
       .filter((e) => e.isActive && new Date(e.eventDate) >= new Date())
@@ -221,11 +221,11 @@ export default function DashboardPage() {
     [events]
   );
 
-  // ── Recent activities (derived from live data) ──
+  // -- Recent activities (derived from live data) --
   const recentActivities = useMemo<ActivityItem[]>(() => {
     const items: ActivityItem[] = [];
     if (todayAttendance.length > 0) {
-      items.push({ type: 'attendance', text: `Attendance marked — ${presentToday} present out of ${todayAttendance.length} today`, time: format(new Date(), 'h:mm a') });
+      items.push({ type: 'attendance', text: `Attendance marked  -  ${presentToday} present out of ${todayAttendance.length} today`, time: format(new Date(), 'h:mm a') });
     }
     // Show recent fee payments
     const recentFees = fees
@@ -237,12 +237,12 @@ export default function DashboardPage() {
     });
     // Show upcoming events
     upcomingEvents.slice(0, 2).forEach((e) => {
-      items.push({ type: 'assignment', text: `${e.title} — ${format(new Date(e.eventDate), 'dd MMM')}`, time: 'Upcoming' });
+      items.push({ type: 'assignment', text: `${e.title}  -  ${format(new Date(e.eventDate), 'dd MMM')}`, time: 'Upcoming' });
     });
     return items.slice(0, 6);
   }, [fees, todayAttendance, presentToday, upcomingEvents]);
 
-  // ── Average attendance over current range for badge ──
+  // -- Average attendance over current range for badge --
   const avgAttendance = useMemo(() => {
     const rates = attendanceChartData.map((d) => d.rate);
     return rates.length > 0 ? Math.round(rates.reduce((s, r) => s + r, 0) / rates.length) : 0;
@@ -252,7 +252,7 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-8">
 
-        {/* ── Greeting + Live Sync ──────────────────────── */}
+        {/* -- Greeting + Live Sync ------------------------ */}
         <div className="flex items-start justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">
@@ -272,7 +272,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Stat Cards ───────────────────────────────── */}
+        {/* -- Stat Cards --------------------------------- */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Students"
@@ -307,7 +307,7 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* ── Charts Row ───────────────────────────────── */}
+        {/* -- Charts Row --------------------------------- */}
         <div>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-slate-800">Analytics</h2>
@@ -394,7 +394,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Fee Summary Row ──────────────────────────── */}
+        {/* -- Fee Summary Row ---------------------------- */}
         <div>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-slate-800">Financial Overview</h2>
@@ -479,10 +479,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Events & Activity ────────────────────────── */}
+        {/* -- Events & Activity -------------------------- */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-          {/* Upcoming Events — 2 cols */}
+          {/* Upcoming Events  -  2 cols */}
           <div className="lg:col-span-2">
             <ChartCard
               title="Upcoming Events"
@@ -494,7 +494,7 @@ export default function DashboardPage() {
             </ChartCard>
           </div>
 
-          {/* Recent Activity — 3 cols */}
+          {/* Recent Activity  -  3 cols */}
           <div className="lg:col-span-3">
             <ChartCard
               title="Recent Activity"

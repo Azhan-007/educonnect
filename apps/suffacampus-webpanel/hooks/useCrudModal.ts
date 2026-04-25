@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 
@@ -65,8 +65,8 @@ export interface UseCrudModalReturn<TEntity, TForm> {
  * states that are identical across every CRUD page.
  *
  * Each page provides:
- * 1. `defaultFormData` — the empty form shape
- * 2. `entityToForm` — converts a domain entity to the form shape for editing
+ * 1. `defaultFormData`  -  the empty form shape
+ * 2. `entityToForm`  -  converts a domain entity to the form shape for editing
  */
 export function useCrudModal<TEntity, TForm>(
   options: UseCrudModalOptions<TEntity, TForm>,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useMemo } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -97,7 +97,7 @@ export default function SubscriptionPage() {
     if (!selectedPlan) return;
     const price = SubscriptionService.calculatePrice(selectedPlan, billingCycle);
     if (price.amount === 0) {
-      // Free plan — no payment needed
+      // Free plan  -  no payment needed
       setChangingPlan(true);
       try {
         await SubscriptionService.changePlan(schoolId, selectedPlan, billingCycle);
@@ -113,7 +113,7 @@ export default function SubscriptionPage() {
       }
       return;
     }
-    // Paid plan — open payment modal
+    // Paid plan  -  open payment modal
     setShowChangePlan(false);
     setShowPaymentModal(true);
   };
@@ -193,7 +193,7 @@ export default function SubscriptionPage() {
                     </div>
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
                       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Renews</p>
-                      <p className="text-[14px] font-semibold text-slate-700 mt-0.5">{subscription.endDate ? format(new Date(subscription.endDate), 'MMM dd, yyyy') : '—'}</p>
+                      <p className="text-[14px] font-semibold text-slate-700 mt-0.5">{subscription.endDate ? format(new Date(subscription.endDate), 'MMM dd, yyyy') : ' - '}</p>
                     </div>
                     <div className={`p-3 rounded-lg border ${isExpiringSoon ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100'}`}>
                       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Days Left</p>
@@ -304,7 +304,7 @@ export default function SubscriptionPage() {
                       <CreditCard className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-700 capitalize">{pay.method} {pay.paymentMethodDetails?.last4 ? `•••• ${pay.paymentMethodDetails.last4}` : ''}</p>
+                      <p className="text-sm font-medium text-slate-700 capitalize">{pay.method} {pay.paymentMethodDetails?.last4 ? `**** ${pay.paymentMethodDetails.last4}` : ''}</p>
                       <p className="text-xs text-slate-400">{format(new Date(pay.createdAt), 'MMM dd, yyyy')}</p>
                     </div>
                     <div className="text-right">

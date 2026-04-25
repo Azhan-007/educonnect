@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
@@ -20,7 +20,7 @@ export default function SuperAdminAuditLogsPage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Header ────────────────────────────────── */}
+      {/* -- Header ---------------------------------- */}
       <div>
         <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Audit Logs</h1>
         <p className="text-base text-slate-500 mt-1">
@@ -28,7 +28,7 @@ export default function SuperAdminAuditLogsPage() {
         </p>
       </div>
 
-      {/* ── Info Banner ───────────────────────────── */}
+      {/* -- Info Banner ----------------------------- */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
         <div className="flex items-start gap-3">
           <ScrollText className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
@@ -42,7 +42,7 @@ export default function SuperAdminAuditLogsPage() {
         </div>
       </div>
 
-      {/* ── Search ────────────────────────────────── */}
+      {/* -- Search ---------------------------------- */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
         <input
@@ -54,7 +54,7 @@ export default function SuperAdminAuditLogsPage() {
         />
       </div>
 
-      {/* ── School List ───────────────────────────── */}
+      {/* -- School List ----------------------------- */}
       <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100">
         {filteredSchools.length === 0 ? (
           <div className="text-center py-16">

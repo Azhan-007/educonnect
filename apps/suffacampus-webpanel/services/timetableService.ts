@@ -1,4 +1,4 @@
-import { apiFetch, ApiError } from '@/lib/api';
+﻿import { apiFetch, ApiError } from '@/lib/api';
 import { Timetable, Period } from '@/types';
 
 // ---------------------------------------------------------------------------
@@ -31,11 +31,11 @@ function deserializeTimetable(raw: Record<string, unknown>): Timetable {
 }
 
 // ---------------------------------------------------------------------------
-// Service Functions — Backend: /timetable
+// Service Functions  -  Backend: /timetable
 // ---------------------------------------------------------------------------
 
 /**
- * Get all timetables — backend: GET /timetable
+ * Get all timetables  -  backend: GET /timetable
  */
 export const getTimetables = async (): Promise<Timetable[]> => {
   const raw = await apiFetch<Record<string, unknown>[]>('/timetable?limit=1000');
@@ -43,7 +43,7 @@ export const getTimetables = async (): Promise<Timetable[]> => {
 };
 
 /**
- * Get timetable by ID — backend: GET /timetable/:id
+ * Get timetable by ID  -  backend: GET /timetable/:id
  */
 export const getTimetableById = async (
   id: string
@@ -58,7 +58,7 @@ export const getTimetableById = async (
 };
 
 /**
- * Get timetables by class and optional section — backend: GET /timetable?classId=…&sectionId=…
+ * Get timetables by class and optional section  -  backend: GET /timetable?classId=…&sectionId=…
  */
 export const getTimetablesByClass = async (
   classId: string,
@@ -72,7 +72,7 @@ export const getTimetablesByClass = async (
 };
 
 /**
- * Create timetable — backend: POST /timetable
+ * Create timetable  -  backend: POST /timetable
  */
 export const createTimetable = async (
   data: Omit<Timetable, 'id' | 'createdAt' | 'updatedAt'>
@@ -85,7 +85,7 @@ export const createTimetable = async (
 };
 
 /**
- * Update timetable — backend: PATCH /timetable/:id
+ * Update timetable  -  backend: PATCH /timetable/:id
  */
 export const updateTimetable = async (
   id: string,
@@ -98,14 +98,14 @@ export const updateTimetable = async (
 };
 
 /**
- * Delete timetable — backend: DELETE /timetable/:id
+ * Delete timetable  -  backend: DELETE /timetable/:id
  */
 export const deleteTimetable = async (id: string): Promise<void> => {
   await apiFetch(`/timetable/${id}`, { method: 'DELETE' });
 };
 
 /**
- * Get timetable statistics — computed client-side.
+ * Get timetable statistics  -  computed client-side.
  */
 export const getTimetableStats = async () => {
   const timetables = await getTimetables();

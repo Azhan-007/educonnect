@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Select from './Select';
 import { PAGE_SIZE_OPTIONS } from '@/lib/utils';
 
-// ── Types ────────────────────────────────────────────────────────────
+// -- Types ------------------------------------------------------------
 
 interface PaginationBarProps {
   /** Current page (1-indexed) */
@@ -17,13 +17,13 @@ interface PaginationBarProps {
   pageSize: number;
   /** Callback to change page size */
   setPageSize: (size: number) => void;
-  /** Total number of items (used for "Showing X–Y of Z") */
+  /** Total number of items (used for "Showing X-Y of Z") */
   totalItems: number;
   /** Whether to show the page size selector (default: true) */
   showPageSize?: boolean;
 }
 
-// ── Component ────────────────────────────────────────────────────────
+// -- Component --------------------------------------------------------
 
 /**
  * Reusable pagination bar with page numbers, prev/next, and page-size selector.
@@ -52,7 +52,7 @@ export default function PaginationBar({
           {totalItems > 0 ? (
             <>
               Showing{' '}
-              <span className="font-semibold text-slate-600">{startItem}</span>–
+              <span className="font-semibold text-slate-600">{startItem}</span>-
               <span className="font-semibold text-slate-600">{endItem}</span>{' '}
               of <span className="font-semibold text-slate-600">{totalItems}</span>
             </>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useCallback } from 'react';
 import { useDocumentTitle, useApiQuery, useCrudList, useCrudModal } from '@/hooks';
@@ -55,7 +55,7 @@ export default function TeachersPage() {
   useDocumentTitle('Teachers');
   const queryClient = useQueryClient();
 
-  // â”€â”€ Data fetching via React Query â”€â”€
+  // "€"€ Data fetching via React Query "€"€
   const { data: teachers = [], isLoading: loading, dataUpdatedAt } = useApiQuery<Teacher[]>({
     queryKey: ['teachers'],
     path: '/teachers',
@@ -70,7 +70,7 @@ export default function TeachersPage() {
 
   const lastSynced = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
 
-  // â”€â”€ Fetch classes for class assignment picker â”€â”€
+  // "€"€ Fetch classes for class assignment picker "€"€
   const { data: classes = [] } = useApiQuery<Class[]>({
     queryKey: ['classes'],
     path: '/classes/all',
@@ -94,12 +94,12 @@ export default function TeachersPage() {
     return options;
   }, [classes]);
 
-  // â”€â”€ Entity-specific filter state â”€â”€
+  // "€"€ Entity-specific filter state "€"€
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterSubject, setFilterSubject] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('active');
 
-  // â”€â”€ CRUD List hook (search, filter, sort, paginate, select) â”€â”€
+  // "€"€ CRUD List hook (search, filter, sort, paginate, select) "€"€
   const list = useCrudList<Teacher, SortField>({
     items: teachers,
     defaultSortField: 'name',
@@ -134,13 +134,13 @@ export default function TeachersPage() {
     },
   });
 
-  // â”€â”€ CRUD Modal hook (modal, form, delete dialog) â”€â”€
+  // "€"€ CRUD Modal hook (modal, form, delete dialog) "€"€
   const modal = useCrudModal<Teacher, TeacherFormData>({
     defaultFormData: DEFAULT_FORM_DATA,
     entityToForm,
   });
 
-  // â”€â”€ Extra UI state â”€â”€
+  // "€"€ Extra UI state "€"€
   const [viewTab, setViewTab] = useState<'personal' | 'professional' | 'contact'>('personal');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -151,7 +151,7 @@ export default function TeachersPage() {
   const [customDeptInput, setCustomDeptInput] = useState('');
   const [customSubjectInput, setCustomSubjectInput] = useState('');
 
-  // â”€â”€â”€ Derived: filter â†’ sort â†’ paginate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // "€"€"€ Derived: filter †' sort †' paginate "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
   const activeCount = useMemo(() => teachers.filter(t => t.isActive).length, [teachers]);
   const inactiveCount = useMemo(() => teachers.filter(t => !t.isActive).length, [teachers]);
 
@@ -161,7 +161,7 @@ export default function TeachersPage() {
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
   }, [teachers]);
 
-  // â”€â”€ Merged lists (default + custom) â”€â”€
+  // "€"€ Merged lists (default + custom) "€"€
   const allDepartments = useMemo(() => {
     const merged = [...DEFAULT_DEPARTMENTS, ...customDepartments];
     // Also include departments from existing teachers
@@ -178,7 +178,7 @@ export default function TeachersPage() {
   const DEPARTMENT_OPTIONS = useMemo(() => allDepartments.map(d => ({ value: d, label: d })), [allDepartments]);
   const SUBJECT_OPTIONS = useMemo(() => allSubjects.map(s => ({ value: s, label: s })), [allSubjects]);
 
-  // â”€â”€ Active filter chips â”€â”€
+  // "€"€ Active filter chips "€"€
   const activeFilters = useMemo(() => {
     const chips: FilterChip[] = [];
     if (filterDepartment) chips.push({ key: 'dept', label: filterDepartment, clear: () => setFilterDepartment('') });
@@ -187,7 +187,7 @@ export default function TeachersPage() {
     return chips;
   }, [filterDepartment, filterSubject, list.searchChip]);
 
-  // â”€â”€ Wrap close modal to also reset custom dept â”€â”€
+  // "€"€ Wrap close modal to also reset custom dept "€"€
   const handleCloseModal = useCallback(() => {
     modal.closeModal();
     setIsCustomDept(false);
@@ -202,7 +202,7 @@ export default function TeachersPage() {
     modal.openModal(teacher);
   }, [modal]);
 
-  // â”€â”€â”€ Form helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // "€"€"€ Form helpers "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
   const validateForm = () => {
     const errors = validateFormData(teacherSchema, modal.formData);
     modal.setFormErrors(errors ?? {});
@@ -353,7 +353,7 @@ export default function TeachersPage() {
     setFilterSubject(''); setFilterStatus('active');
   };
 
-  // â”€â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // "€"€"€ Loading "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
   if (loading) {
     return (
       <DashboardLayout>
@@ -371,7 +371,7 @@ export default function TeachersPage() {
     <DashboardLayout>
       <div className="space-y-8">
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HEADER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* HEADER ******************* */}
         <div className="flex items-center justify-between">
           <div>
               <h1 className="text-3xl font-semibold text-slate-900 tracking-tight">Teachers</h1>
@@ -381,7 +381,7 @@ export default function TeachersPage() {
               {lastSynced && (
                 <div className="flex items-center gap-1.5 mt-2">
                   <RefreshCw className="w-3 h-3 text-emerald-500 animate-spin" style={{ animationDuration: '3s' }} />
-                  <span className="text-xs text-emerald-600 font-medium">Live synced Â· {format(lastSynced, 'h:mm:ss a')}</span>
+                  <span className="text-xs text-emerald-600 font-medium">Live synced - {format(lastSynced, 'h:mm:ss a')}</span>
                 </div>
               )}
           </div>
@@ -407,7 +407,7 @@ export default function TeachersPage() {
           </div>
         </div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STAT CARDS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* STAT CARDS ******************* */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard title="Total Teachers" value={teachers.length} icon={GraduationCap} color="blue" subtitle="All registered teachers" />
           <StatCard title="Active" value={activeCount} icon={UserCheck} color="emerald" subtitle={`${teachers.length > 0 ? Math.round((activeCount / teachers.length) * 100) : 0}% of total`} />
@@ -415,7 +415,7 @@ export default function TeachersPage() {
           <StatCard title="Departments" value={deptDistribution.length} icon={Building2} color="violet" subtitle={deptDistribution.slice(0, 2).map(([d]) => d).join(', ') || 'None'} />
         </div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FILTERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* FILTERS ******************* */}
         <div className="bg-slate-50 rounded-xl border border-slate-200 p-5" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
           {/* Search + dropdowns */}
           <div className="flex flex-col lg:flex-row gap-3">
@@ -476,7 +476,7 @@ export default function TeachersPage() {
           </div>
         </div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TABLE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* TABLE ******************* */}
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
           {/* Table header bar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
@@ -520,7 +520,7 @@ export default function TeachersPage() {
 
           {list.paginated.length > 0 ? (
             <>
-              {/* â”€â”€ TABLE VIEW â”€â”€ */}
+              {/* "€"€ TABLE VIEW "€"€ */}
               {viewMode === 'table' && (
               <div className="overflow-x-auto">
                 <table className="min-w-full">
@@ -678,7 +678,7 @@ export default function TeachersPage() {
               </div>
               )}
 
-              {/* â”€â”€ CARD VIEW â”€â”€ */}
+              {/* "€"€ CARD VIEW "€"€ */}
               {viewMode === 'cards' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
                   {list.paginated.map(teacher => {
@@ -816,7 +816,7 @@ export default function TeachersPage() {
           )}
         </div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ADD / EDIT MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* ADD / EDIT MODAL ******************* */}
         <Modal
           isOpen={modal.isModalOpen}
           onClose={handleCloseModal}
@@ -1095,7 +1095,7 @@ export default function TeachersPage() {
           </div>
         </Modal>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• VIEW MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* VIEW MODAL ******************* */}
         <Modal
           isOpen={modal.isViewModalOpen}
           onClose={() => modal.setIsViewModalOpen(false)}
@@ -1217,7 +1217,7 @@ export default function TeachersPage() {
           )}
         </Modal>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CREDENTIALS MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* CREDENTIALS MODAL ******************* */}
         {createdCredentials && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30 backdrop-blur-sm">
             <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-md mx-4 animate-scale-in">
@@ -1259,7 +1259,7 @@ export default function TeachersPage() {
           </div>
         )}
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SUCCESS ANIMATION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* SUCCESS ANIMATION ******************* */}
         {showSuccess && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-xl p-8 shadow-lg flex flex-col items-center gap-3 animate-scale-in">
@@ -1272,7 +1272,7 @@ export default function TeachersPage() {
           </div>
         )}
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DELETE DIALOG â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ******************* DELETE DIALOG ******************* */}
         <ConfirmDialog
           isOpen={modal.deleteDialog.isOpen}
           onClose={modal.closeDelete}
@@ -1289,7 +1289,7 @@ export default function TeachersPage() {
   );
 }
 
-// â”€â”€â”€ View Modal Info Row Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "€"€"€ View Modal Info Row Component "€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€"€
 function InfoRow({ icon: Icon, label, value, mono, span2 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;

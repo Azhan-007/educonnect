@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -17,7 +17,7 @@ import {
 import toast from 'react-hot-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 
-// ─── Status helpers ──────────────────────────────────────
+// --- Status helpers --------------------------------------
 const STATUS_CONFIG: Record<WebhookDeliveryStatus, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   success:  { label: 'Success',  color: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle2 },
   failed:   { label: 'Failed',   color: 'text-red-600',     bg: 'bg-red-50',     icon: XCircle },
@@ -265,7 +265,7 @@ export default function WebhookLogsPage() {
                             {d.statusCode}
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-300">—</span>
+                          <span className="text-xs text-slate-300"> - </span>
                         )}
                       </td>
                       <td className="px-5 py-3.5">
@@ -276,7 +276,7 @@ export default function WebhookLogsPage() {
                             {d.responseTimeMs}ms
                           </span>
                         ) : (
-                          <span className="text-xs text-slate-300">—</span>
+                          <span className="text-xs text-slate-300"> - </span>
                         )}
                       </td>
                       <td className="px-5 py-3.5">
@@ -314,7 +314,7 @@ export default function WebhookLogsPage() {
             {/* Pagination */}
             <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
               <span className="text-xs text-slate-400">
-                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+                Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, total)} of {total}
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -367,11 +367,11 @@ export default function WebhookLogsPage() {
                   </div>
                   <div>
                     <p className="text-xs font-medium text-slate-400 mb-1">HTTP Status</p>
-                    <p className="text-sm font-mono text-slate-900">{d.statusCode ?? '—'}</p>
+                    <p className="text-sm font-mono text-slate-900">{d.statusCode ?? ' - '}</p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-slate-400 mb-1">Response Time</p>
-                    <p className="text-sm font-mono text-slate-900">{d.responseTimeMs ? `${d.responseTimeMs}ms` : '—'}</p>
+                    <p className="text-sm font-mono text-slate-900">{d.responseTimeMs ? `${d.responseTimeMs}ms` : ' - '}</p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-slate-400 mb-1">Attempt</p>

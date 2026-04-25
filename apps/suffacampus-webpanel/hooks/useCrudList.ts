@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { FilterChip } from '@/components/common/FilterChips';
@@ -18,7 +18,7 @@ export interface UseCrudListOptions<T, SortField extends string> {
   defaultPageSize?: number;
 
   /**
-   * Filter function — receives the full list and the current search term,
+   * Filter function  -  receives the full list and the current search term,
    * and should return the filtered subset.
    * Called inside useMemo, so any external filter state should be in the deps array provided.
    */
@@ -79,8 +79,8 @@ export interface UseCrudListReturn<T, SortField extends string> {
  * that is identical across every CRUD page.
  *
  * Each page only needs to provide:
- * 1. `filterFn` — the entity-specific filter logic
- * 2. `compareFn` — the entity-specific sort comparator
+ * 1. `filterFn`  -  the entity-specific filter logic
+ * 2. `compareFn`  -  the entity-specific sort comparator
  * 3. Their own entity-specific filter state (class, status, etc.)
  */
 export function useCrudList<T extends { id: string }, SortField extends string>(

@@ -1,4 +1,4 @@
-import { apiFetch } from '@/lib/api';
+﻿import { apiFetch } from '@/lib/api';
 import { UsageRecord, UsageAlert, SubscriptionPlan } from '@/types';
 import { SUBSCRIPTION_PLANS } from './subscriptionService';
 
@@ -34,7 +34,7 @@ interface BackendUsageResponse {
 }
 
 // =============================================================================
-// USAGE TRACKING SERVICE — Backend API
+// USAGE TRACKING SERVICE  -  Backend API
 // =============================================================================
 
 export class UsageTrackingService {
@@ -48,7 +48,7 @@ export class UsageTrackingService {
   private static CACHE_TTL = 30_000; // 30 seconds
 
   // ---------------------------------------------------------------------------
-  // INTERNAL — Fetch usage from backend (with cache)
+  // INTERNAL  -  Fetch usage from backend (with cache)
   // ---------------------------------------------------------------------------
 
   private static async fetchUsage(): Promise<BackendUsageResponse> {
@@ -150,7 +150,7 @@ export class UsageTrackingService {
     schoolId: string,
     _days: number = 30
   ): Promise<UsageRecord[]> {
-    // Backend doesn't expose a history endpoint yet — return current snapshot
+    // Backend doesn't expose a history endpoint yet  -  return current snapshot
     const current = await this.getCurrentUsage(schoolId);
     return current ? [current] : [];
   }
@@ -313,7 +313,7 @@ export class UsageTrackingService {
   }
 
   /**
-   * Acknowledge (dismiss) an alert — client-side only (no persistence)
+   * Acknowledge (dismiss) an alert  -  client-side only (no persistence)
    */
   static async acknowledgeAlert(_alertId: string): Promise<void> {
     // Alerts are computed on-the-fly from backend usage data;
