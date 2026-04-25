@@ -2,6 +2,7 @@ import { prisma } from "../lib/prisma";
 import type { MarkAttendanceInput } from "../schemas/attendance.schema";
 import { writeAuditLog } from "./audit.service";
 import { assertSchoolScope } from "../lib/tenant-scope";
+import { dateTimeFrom } from "../utils/safe-fields";
 
 export class AttendanceError extends Error {
   constructor(
@@ -41,12 +42,17 @@ export async function markAttendance(
   }
 
   // 2. Prevent duplicate attendance (unique constraint will also catch this)
+  const attendanceDate = dateTimeFrom(data.date);
+  if (!attendanceDate) {
+    throw new AttendanceError("Invalid date format", "STUDENT_NOT_FOUND");
+  }
+
   const existing = await prisma.attendance.findUnique({
     where: {
       schoolId_studentId_date: {
         schoolId,
         studentId: data.studentId,
-        date: data.date,
+        date: attendanceDate,
       },
     },
   });
@@ -67,7 +73,7 @@ export async function markAttendance(
       studentName: data.studentName,
       classId: data.classId,
       sectionId: data.sectionId,
-      date: data.date,
+      date: attendanceDate,
       status: data.status as any,
       remarks: data.remarks,
     },
@@ -109,7 +115,8 @@ export async function getAttendanceByDate(
 ) {
   assertSchoolScope(schoolId);
 
-  const where: any = { schoolId, date };
+  const parsedDate = dateTimeFrom(date);
+  const where: any = { schoolId, date: parsedDate ?? date };
   if (classId) where.classId = classId;
   if (sectionId) where.sectionId = sectionId;
 
