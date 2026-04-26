@@ -11,6 +11,7 @@ import {
   updateStudent,
   softDeleteStudent,
   permanentDeleteStudent,
+  resetStudentPassword,
 } from "../../services/student.service";
 import { authenticate } from "../../middleware/auth";
 import { tenantGuard } from "../../middleware/tenant";
@@ -187,6 +188,29 @@ export default async function studentRoutes(server: FastifyInstance) {
       }
 
       return sendSuccess(request, reply, { message: "Student permanently deleted" });
+    }
+  );
+
+  // POST /students/:id/reset-password — admin resets a student's password
+  server.post<{ Params: { id: string } }>(
+    "/students/:id/reset-password",
+    {
+      preHandler: [
+        ...preHandler,
+        requirePermission("STUDENT_UPDATE"),
+      ],
+    },
+    async (request, reply) => {
+      const { tempPassword } = await resetStudentPassword(
+        request.params.id,
+        request.schoolId,
+        request.user.uid
+      );
+
+      return sendSuccess(request, reply, {
+        message: "Password has been reset. Share the temporary password with the student.",
+        tempPassword,
+      });
     }
   );
 }

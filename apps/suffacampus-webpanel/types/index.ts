@@ -323,6 +323,7 @@ export interface User {
   createdAt: Date;
   lastLogin?: Date;
   isActive: boolean;
+  requirePasswordChange?: boolean; // True for auto-provisioned student/teacher accounts
 }
 
 export interface Student {
@@ -432,6 +433,7 @@ export interface Attendance {
   classId: string;
   sectionId: string;
   date: Date;
+  session?: 'FN' | 'AN';          // Forenoon (FN) or Afternoon (AN)
   status: 'Present' | 'Absent' | 'Late' | 'Excused';
   markedBy: string;
   remarks?: string;

@@ -3,6 +3,10 @@ import type { CreateResultInput, UpdateResultInput } from "../schemas/modules.sc
 import { writeAuditLog } from "./audit.service";
 import { Errors } from "../errors";
 import { assertSchoolScope } from "../lib/tenant-scope";
+import { sendToUsers, PushTemplates } from "./push-notification.service";
+import pino from "pino";
+
+const log = pino({ name: "result-service" });
 
 /** Auto-calculate grade from percentage */
 function calculateGrade(percentage: number): string {
@@ -56,6 +60,9 @@ export async function createResult(
     examName: result.examName,
     subject: result.subject,
   });
+
+  // Notify linked parents of new result (non-blocking)
+  notifyParentsOfResult(schoolId, data.studentId, data.studentName ?? "", data.examName ?? "Exam").catch(() => {});
 
   return result;
 }
@@ -191,4 +198,34 @@ export async function softDeleteResult(
   });
 
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// Push notification helper (fire-and-forget)
+// ---------------------------------------------------------------------------
+
+async function notifyParentsOfResult(
+  schoolId: string,
+  studentId: string,
+  studentName: string,
+  examName: string
+): Promise<void> {
+  try {
+    const parents = await prisma.user.findMany({
+      where: {
+        schoolId,
+        role: "Parent",
+        studentIds: { has: studentId },
+      },
+      select: { uid: true },
+    });
+
+    if (parents.length === 0) return;
+
+    const parentUids = parents.map((p) => p.uid);
+    const payload = PushTemplates.examResult(studentName || "Your child", examName);
+    await sendToUsers(parentUids, payload);
+  } catch (err) {
+    log.warn({ err, studentId, schoolId }, "Failed to send result push notification");
+  }
 }

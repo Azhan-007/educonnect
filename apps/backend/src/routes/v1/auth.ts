@@ -238,6 +238,38 @@ export default async function authRoutes(server: FastifyInstance) {
     { ...authRateLimitConfig, preHandler: [authenticate] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const user = request.user!;
+
+      // Resolve assigned classes from the Teacher relation if user is a teacher.
+      // The User model doesn't have assignedClasses — it lives on TeacherClassAssignment.
+      let assignedClasses: Array<{
+        classId: string;
+        sectionId: string;
+        className: string | null;
+        sectionName: string | null;
+      }> = [];
+
+      const teacherId =
+        typeof user.teacherId === "string" && user.teacherId.trim().length > 0
+          ? user.teacherId
+          : null;
+
+      if (teacherId) {
+        try {
+          assignedClasses = await prisma.teacherClassAssignment.findMany({
+            where: { teacherId },
+            select: {
+              classId: true,
+              sectionId: true,
+              className: true,
+              sectionName: true,
+            },
+          });
+        } catch {
+          // If TeacherClassAssignment table doesn't exist yet, return empty
+          assignedClasses = [];
+        }
+      }
+
       return sendSuccess(request, reply, {
         uid: user.uid,
         email: user.email,
@@ -250,9 +282,9 @@ export default async function authRoutes(server: FastifyInstance) {
         requirePasswordChange: user.requirePasswordChange ?? false,
         createdAt: user.createdAt ?? null,
         lastLogin: user.lastLogin ?? null,
-        teacherId: (user.teacherId as string) ?? null,
+        teacherId: teacherId,
         studentId: (user.studentId as string) ?? null,
-        assignedClasses: (user.assignedClasses as unknown[]) ?? [],
+        assignedClasses,
       });
     }
   );

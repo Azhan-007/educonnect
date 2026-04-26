@@ -1,4 +1,4 @@
-﻿import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma";
 import { auth } from "../lib/firebase-admin";
 import type { CreateStudentInput } from "../schemas/student.schema";
 import type { UpdateStudentInput } from "../schemas/update.schema";
@@ -222,7 +222,7 @@ export async function createStudent(
 }
 
 /**
- * List students for a school â€” paginated, filterable, searchable.
+ * List students for a school — paginated, filterable, searchable.
  */
 export async function getStudentsBySchool(
   schoolId: string,
@@ -286,7 +286,7 @@ export async function getStudentsBySchool(
 }
 
 /**
- * Get all students for a school (unpaginated â€” internal use, e.g. counts).
+ * Get all students for a school (unpaginated — internal use, e.g. counts).
  */
 export async function getAllStudentsBySchool(schoolId: string) {
   assertSchoolScope(schoolId);
@@ -408,4 +408,64 @@ export async function permanentDeleteStudent(
   });
 
   return true;
+}
+
+/**
+ * Reset a student's password to a temporary value.
+ * Admin action: generates a secure temp password, updates Firebase Auth,
+ * and sets requirePasswordChange: true so the student must set a new
+ * password on next login.
+ */
+export async function resetStudentPassword(
+  studentId: string,
+  schoolId: string,
+  performedBy: string
+): Promise<{ tempPassword: string }> {
+  assertSchoolScope(schoolId);
+
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    select: {
+      id: true,
+      schoolId: true,
+      isDeleted: true,
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!student) throw Errors.notFound("Student", studentId);
+  if (student.schoolId !== schoolId) throw Errors.tenantMismatch();
+  if (student.isDeleted) throw Errors.notFound("Student", studentId);
+
+  // Find the linked user account
+  const user = await prisma.user.findFirst({
+    where: { studentId, schoolId },
+    select: { uid: true },
+  });
+
+  if (!user) {
+    throw Errors.badRequest("No user account linked to this student");
+  }
+
+  // Generate a temporary password: FirstName + random 4 digits
+  const safeName = (student.firstName || "Student").replace(/[^a-zA-Z]/g, "");
+  const randomDigits = Math.floor(1000 + Math.random() * 9000);
+  const tempPassword = `${safeName}@${randomDigits}`;
+
+  // Update Firebase Auth password
+  await auth.updateUser(user.uid, { password: tempPassword });
+
+  // Set requirePasswordChange flag
+  await prisma.user.update({
+    where: { uid: user.uid },
+    data: { requirePasswordChange: true },
+  });
+
+  await writeAuditLog("RESET_STUDENT_PASSWORD", performedBy, schoolId, {
+    studentId,
+    studentName: `${student.firstName} ${student.lastName}`,
+  });
+
+  return { tempPassword };
 }

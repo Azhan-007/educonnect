@@ -1,5 +1,5 @@
 ﻿/**
- * Push notification service â€” Firebase Cloud Messaging (FCM).
+ * Push notification service — Firebase Cloud Messaging (FCM).
  * Device token storage moved to PostgreSQL via Prisma.
  * FCM sending logic remains unchanged (FCM SDK).
  */
@@ -34,7 +34,7 @@ function normalizeRole(role?: string | null): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-// Device token management â€” Prisma
+// Device token management — Prisma
 
 export async function registerDeviceToken(params: {
   userId: string;
@@ -258,8 +258,8 @@ async function sendToTokens(tokens: string[], payload: PushNotificationPayload):
 // Push notification templates
 export const PushTemplates = {
   attendanceMarked: (name: string, status: "present" | "absent" | "late"): PushNotificationPayload => ({ title: "Attendance Update", body: `${name} has been marked ${status} today.`, data: { type: "attendance" }, actionUrl: "/attendance" }),
-  feeReminder: (name: string, amount: number, dueDate: string): PushNotificationPayload => ({ title: "Fee Payment Reminder", body: `Fee of â‚¹${amount.toLocaleString("en-IN")} for ${name} is due on ${dueDate}.`, data: { type: "fee_reminder" }, actionUrl: "/fees" }),
-  feeReceived: (name: string, amount: number): PushNotificationPayload => ({ title: "Payment Received", body: `Payment of â‚¹${amount.toLocaleString("en-IN")} received for ${name}.`, data: { type: "fee_payment" }, actionUrl: "/fees" }),
+  feeReminder: (name: string, amount: number, dueDate: string): PushNotificationPayload => ({ title: "Fee Payment Reminder", body: `Fee of ₹${amount.toLocaleString("en-IN")} for ${name} is due on ${dueDate}.`, data: { type: "fee_reminder" }, actionUrl: "/fees" }),
+  feeReceived: (name: string, amount: number): PushNotificationPayload => ({ title: "Payment Received", body: `Payment of ₹${amount.toLocaleString("en-IN")} received for ${name}.`, data: { type: "fee_payment" }, actionUrl: "/fees" }),
   examResult: (name: string, examName: string): PushNotificationPayload => ({ title: "Exam Results Published", body: `Results for ${examName} are now available for ${name}.`, data: { type: "result" }, actionUrl: "/results" }),
   eventAnnouncement: (title: string, date: string): PushNotificationPayload => ({ title: "New Event", body: `${title} scheduled for ${date}. Tap to view details.`, data: { type: "event" }, actionUrl: "/events" }),
   schoolAnnouncement: (title: string, message: string): PushNotificationPayload => ({ title, body: message, data: { type: "announcement" } }),

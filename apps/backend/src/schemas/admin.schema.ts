@@ -36,6 +36,7 @@ export const bulkAttendanceSchema = z.object({
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  session: z.enum(["FN", "AN"]).default("FN"),
   entries: z
     .array(bulkAttendanceEntrySchema)
     .min(1, "At least one attendance entry is required")

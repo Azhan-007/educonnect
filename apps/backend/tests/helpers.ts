@@ -8,7 +8,7 @@ import { resetFirestoreMock, seedDoc, getDoc, getAllDocs } from "./__mocks__/fir
 export { resetFirestoreMock, seedDoc, getDoc, getAllDocs };
 
 // ---------------------------------------------------------------------------
-// Factory functions â€” create valid test data with minimal boilerplate
+// Factory functions — create valid test data with minimal boilerplate
 // ---------------------------------------------------------------------------
 
 let counter = 0;

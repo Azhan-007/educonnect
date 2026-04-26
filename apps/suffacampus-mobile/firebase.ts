@@ -8,7 +8,8 @@
  */
 
 import { getApps, initializeApp } from "firebase/app";
-import { getAuth, initializeAuth } from "firebase/auth";
+import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 // ── Env validation ────────────────────────────────────────────────────────────
 // NOTE: Expo inlines EXPO_PUBLIC_* at build time via Babel — dynamic access
@@ -43,15 +44,17 @@ const firebaseConfig = {
 // Initialize Firebase app only if not already initialized
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// Initialize Auth - Expo handles persistence automatically
+// Initialize Auth with AsyncStorage persistence so login survives app restarts
 let authInstance;
 try {
-  // Try to get existing instance first
+  // Try to get existing instance first (hot reload safety)
   authInstance = getAuth(app);
 } catch (error: any) {
-  // If not initialized, initialize now
+  // If not initialized, initialize with persistence
   try {
-    authInstance = initializeAuth(app, {});
+    authInstance = initializeAuth(app, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    });
   } catch (fallbackError: any) {
     if (fallbackError.code !== "auth/already-initialized") {
       throw fallbackError;

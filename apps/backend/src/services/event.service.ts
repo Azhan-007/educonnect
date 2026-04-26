@@ -3,6 +3,10 @@ import type { CreateEventInput, UpdateEventInput } from "../schemas/modules.sche
 import { writeAuditLog } from "./audit.service";
 import { Errors } from "../errors";
 import { assertSchoolScope } from "../lib/tenant-scope";
+import { sendToSchool, PushTemplates } from "./push-notification.service";
+import pino from "pino";
+
+const log = pino({ name: "event-service" });
 
 export async function createEvent(
   schoolId: string,
@@ -32,6 +36,14 @@ export async function createEvent(
     eventId: event.id,
     title: event.title,
     eventType: event.eventType,
+  });
+
+  // Broadcast event announcement to entire school (non-blocking)
+  sendToSchool(
+    schoolId,
+    PushTemplates.eventAnnouncement(event.title, String(event.eventDate))
+  ).catch((err) => {
+    log.warn({ err, schoolId, eventId: event.id }, "Failed to send event push notification");
   });
 
   return event;

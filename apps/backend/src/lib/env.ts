@@ -5,9 +5,9 @@
  * fails fast before the HTTP server starts accepting traffic.
  *
  * Pattern:
- *   required  â†’ `z.string().min(1)` â€” must be set & non-empty
- *   optional  â†’ `z.string().optional().default(...)` â€” has a safe fallback
- *   optional  â†’ `z.string().optional()` â€” feature disabled when absent
+ *   required  → `z.string().min(1)` — must be set & non-empty
+ *   optional  → `z.string().optional().default(...)` — has a safe fallback
+ *   optional  → `z.string().optional()` — feature disabled when absent
  */
 import { z } from "zod";
 import { createLogger } from "../utils/logger";
@@ -28,7 +28,7 @@ const envSchema = z.object({
   // â”€â”€ Database (PostgreSQL via Prisma) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
-  // â”€â”€ Firebase (required â€” Auth only, no Firestore for data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Firebase (required — Auth only, no Firestore for data) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   FIREBASE_PROJECT_ID: z.string().min(1, "FIREBASE_PROJECT_ID is required"),
   FIREBASE_CLIENT_EMAIL: z
     .string()
@@ -149,7 +149,7 @@ const parsed = envSchema.safeParse(envInput);
 if (!parsed.success) {
   // Pretty-print exactly which vars are wrong / missing
   const formatted = parsed.error.issues
-    .map((i) => `  â€¢ ${i.path.join(".")}: ${i.message}`)
+    .map((i) => `  • ${i.path.join(".")}: ${i.message}`)
     .join("\n");
   log.error(
     `\nâŒ  Environment validation failed:\n${formatted}\n\nFix your .env file or CI secrets and restart.\n`
@@ -157,7 +157,7 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-/** Typed, validated environment â€” use this instead of `process.env` */
+/** Typed, validated environment — use this instead of `process.env` */
 export const env = parsed.data;
 
 if (env.NODE_ENV === "production" && !env.FRONTEND_URL && !env.CORS_ORIGINS) {
@@ -174,17 +174,17 @@ if (env.NODE_ENV === "production" && !env.FRONTEND_URL && !env.CORS_ORIGINS) {
 if (env.NODE_ENV === "production") {
   if (!env.SENTRY_DSN) {
     log.warn(
-      "âš ï¸  SENTRY_DSN is not set â€” error tracking is disabled in production."
+      "âš ï¸  SENTRY_DSN is not set — error tracking is disabled in production."
     );
   }
   if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
     log.warn(
-      "âš ï¸  Razorpay credentials are not set â€” payment features will fail."
+      "âš ï¸  Razorpay credentials are not set — payment features will fail."
     );
   }
   if (!env.REDIS_URL) {
     log.warn(
-      "âš ï¸  REDIS_URL is not set â€” queue workers and retries will run in degraded mode."
+      "âš ï¸  REDIS_URL is not set — queue workers and retries will run in degraded mode."
     );
   }
   if (!env.METRICS_AUTH_TOKEN) {

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "706157708984",
+    "project_id": "educonnect-fa194",
+    "storage_bucket": "educonnect-fa194.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706157708984:android:0e58ec966fb3914930964d",
+        "android_client_info": {
+          "package_name": "com.SuffaCampus.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "706157708984-9g6m23oigo5hmnmec83vfu2991bfdfu5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ8SN_7SWMICHocUvCUroAd_0wqS0hGrc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "706157708984-9g6m23oigo5hmnmec83vfu2991bfdfu5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

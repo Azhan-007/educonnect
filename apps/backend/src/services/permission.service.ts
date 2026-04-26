@@ -1,6 +1,6 @@
 import { Errors } from "../errors";
 
-export const ROLES = ["SuperAdmin", "Admin", "Staff", "Teacher", "Parent", "Student"] as const;
+export const ROLES = ["SuperAdmin", "Admin", "Principal", "Accountant", "Staff", "Teacher", "Parent", "Student"] as const;
 export type Role = (typeof ROLES)[number];
 
 export enum Permission {
@@ -48,6 +48,8 @@ export interface PermissionUserInput {
 const ROLE_CANONICAL_MAP: Record<string, Role> = {
   superadmin: "SuperAdmin",
   admin: "Admin",
+  principal: "Principal",
+  accountant: "Accountant",
   staff: "Staff",
   teacher: "Teacher",
   parent: "Parent",
@@ -75,6 +77,18 @@ const ALL_PERMISSIONS = Object.values(Permission) as Permission[];
 export const ROLE_PERMISSIONS = {
   SuperAdmin: ALL_PERMISSIONS,
   Admin: ALL_PERMISSIONS,
+  Principal: ALL_PERMISSIONS,
+  Accountant: [
+    Permission.STUDENT_VIEW,
+    Permission.FEE_CREATE,
+    Permission.FEE_VIEW,
+    Permission.FEE_UPDATE,
+    Permission.FEE_DELETE,
+    Permission.FEE_PAY,
+    Permission.ATTENDANCE_VIEW,
+    Permission.RESULT_VIEW,
+    Permission.NOTIFICATION_VIEW,
+  ],
   Staff: [
     Permission.STUDENT_VIEW,
     Permission.STUDENT_UPDATE,
@@ -120,6 +134,8 @@ export const ROLE_PERMISSIONS = {
 const ROLE_PERMISSION_SETS: Record<Role, ReadonlySet<Permission>> = {
   SuperAdmin: new Set(ROLE_PERMISSIONS.SuperAdmin),
   Admin: new Set(ROLE_PERMISSIONS.Admin),
+  Principal: new Set(ROLE_PERMISSIONS.Principal),
+  Accountant: new Set(ROLE_PERMISSIONS.Accountant),
   Staff: new Set(ROLE_PERMISSIONS.Staff),
   Teacher: new Set(ROLE_PERMISSIONS.Teacher),
   Parent: new Set(ROLE_PERMISSIONS.Parent),

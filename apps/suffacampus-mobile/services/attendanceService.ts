@@ -22,7 +22,7 @@ export interface AttendanceRecord {
   sectionId: string;
   date: string;
   session?: "FN" | "AN";
-  status: "Present" | "Absent";
+  status: "Present" | "Absent" | "Late" | "Excused";
   markedBy?: string;
   createdAt?: string;
 }
@@ -30,14 +30,16 @@ export interface AttendanceRecord {
 /**
  * Mark attendance for a student on a given date.
  * Maps to: POST /attendance
+ * Returns { synced: true } on immediate success or { synced: false, queued: true }
+ * if the request failed and was queued for offline retry.
  */
 export async function markAttendance(
   studentId: string,
   date: string,
-  status: "Present" | "Absent",
+  status: "Present" | "Absent" | "Late" | "Excused",
   classId: string,
   sectionId: string
-): Promise<void> {
+): Promise<{ synced: boolean; queued: boolean; queueId?: string }> {
   const payload = { studentId, date, status, classId, sectionId };
 
   try {
@@ -45,12 +47,14 @@ export async function markAttendance(
       method: "POST",
       body: payload,
     });
+    return { synced: true, queued: false };
   } catch {
-    await enqueueOfflineMutation({
+    const queueId = await enqueueOfflineMutation({
       path: "/attendance",
       method: "POST",
       body: payload,
     });
+    return { synced: false, queued: true, queueId };
   }
 }
 
@@ -66,14 +70,15 @@ export async function getAttendanceByDate(date: string): Promise<AttendanceRecor
 
 /**
  * Fetch attendance records filtered by student.
+ * Uses the dedicated /attendance/student/:studentId endpoint for efficiency and security.
  */
 export async function getAttendanceByStudent(studentId: string): Promise<AttendanceRecord[]> {
   try {
-    const today = new Date().toISOString().split("T")[0];
-    const records = await apiFetch<AttendanceRecord[]>("/attendance", {
-      params: { date: today },
-    });
-    return (Array.isArray(records) ? records : []).filter((r) => r.studentId === studentId);
+    const result = await apiFetch<{ records: AttendanceRecord[]; stats?: unknown }>(
+      `/attendance/student/${encodeURIComponent(studentId)}`
+    );
+    // Backend returns { records: [...], stats: {...} } — we only need records
+    return Array.isArray(result.records) ? result.records : (Array.isArray(result) ? result : []);
   } catch {
     return [];
   }
@@ -84,7 +89,7 @@ export async function getAttendanceByStudent(studentId: string): Promise<Attenda
 export interface AttendanceSessionRecord {
   id?: string;
   date: string;
-  status: "Present" | "Absent" | "Leave";
+  status: "Present" | "Absent" | "Late" | "Excused";
   session?: "FN" | "AN";
   studentId?: string;
   classId?: string;
@@ -155,7 +160,7 @@ export interface ClassAttendanceRecord {
   sectionId: string;
   date: string;
   session?: "FN" | "AN";
-  status: "Present" | "Absent";
+  status: "Present" | "Absent" | "Late" | "Excused";
   markedBy?: string;
 }
 
@@ -166,7 +171,7 @@ export interface BulkAttendancePayload {
   session?: "FN" | "AN";
   entries: Array<{
     studentId: string;
-    status: "Present" | "Absent";
+    status: "Present" | "Absent" | "Late" | "Excused";
   }>;
 }
 
@@ -178,16 +183,13 @@ export async function getStudentsByClass(
   classId: string,
   sectionId: string
 ): Promise<StudentRecord[]> {
-  console.log(`[DEBUG] getStudentsByClass called: classId=${classId}, sectionId=${sectionId}`);
   const data = await apiFetch<any>("/students", {
     params: { classId, sectionId, limit: "200" },
   });
-  console.log(`[DEBUG] getStudentsByClass raw response:`, JSON.stringify(data)?.substring(0, 500));
-  console.log(`[DEBUG] getStudentsByClass isArray:`, Array.isArray(data), `type:`, typeof data);
-  
+
   // Handle both array and paginated envelope responses
   const records = Array.isArray(data) ? data : (data?.data ?? []);
-  
+
   return records.map((s: any) => ({
     id: s.id,
     name: `${s.firstName || ""} ${s.lastName || ""}`.trim(),
@@ -214,7 +216,7 @@ export async function getAttendanceByClassDate(
 
 /** Upsert a single attendance record (create or update). */
 export async function upsertAttendance(
-  record: { studentId: string; classId: string; sectionId: string; date: string; session?: "FN" | "AN"; status: "Present" | "Absent"; id?: string }
+  record: { studentId: string; classId: string; sectionId: string; date: string; session?: "FN" | "AN"; status: "Present" | "Absent" | "Late" | "Excused"; id?: string }
 ): Promise<ClassAttendanceRecord> {
   const { id, ...payload } = record;
   // Ensure session defaults to FN
@@ -231,27 +233,32 @@ export async function upsertAttendance(
       method: "POST",
       body: payload,
     });
-  } catch (err: any) {
-    console.error(`[DEBUG] upsertAttendance ERROR:`, err?.message, err);
+  } catch (err) {
     throw err;
   }
 }
 
-/** Submit attendance for all students in a class at once. */
+/**
+ * Submit attendance for all students in a class at once.
+ * Returns { synced: true } on immediate success or { synced: false, queued: true }
+ * if the request failed and was queued for offline retry.
+ */
 export async function bulkMarkAttendance(
   payload: BulkAttendancePayload
-): Promise<void> {
+): Promise<{ synced: boolean; queued: boolean; queueId?: string }> {
   try {
     await apiFetch<void>("/attendance/bulk", {
       method: "POST",
       body: payload,
     });
+    return { synced: true, queued: false };
   } catch {
-    await enqueueOfflineMutation({
+    const queueId = await enqueueOfflineMutation({
       path: "/attendance/bulk",
       method: "POST",
       body: payload,
     });
+    return { synced: false, queued: true, queueId };
   }
 }
 

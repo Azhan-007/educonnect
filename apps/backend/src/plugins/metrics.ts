@@ -2,15 +2,15 @@
  * Prometheus-compatible metrics plugin.
  *
  * Exposes:
- *   GET /metrics          â€” Prometheus text format (OpenMetrics)
- *   GET /metrics/json     â€” JSON snapshot for internal dashboards
+ *   GET /metrics          — Prometheus text format (OpenMetrics)
+ *   GET /metrics/json     — JSON snapshot for internal dashboards
  *
  * Key metrics:
- *   http_request_duration_seconds  â€” histogram per route/method/status
- *   http_requests_total            â€” counter per route/method/status
- *   http_request_errors_total      â€” counter (status >= 500)
- *   SuffaCampus_active_tenants      â€” gauge (unique schoolIds in sliding window)
- *   nodejs_*                       â€” default Node.js metrics (memory, GC, event loop)
+ *   http_request_duration_seconds  — histogram per route/method/status
+ *   http_requests_total            — counter per route/method/status
+ *   http_request_errors_total      — counter (status >= 500)
+ *   SuffaCampus_active_tenants      — gauge (unique schoolIds in sliding window)
+ *   nodejs_*                       — default Node.js metrics (memory, GC, event loop)
  *
  * Protected in production by METRICS_AUTH_TOKEN bearer check.
  */

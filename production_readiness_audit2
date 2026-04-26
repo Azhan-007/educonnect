@@ -1,0 +1,296 @@
+# SuffaCampus Production Readiness Audit
+
+**Date:** 2026-04-25  
+**Auditor Roles:** Principal Engineer, QA Lead, SRE, Security Auditor, Product Readiness Reviewer
+
+---
+
+## 1. Final Verdict
+
+### **CONDITIONAL GO** — The core user flow works end-to-end, but there are P0 data-integrity and performance issues that must be patched before real schools go live.
+
+---
+
+## 2. End-to-End Flow Status
+
+| Step | Flow | Status | Evidence |
+|------|------|--------|----------|
+| 1 | **SuperAdmin Login** | ✅ Working | Firebase Auth → `/auth/login` → session JWT issued → `role: "SuperAdmin"` in middleware bypass for tenantGuard |
+| 2 | **Create School** | ✅ Working | `POST /admin/schools` → Zod validation → Prisma create → subscription + config bootstrap → admin provisioning (if `adminEmail` provided) |
+| 3 | **Create School Admin** | ✅ Working | Embedded in `createSchool()` — if `adminEmail` is provided, Firebase Auth user + Prisma User created with `role: "Admin"`, schoolId bound |
+| 4 | **Login as School Admin** | ✅ Working | Firebase `signInWithEmailAndPassword` → `/auth/login` (Firebase fallback allowed on login route) → session JWT with schoolId → tenant-bound |
+| 5 | **Create Students & Teachers** | ✅ Working | `POST /students` / `POST /teachers` — Zod schema validates, auto-provisions Firebase Auth + Prisma User, enforces plan limits |
+| 6 | **Login as Student/Teacher** | ⚠️ Partial | Username lookup → email → Firebase login works. **However:** `requirePasswordChange: true` is set but the webpanel login page **does not enforce** force-password-change flow before proceeding |
+| 7 | **Perform Operations** | ⚠️ Partial | Attendance marking (mobile ✅, webpanel ✅). Results, library, events — webpanel pages render but some have leftover text artifacts from encoding cleanup |
+
+---
+
+## 3. P0 Blockers (CRITICAL — Must Fix Before Launch)
+
+### P0-1: Webpanel Bulk Attendance Uses Sequential POST, Not Bulk Endpoint
+
+**Location:** [attendanceService.ts](file:///d:/suffacampus/apps/suffacampus-webpanel/services/attendanceService.ts#L183-L190)
+
+```typescript
+// CURRENT: Sequential POST /attendance for each record
+static async bulkMarkAttendance(schoolId, records) {
+  for (const record of records) {
+    await AttendanceService.createAttendance(schoolId, record);
+  }
+}
+```
+
+**Root Cause:** The webpanel's `bulkMarkAttendance` fires N sequential `POST /attendance` requests instead of a single `POST /attendance/bulk`. The mobile app correctly uses the bulk endpoint.
+
+**Impact:** For a class of 50 students, this generates 50 HTTP requests. At scale (multiple classes, multiple teachers), this will overwhelm the backend, cause timeouts, and corrupt partial-save state. This is the **#1 production risk** for daily operations.
+
+---
+
+### P0-2: Webpanel Attendance Service Does NOT Send `session` Field
+
+**Location:** [attendanceService.ts](file:///d:/suffacampus/apps/suffacampus-webpanel/services/attendanceService.ts#L75-L81)
+
+```typescript
+const payload = {
+  studentId: attendanceData.studentId,
+  date: toDateString(new Date(attendanceData.date)),
+  status: attendanceData.status,
+  classId: attendanceData.classId,
+  sectionId: attendanceData.sectionId,
+  // ❌ Missing: session field
+};
+```
+
+**Root Cause:** The `session` field (`"FN"` / `"AN"`) is omitted from the webpanel's `createAttendance` payload. The backend schema defaults it to `"FN"`, but the webpanel UI doesn't let the admin choose FN/AN, and never sends the field. This means **webpanel admin can only mark FN attendance** — the dual-session feature is mobile-only.
+
+**Impact:** Admin marks attendance via webpanel → always `FN`. Teacher marks via mobile with `AN` selected → creates a separate record. The webpanel then shows both FN and AN records without the admin understanding the session concept. **Data confusion guaranteed.**
+
+---
+
+### P0-3: `/auth/me` Returns `assignedClasses` as Empty Array Always
+
+**Location:** [auth.ts](file:///d:/suffacampus/apps/backend/src/routes/v1/auth.ts#L255)
+
+```typescript
+assignedClasses: (user.assignedClasses as unknown[]) ?? [],
+```
+
+**Root Cause:** The `auth` middleware loads user data from `prisma.user.findUnique()` (L120-122), which does NOT include `TeacherClassAssignment` relations. The `assignedClasses` field doesn't exist on the User model — it's on the Teacher model via a relation.
+
+**Impact:** The mobile app calls `getMyProfile()` → gets `assignedClasses: []` → teacher sees **all** classes instead of only their assigned ones (the filter at `attendance.tsx:61-65` falls back to showing everything). This is a **functional correctness issue** — teachers see classes they shouldn't see.
+
+**Fix:** In `/auth/me`, if user has `teacherId`, query `TeacherClassAssignment` and include it in the response.
+
+---
+
+### P0-4: Weekly Attendance Dashboard Makes 7 Separate API Calls
+
+**Location:** [attendanceService.ts](file:///d:/suffacampus/apps/suffacampus-webpanel/services/attendanceService.ts#L143-L163)
+
+```typescript
+static async getWeeklyAttendance(schoolId) {
+  return await Promise.all(
+    days.map(async (day, index) => {
+      // 7 calls to getAttendanceStats → each calls getAttendance → GET /attendance
+      const stats = await AttendanceService.getAttendanceStats(schoolId, date);
+    })
+  );
+}
+```
+
+**Root Cause:** `getWeeklyAttendance` fires **7 parallel requests** (one per day), each fetching ALL attendance records for that date, then computing stats client-side.
+
+**Impact:** On dashboard load: 7 × (full attendance fetch for entire school) = massive data transfer. For a school with 500 students × 7 days = up to 3,500 records fetched and discarded. **Backend has `/attendance/stats` endpoint that does this server-side** — webpanel ignores it entirely.
+
+---
+
+## 4. P1 Issues (HIGH — Fix Before Scaling)
+
+### P1-1: `requirePasswordChange` Not Enforced on Webpanel
+
+**Location:** [login/page.tsx](file:///d:/suffacampus/apps/suffacampus-webpanel/app/login/page.tsx)
+
+The backend returns `requirePasswordChange: true` for auto-provisioned student/teacher accounts. The mobile app handles this (redirects to password change screen). The **webpanel does not check this flag** — user logs in and proceeds normally with a weak password (`FirstName@123`).
+
+> [!WARNING]  
+> This means newly created student/teacher accounts can be accessed by anyone who knows the naming pattern.
+
+---
+
+### P1-2: Webpanel Middleware Auth Check is Cookie-Based — Easily Bypassable
+
+**Location:** [middleware.ts](file:///d:/suffacampus/apps/suffacampus-webpanel/middleware.ts#L129-L132)
+
+```typescript
+const authCookie =
+  request.cookies.get('__session') ??
+  request.cookies.get('SuffaCampus-token');
+const isAuthenticated = Boolean(authCookie?.value);
+```
+
+The webpanel's Next.js middleware checks for cookie **existence only** — not validity. Any non-empty cookie value passes. This is mitigated by backend API auth on every data call, but it means the **route guard is theater** — a user can manually set a cookie and see the dashboard skeleton (without data).
+
+---
+
+### P1-3: Webpanel `getAttendanceById` Fetches Entire Day's Records
+
+**Location:** [attendanceService.ts](file:///d:/suffacampus/apps/suffacampus-webpanel/services/attendanceService.ts#L62-L65)
+
+```typescript
+static async getAttendanceById(schoolId, id) {
+  const records = await AttendanceService.getAttendance(schoolId); // ALL records for today
+  return records.find((a) => a.id === id) ?? null;
+}
+```
+
+Fetching ALL attendance records to find ONE by ID is O(n) on the client.
+
+---
+
+### P1-4: Mobile `getAttendanceByStudent` Fetches Today Only
+
+**Location:** [attendanceService.ts](file:///d:/suffacampus/apps/suffacampus-mobile/services/attendanceService.ts#L70-L80)
+
+```typescript
+export async function getAttendanceByStudent(studentId) {
+  const today = new Date().toISOString().split("T")[0];
+  const records = await apiFetch("/attendance", { params: { date: today } });
+  return records.filter((r) => r.studentId === studentId);
+}
+```
+
+This function fetches ALL school attendance for today, then filters client-side. Inefficient and potentially leaks other students' attendance data.
+
+---
+
+### P1-5: Student Email Uses Internal Domain — Not Real Email
+
+**Location:** [student.service.ts](file:///d:/suffacampus/apps/backend/src/services/student.service.ts#L141)
+
+```typescript
+const email = `${username}.${schoolId}@SuffaCampus.internal`;
+```
+
+This is fine as a login identifier, but means:
+- Students cannot receive password reset emails
+- No email-based notifications possible
+- The `.internal` TLD won't resolve — Firebase may reject it in future updates
+
+---
+
+### P1-6: `Accountant` and `Principal` Roles Missing from Backend RBAC
+
+**Location:** [permission.service.ts](file:///d:/suffacampus/apps/backend/src/services/permission.service.ts#L3)
+
+```typescript
+export const ROLES = ["SuperAdmin", "Admin", "Staff", "Teacher", "Parent", "Student"] as const;
+```
+
+The webpanel middleware defines `Accountant` and `Principal` roles with specific ACLs, but the **backend permission service doesn't recognize them**. Any user with `role: "Accountant"` or `role: "Principal"` will be treated as having **no permissions** — every API call will return 403.
+
+> [!CAUTION]  
+> If a school creates an Accountant user, they will be completely locked out of all data.
+
+---
+
+## 5. P2 Issues (MEDIUM/LOW)
+
+| ID | Issue | Location | Impact |
+|----|-------|----------|--------|
+| P2-1 | Encoding artifacts remain in some text content (bullet separators stripped to spaces) | Various `page.tsx` files | Cosmetic — double spaces where bullets were |
+| P2-2 | Non-English locale files are English fallbacks | `lib/i18n/locales/` | No actual localization until restored |
+| P2-3 | `updateAttendance` webpanel sends full attendance object including `date`, `schoolId` etc. | [attendanceService.ts:97-100](file:///d:/suffacampus/apps/suffacampus-webpanel/services/attendanceService.ts#L97) | Backend ignores extra fields, but `.strict()` on future schema changes could break it |
+| P2-4 | Debug console.log statements in mobile attendance service | [attendanceService.ts:181-186](file:///d:/suffacampus/apps/suffacampus-mobile/services/attendanceService.ts#L181) | Leaks data to device logs |
+| P2-5 | Dashboard `getWeeklyAttendance` has no error boundaries per-day | webpanel | One failed day kills entire chart |
+| P2-6 | Offline queue (`enqueueOfflineMutation`) silently swallows attendance errors on mobile | [attendanceService.ts:48-54](file:///d:/suffacampus/apps/suffacampus-mobile/services/attendanceService.ts#L48) | Teacher thinks attendance was marked but it's queued — no feedback |
+
+---
+
+## 6. What is Fully Working ✅
+
+| Component | Details |
+|-----------|---------|
+| **Auth Flow** | Firebase Auth → Session JWT bootstrap → token refresh → logout — all three apps |
+| **Tenant Isolation** | `tenantGuard` + `assertSchoolScope` + session school binding — properly enforced |
+| **SuperAdmin School Management** | Create, list, update, delete schools — with compatibility layer for schema drift |
+| **Student CRUD** | Create (with auto-provisioning), list (paginated + cursor), update, soft-delete, permanent-delete |
+| **Teacher CRUD** | Create (with auto-provisioning + assigned classes), list, update, soft-delete |
+| **Class/Section Management** | Create, update (ID-aware diff for sections), soft-delete, add/remove sections |
+| **Attendance Marking (Mobile)** | Single + Bulk marking with session (FN/AN) support, offline queue fallback |
+| **Attendance Marking (Webpanel)** | Single marking works (defaults to FN session) |
+| **Permission System** | Role → Permission mapping with proper enforcement for SuperAdmin, Admin, Staff, Teacher, Parent, Student |
+| **Rate Limiting** | Auth endpoints are rate-limited with configurable limits |
+| **Audit Logging** | All critical operations write audit logs |
+| **Session Management** | JWT with JTI tracking, revocation, logout, logout-all |
+| **Subscription/Plan Enforcement** | `enforcePlanLimit` checks student/teacher counts against plan limits |
+| **API Retry + Timeout** | Both mobile and webpanel have retry with exponential backoff and timeout handling |
+
+---
+
+## 7. What is Still Missing (Product Gaps)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Password Reset (Students)** | ❌ Not possible | Internal email domain prevents Firebase password reset emails |
+| **Notification Push** | ⚠️ Infrastructure exists | `DeviceToken` model + push service exists, but no trigger points in core flows |
+| **Real-time Updates** | ❌ Missing | No WebSocket/SSE — attendance changes require manual refresh |
+| **File Uploads (Photos)** | ⚠️ Route exists | `/uploads` route registered but actual storage integration not verified |
+| **Report Generation** | ⚠️ Routes exist | `/reports` registered but report generation logic not verified end-to-end |
+| **Parent Portal** | ⚠️ Partial | Parent routes exist, parent can view linked student data, but parent invite + onboarding flow not fully traced |
+| **Fee Payment Integration** | ⚠️ Routes exist | Payment routes registered, but actual payment gateway integration not verified |
+| **Data Export** | ⚠️ Routes exist | Export routes registered but actual CSV/PDF generation not verified |
+
+---
+
+## 8. Risk Assessment
+
+### What Can Break in Production
+
+| Risk | Likelihood | Impact | Scenario |
+|------|-----------|--------|----------|
+| **Attendance data confusion (FN/AN)** | HIGH | HIGH | Admin marks via webpanel (always FN), teacher marks via mobile (AN) — two records per student per day confuses reports |
+| **Dashboard timeout on large schools** | HIGH | MEDIUM | 7 parallel full-data fetches for weekly chart with 500+ students |
+| **Teacher sees all classes** | HIGH | MEDIUM | `/auth/me` returns empty `assignedClasses` → teacher sees every class in the school |
+| **Weak default passwords exposed** | MEDIUM | HIGH | `FirstName@123` pattern is guessable if `requirePasswordChange` isn't enforced on webpanel |
+| **Accountant/Principal role lockout** | HIGH | HIGH | Users created with these roles cannot access any API endpoint |
+| **Sequential attendance submission timeout** | MEDIUM | HIGH | Webpanel bulk attendance for 50+ students fires 50 sequential requests |
+
+---
+
+## 9. Final Launch Checklist
+
+| Check | Status | Notes |
+|-------|--------|-------|
+| Auth flow works end-to-end (all 3 apps) | ✅ PASS | Firebase + session JWT verified |
+| Tenant isolation enforced | ✅ PASS | `tenantGuard` + `assertSchoolScope` on all data routes |
+| RBAC enforced on all routes | ⚠️ PARTIAL | Missing Accountant/Principal roles in backend |
+| Student/Teacher CRUD works | ✅ PASS | With auto-provisioning |
+| Attendance marking works | ⚠️ PARTIAL | Webpanel missing session field + uses sequential instead of bulk |
+| Production build succeeds | ✅ PASS | Verified locally, pushed to Netlify |
+| No non-ASCII encoding issues | ✅ PASS | 87 files cleaned, zero non-ASCII bytes verified |
+| Rate limiting active | ✅ PASS | Auth endpoints rate-limited |
+| Audit logging active | ✅ PASS | All CRUD operations logged |
+| Error handling consistent | ✅ PASS | Standardized `AppError` + `Errors` factory |
+| Env secrets not exposed | ✅ PASS | `.env` in `.gitignore`, no hardcoded secrets found |
+| Database migrations stable | ✅ PASS | Prisma migrations up to date |
+| Session security (JWT) | ✅ PASS | JTI tracking, revocation, cross-tenant check |
+| Default password enforcement | ❌ FAIL | Webpanel does not enforce `requirePasswordChange` |
+| Bulk operations scalable | ❌ FAIL | Webpanel sends N sequential requests |
+| Dashboard performance | ❌ FAIL | 7 full-data fetches for weekly chart |
+
+---
+
+## Summary: What to Fix Before Going Live
+
+### Must Fix (P0) — Estimated 4-6 hours total
+
+1. **Webpanel bulk attendance** → Use `POST /attendance/bulk` endpoint instead of sequential POSTs
+2. **Webpanel attendance session field** → Add FN/AN selector to attendance page, include `session` in payload
+3. **`/auth/me` assignedClasses** → Query `TeacherClassAssignment` when user has `teacherId`
+4. **Weekly dashboard** → Use `GET /attendance/stats` endpoint instead of 7 full-data fetches
+
+### Should Fix (P1) — Estimated 3-4 hours total
+
+5. **Enforce `requirePasswordChange`** on webpanel login
+6. **Add `Accountant` and `Principal`** to backend `ROLES` and `ROLE_PERMISSIONS`
+7. **Remove debug console.log** from mobile services

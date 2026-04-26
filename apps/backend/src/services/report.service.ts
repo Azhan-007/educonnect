@@ -1,5 +1,5 @@
 ﻿/**
- * Report generation service â€” creates scheduled and on-demand reports.
+ * Report generation service — creates scheduled and on-demand reports.
  * Now queries data from PostgreSQL via Prisma instead of Firestore.
  */
 
@@ -99,7 +99,7 @@ export async function generateReport(config: ReportConfig): Promise<ReportResult
     for (const email of config.recipientEmails) {
       const sent = await sendEmail({
         to: email,
-        subject: `${reportTitle} â€” ${schoolName} (${startDate} to ${endDate})`,
+        subject: `${reportTitle} — ${schoolName} (${startDate} to ${endDate})`,
         html: wrapInEmailTemplate(html, schoolName, reportTitle),
       });
       if (sent) result.deliveredTo.push(email);
@@ -249,9 +249,9 @@ async function generateFeeReport(
   const html = `
     <div class="report-stats">
       <div class="stat-card"><div class="stat-label">Total Fees</div><div class="stat-value">${totalFees}</div></div>
-      <div class="stat-card"><div class="stat-label">Total Amount</div><div class="stat-value">â‚¹${totalAmount.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" style="color:#16a34a">â‚¹${collectedAmount.toLocaleString("en-IN")}</div></div>
-      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:#f59e0b">â‚¹${pendingAmount.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Amount</div><div class="stat-value">₹${totalAmount.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" style="color:#16a34a">₹${collectedAmount.toLocaleString("en-IN")}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:#f59e0b">₹${pendingAmount.toLocaleString("en-IN")}</div></div>
       <div class="stat-card"><div class="stat-label">Rate</div><div class="stat-value" style="color:#2563eb">${collectionRate}%</div></div>
     </div>
   `;

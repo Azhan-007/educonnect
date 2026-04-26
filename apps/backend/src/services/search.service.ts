@@ -1,5 +1,5 @@
 ﻿/**
- * Full-text search service â€” PostgreSQL-native search.
+ * Full-text search service — PostgreSQL-native search.
  *
  * PostgreSQL natively supports `ILIKE` and `contains` filters, eliminating
  * the need for the Firestore trigram search index. For production at scale,
@@ -117,7 +117,7 @@ async function searchWithPostgres(options: SearchOptions): Promise<SearchResult[
             id: s.id,
             entity: "students",
             name,
-            subtitle: `Class ${s.classId ?? ""} â€¢ Roll ${s.rollNumber ?? ""}`.trim(),
+            subtitle: `Class ${s.classId ?? ""} • Roll ${s.rollNumber ?? ""}`.trim(),
             score: name.toLowerCase().startsWith(query.toLowerCase()) ? 10 : 5,
             data: s as any,
           });
@@ -250,7 +250,7 @@ async function searchWithElasticsearch(options: SearchOptions): Promise<SearchRe
 
 /**
  * Search across students, teachers, and library books using PostgreSQL ILIKE.
- * No external search index required â€” queries go directly to the source tables.
+ * No external search index required — queries go directly to the source tables.
  */
 export async function search(options: SearchOptions): Promise<SearchResult[]> {
   const { schoolId, query: rawQuery, entities, limit = 20 } = options;
@@ -268,7 +268,7 @@ export async function search(options: SearchOptions): Promise<SearchResult[]> {
 }
 
 /**
- * Index/reindex are no-ops with PostgreSQL â€” search goes directly to source tables.
+ * Index/reindex are no-ops with PostgreSQL — search goes directly to source tables.
  */
 export async function indexDocument(
   _entity: SearchableEntity,
@@ -276,7 +276,7 @@ export async function indexDocument(
   _schoolId: string,
   _data: Record<string, unknown>
 ): Promise<void> {
-  // No-op â€” PostgreSQL handles search natively
+  // No-op — PostgreSQL handles search natively
 }
 
 export async function removeFromIndex(
@@ -325,7 +325,7 @@ export async function reindexEntity(
       id: s.id,
       entity: "students",
       name: `${s.firstName} ${s.lastName}`.trim(),
-      subtitle: `Class ${s.classId ?? ""} â€¢ Roll ${s.rollNumber ?? ""}`.trim(),
+      subtitle: `Class ${s.classId ?? ""} • Roll ${s.rollNumber ?? ""}`.trim(),
       score: 0,
       data: s as any,
     }));

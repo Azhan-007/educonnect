@@ -1,10 +1,11 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Next.js Edge Middleware â€" server-side auth guard.
+ * Next.js Edge Middleware - server-side auth guard.
  *
- * Checks for the `SuffaCampus-auth` cookie (set by Zustand persist) to determine
- * if the user is authenticated. Redirects unauthenticated users to /login.
+ * Checks for the `SuffaCampus-token` cookie AND validates the role cookie
+ * to determine if the user is authenticated with a recognized role.
+ * Redirects unauthenticated users to /login.
  *
  * This is a defense-in-depth layer on top of the client-side RouteGuard.
  * The actual token verification happens on the backend for every API call.
@@ -145,20 +146,30 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for auth cookie (Zustand persists as "SuffaCampus-auth" in localStorage,
-  // but Next.js middleware can't read localStorage. We check for the Firebase
-  // auth session cookie instead.)
-  // Strategy: Check for the __session cookie or the presence of a token cookie
+  // Check for auth cookie
   if (!isAuthenticated) {
-    // No auth cookie â€" redirect to login
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', `${pathname}${search}`);
     return NextResponse.redirect(loginUrl);
   }
 
+  // Validate role cookie: if present but contains an unrecognized value,
+  // force re-login and clear stale cookies to prevent skeleton-page exposure.
+  const roleCookieRaw = request.cookies.get('SuffaCampus-role')?.value;
+  const role = normalizeRole(
+    roleCookieRaw ? decodeURIComponent(roleCookieRaw) : undefined
+  );
+
+  if (roleCookieRaw && !role) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', `${pathname}${search}`);
+    const response = NextResponse.redirect(loginUrl);
+    response.cookies.delete('SuffaCampus-token');
+    response.cookies.delete('SuffaCampus-role');
+    return response;
+  }
+
   // UX-level role gating (server-side redirect only; backend still enforces authz).
-  const roleCookie = request.cookies.get('SuffaCampus-role')?.value;
-  const role = normalizeRole(roleCookie);
   const acl = findAcl(pathname);
 
   if (role && acl && !acl.roles.includes(role)) {
@@ -175,4 +186,3 @@ export const config = {
   // Match all routes except static files
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
-

@@ -30,7 +30,7 @@ interface Student {
   rollNumber: string;
   classId: string;
   sectionId: string;
-  status: "Present" | "Absent" | "Leave" | "Not Marked";
+  status: "Present" | "Absent" | "Late" | "Excused" | "Not Marked";
 }
 
 type FilterType = "all" | "marked" | "unmarked";
@@ -90,9 +90,9 @@ export default function AttendanceScreen() {
         console.warn("Error fetching attendance records (students will still display):", attErr);
       }
 
-      const attendanceMap: Record<string, "Present" | "Absent"> = {};
+      const attendanceMap: Record<string, "Present" | "Absent" | "Late" | "Excused"> = {};
       attendanceRecords.forEach((r) => {
-        if (r.status === "Present" || r.status === "Absent") {
+        if (r.status === "Present" || r.status === "Absent" || r.status === "Late" || r.status === "Excused") {
           attendanceMap[r.studentId] = r.status;
         }
       });
@@ -124,7 +124,7 @@ export default function AttendanceScreen() {
     ]).start(() => setShowSaveToast(false));
   };
 
-  const handleMarkAttendance = async (studentId: string, status: "Present" | "Absent" | "Leave") => {
+  const handleMarkAttendance = async (studentId: string, status: "Present" | "Absent" | "Late" | "Excused") => {
     if (!selectedEntry) return;
     const student = students.find((s) => s.id === studentId);
     if (!student) return;
@@ -132,14 +132,13 @@ export default function AttendanceScreen() {
     setStudents(students.map((s) => (s.id === studentId ? { ...s, status } : s)));
 
     try {
-      const apiStatus = status === "Leave" ? "Absent" : status;
       await upsertAttendance({
         studentId: student.id,
         classId: selectedEntry.classId,
         sectionId: selectedEntry.sectionId,
         date: selectedDate,
         session: selectedSession,
-        status: apiStatus as "Present" | "Absent",
+        status: status as "Present" | "Absent" | "Late" | "Excused",
       });
       showSuccessToast();
     } catch (err) {
@@ -255,14 +254,15 @@ export default function AttendanceScreen() {
 
   const presentCount = students.filter((s) => s.status === "Present").length;
   const absentCount = students.filter((s) => s.status === "Absent").length;
-  const leaveCount = students.filter((s) => s.status === "Leave").length;
+  const lateCount = students.filter((s) => s.status === "Late").length;
   const isToday = selectedDate === new Date().toISOString().split("T")[0];
 
   const getStatusColor = (status: Student["status"]) => {
     switch (status) {
       case "Present": return "#10B981";
       case "Absent": return "#EF4444";
-      case "Leave": return "#F59E0B";
+      case "Late": return "#F59E0B";
+      case "Excused": return "#3B82F6";
       default: return "#94A3B8";
     }
   };
@@ -346,8 +346,8 @@ export default function AttendanceScreen() {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryItem}>
-                <Text style={[styles.summaryValue, { color: "#F59E0B" }]}>{leaveCount}</Text>
-                <Text style={styles.summaryLabel}>Leave</Text>
+                <Text style={[styles.summaryValue, { color: "#F59E0B" }]}>{lateCount}</Text>
+                <Text style={styles.summaryLabel}>Late</Text>
               </View>
             </View>
           </View>
@@ -443,12 +443,12 @@ export default function AttendanceScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.actionBtn, student.status === "Leave" && styles.actionBtnActive,
-                    student.status === "Leave" && { backgroundColor: "#F59E0B" }]}
-                    onPress={() => handleMarkAttendance(student.id, "Leave")}
+                    style={[styles.actionBtn, student.status === "Late" && styles.actionBtnActive,
+                    student.status === "Late" && { backgroundColor: "#F59E0B" }]}
+                    onPress={() => handleMarkAttendance(student.id, "Late")}
                   >
                     <MaterialCommunityIcons name="clock-outline" size={18}
-                      color={student.status === "Leave" ? "#FFF" : "#F59E0B"} />
+                      color={student.status === "Late" ? "#FFF" : "#F59E0B"} />
                   </TouchableOpacity>
                 </View>
               </View>

@@ -117,8 +117,8 @@ export function buildServer() {
   const server = Fastify({
     logger: envToLogger[environment] ?? true,
     bodyLimit: 1_048_576, // 1 MB
-    requestTimeout: 30_000,    // 30 s â€” abort slow requests
-    connectionTimeout: 10_000, // 10 s â€” reject slow TCP handshakes
+    requestTimeout: 30_000,    // 30 s — abort slow requests
+    connectionTimeout: 10_000, // 10 s — reject slow TCP handshakes
   });
 
   // --- Plugins ---
@@ -183,7 +183,7 @@ export function buildServer() {
       info: {
         title: "SuffaCampus API",
         description:
-          "Multi-tenant School ERP API â€” Students, Teachers, Attendance, Fees, Subscriptions, and more.",
+          "Multi-tenant School ERP API — Students, Teachers, Attendance, Fees, Subscriptions, and more.",
         version: "1.0.0",
         contact: { name: "SuffaCampus Team", url: "https://SuffaCampus.in" },
       },
@@ -317,7 +317,7 @@ export function buildServer() {
       });
     };
 
-    // AppError â€” our custom domain errors
+    // AppError — our custom domain errors
     if (error instanceof AppError) {
       if (error.statusCode >= 500) {
         request.log.error({ err: error }, error.message);
@@ -368,7 +368,7 @@ export function buildServer() {
         reply,
         429,
         "RATE_LIMIT_EXCEEDED",
-        "Too many requests â€” please slow down"
+        "Too many requests — please slow down"
       );
     }
 
@@ -451,11 +451,11 @@ async function main() {
   const SHUTDOWN_TIMEOUT_MS = 10_000; // force-kill after 10 s
   for (const signal of ["SIGINT", "SIGTERM"] as const) {
     process.on(signal, async () => {
-      server.log.info(`Received ${signal}, shutting down gracefullyâ€¦`);
+      server.log.info(`Received ${signal}, shutting down gracefully…`);
 
       // Force-kill safety net: if draining hangs, terminate anyway
       const forceKill = setTimeout(() => {
-        server.log.error("Shutdown timed out â€” forcing exit");
+        server.log.error("Shutdown timed out — forcing exit");
         process.exit(1);
       }, SHUTDOWN_TIMEOUT_MS);
       forceKill.unref(); // don't keep event loop alive just for this timer

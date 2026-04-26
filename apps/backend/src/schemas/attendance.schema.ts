@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const AttendanceStatus = z.enum(["Present", "Absent"]);
+export const AttendanceStatus = z.enum(["Present", "Absent", "Late", "Excused"]);
 export type AttendanceStatus = z.infer<typeof AttendanceStatus>;
 
 export const AttendanceSession = z.enum(["FN", "AN"]);

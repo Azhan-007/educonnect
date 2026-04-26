@@ -155,7 +155,7 @@ describe("createStudent", () => {
     expect(result.credentials).toHaveProperty("username");
     expect(result.credentials).toHaveProperty("email");
     expect(result.credentials).toHaveProperty("password");
-    // Password is now randomly generated â€” just check it's a non-empty string
+    // Password is now randomly generated — just check it's a non-empty string
     expect(typeof result.credentials.password).toBe("string");
     expect(result.credentials.password.length).toBeGreaterThanOrEqual(8);
   });

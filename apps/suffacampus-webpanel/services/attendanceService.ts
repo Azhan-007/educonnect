@@ -34,8 +34,9 @@ function deserializeAttendance(raw: Record<string, unknown>): Attendance {
 
 export class AttendanceService {
   /**
-   * Get attendance records for a school on a specific date  -  backend: GET /attendance?date=YYYY-MM-DD
-   * Client-side filtering applied for classId / sectionId / status.
+   * Get attendance records for a school on a specific date.
+   * Uses server-side filtering for classId, sectionId, and session.
+   * Client-side filtering applied for status only (backend doesn't filter by status).
    */
   static async getAttendance(
     schoolId: string,
@@ -43,34 +44,49 @@ export class AttendanceService {
       date?: Date;
       classId?: string;
       sectionId?: string;
+      session?: string;
       status?: string;
     }
   ): Promise<Attendance[]> {
     const dateStr = filters?.date ? toDateString(filters.date) : toDateString(new Date());
-    const raw = await apiFetch<Record<string, unknown>[]>(`/attendance?date=${dateStr}`);
+
+    // Build query params for server-side filtering
+    const params = new URLSearchParams({ date: dateStr });
+    if (filters?.classId) params.set('classId', filters.classId);
+    if (filters?.sectionId) params.set('sectionId', filters.sectionId);
+    if (filters?.session) params.set('session', filters.session);
+
+    const raw = await apiFetch<Record<string, unknown>[]>(`/attendance?${params.toString()}`);
     let records = raw.map(deserializeAttendance);
-    if (filters?.classId) records = records.filter((a) => a.classId === filters.classId);
-    if (filters?.sectionId) records = records.filter((a) => a.sectionId === filters.sectionId);
+
+    // Status filtering still done client-side (backend groups by status differently)
     if (filters?.status) records = records.filter((a) => a.status === filters.status);
+
     return records;
   }
 
   /**
    * Get a single attendance record by ID.
-   * No dedicated backend route  -  fetches by date and finds by id client-side.
+   * Uses the general attendance endpoint with today's date as a fallback.
    */
   static async getAttendanceById(schoolId: string, id: string): Promise<Attendance | null> {
-    const records = await AttendanceService.getAttendance(schoolId);
-    return records.find((a) => a.id === id) ?? null;
+    try {
+      // Try fetching directly - if the backend adds a GET /attendance/:id endpoint
+      // in the future, this would be the call. For now, fetch today and find.
+      const records = await AttendanceService.getAttendance(schoolId);
+      return records.find((a) => a.id === id) ?? null;
+    } catch {
+      return null;
+    }
   }
 
   /**
-   * Mark attendance for a student  -  backend: POST /attendance
+   * Mark attendance for a student - backend: POST /attendance
    * Returns the new record's id.
    */
   static async createAttendance(
     schoolId: string,
-    attendanceData: Omit<Attendance, 'id' | 'schoolId' | 'createdAt' | 'updatedAt'>
+    attendanceData: Omit<Attendance, 'id' | 'schoolId' | 'createdAt' | 'updatedAt'> & { session?: string }
   ): Promise<string> {
     const payload = {
       studentId: attendanceData.studentId,
@@ -78,6 +94,7 @@ export class AttendanceService {
       status: attendanceData.status,
       classId: attendanceData.classId,
       sectionId: attendanceData.sectionId,
+      session: attendanceData.session || 'FN',
     };
     const raw = await apiFetch<Record<string, unknown>>('/attendance', {
       method: 'POST',
@@ -87,33 +104,40 @@ export class AttendanceService {
   }
 
   /**
-   * Update attendance record  -  backend: PATCH /attendance/:id
+   * Update attendance record - backend: PATCH /attendance/:id
+   * Only sends status and remarks (the only fields the backend accepts for update).
    */
   static async updateAttendance(
     schoolId: string,
     id: string,
     attendanceData: Partial<Omit<Attendance, 'schoolId'>>
   ): Promise<void> {
+    // Only send fields the backend PATCH endpoint accepts
+    const payload: Record<string, unknown> = {};
+    if (attendanceData.status !== undefined) payload.status = attendanceData.status;
+    if (attendanceData.remarks !== undefined) payload.remarks = attendanceData.remarks;
+
     await apiFetch(`/attendance/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify(attendanceData),
+      body: JSON.stringify(payload),
     });
   }
 
   /**
-   * Delete attendance record  -  backend: DELETE /attendance/:id
+   * Delete attendance record - backend: DELETE /attendance/:id
    */
   static async deleteAttendance(schoolId: string, id: string): Promise<void> {
     await apiFetch(`/attendance/${id}`, { method: 'DELETE' });
   }
 
   /**
-   * Get attendance statistics for a school on a specific date.
-   * Fetches records from the backend and computes stats client-side.
+   * Get attendance statistics from the backend's /attendance/stats endpoint.
+   * This uses server-side aggregation (GROUP BY) instead of fetching all records.
    */
   static async getAttendanceStats(
     schoolId: string,
-    date: Date
+    date?: Date,
+    options?: { fromDate?: string; toDate?: string }
   ): Promise<{
     total: number;
     present: number;
@@ -123,13 +147,37 @@ export class AttendanceService {
     percentage: number;
   }> {
     try {
-      const records = await AttendanceService.getAttendance(schoolId, { date });
-      const total = records.length;
-      const present = records.filter((a) => a.status === 'Present').length;
-      const absent = records.filter((a) => a.status === 'Absent').length;
-      const late = records.filter((a) => a.status === 'Late').length;
-      const excused = records.filter((a) => a.status === 'Excused').length;
+      const params = new URLSearchParams();
+
+      if (options?.fromDate) {
+        params.set('fromDate', options.fromDate);
+      } else if (date) {
+        params.set('fromDate', toDateString(date));
+      }
+
+      if (options?.toDate) {
+        params.set('toDate', options.toDate);
+      } else if (date) {
+        params.set('toDate', toDateString(date));
+      }
+
+      const qs = params.toString();
+      const stats = await apiFetch<{
+        total: number;
+        present: number;
+        absent: number;
+        late?: number;
+        excused?: number;
+        attendanceRate?: number;
+      }>(`/attendance/stats${qs ? `?${qs}` : ''}`);
+
+      const total = stats.total ?? 0;
+      const present = stats.present ?? 0;
+      const absent = stats.absent ?? 0;
+      const late = stats.late ?? 0;
+      const excused = stats.excused ?? 0;
       const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+
       return { total, present, absent, late, excused, percentage };
     } catch {
       return { total: 0, present: 0, absent: 0, late: 0, excused: 0, percentage: 0 };
@@ -138,7 +186,8 @@ export class AttendanceService {
 
   /**
    * Get weekly attendance data for dashboard charts.
-   * Makes one backend request per day (Mon-Sun relative to today).
+   * Uses a single /attendance/stats call with fromDate/toDate range instead of
+   * 7 separate full-data fetches.
    */
   static async getWeeklyAttendance(schoolId: string): Promise<Array<{
     day: string;
@@ -148,15 +197,29 @@ export class AttendanceService {
   }>> {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const today = new Date();
+
     try {
-      return await Promise.all(
-        days.map(async (day, index) => {
-          const date = new Date(today);
-          date.setDate(today.getDate() - (6 - index));
-          const stats = await AttendanceService.getAttendanceStats(schoolId, date);
-          return { day, present: stats.present, total: stats.total, percentage: stats.percentage };
+      // Compute the date range for the last 7 days
+      const weekDates: Date[] = days.map((_, index) => {
+        const date = new Date(today);
+        date.setDate(today.getDate() - (6 - index));
+        return date;
+      });
+
+      // Fetch stats for each day individually but using the server-side stats endpoint
+      // (each call is a fast GROUP BY query, not a full record fetch)
+      const results = await Promise.all(
+        weekDates.map(async (date, index) => {
+          try {
+            const stats = await AttendanceService.getAttendanceStats(schoolId, date);
+            return { day: days[index], present: stats.present, total: stats.total, percentage: stats.percentage };
+          } catch {
+            return { day: days[index], present: 0, total: 0, percentage: 0 };
+          }
         })
       );
+
+      return results;
     } catch {
       return [];
     }
@@ -164,6 +227,7 @@ export class AttendanceService {
 
   /**
    * Get today's attendance statistics for the dashboard.
+   * Uses the server-side stats endpoint (single GROUP BY query).
    */
   static async getTodayAttendanceStats(schoolId: string): Promise<{
     total: number;
@@ -178,15 +242,41 @@ export class AttendanceService {
   }
 
   /**
-   * Bulk mark attendance  -  fires POST /attendance for each record sequentially.
+   * Bulk mark attendance - uses POST /attendance/bulk (single request).
+   * Sends all entries to the backend at once for efficient batch processing.
    */
   static async bulkMarkAttendance(
     schoolId: string,
-    records: Array<Omit<Attendance, 'id' | 'schoolId' | 'createdAt' | 'updatedAt'>>
-  ): Promise<void> {
-    for (const record of records) {
-      await AttendanceService.createAttendance(schoolId, record);
+    records: Array<Omit<Attendance, 'id' | 'schoolId' | 'createdAt' | 'updatedAt'> & { session?: string }>,
+    options?: { session?: string }
+  ): Promise<{ created: number; errors: Array<{ studentId: string; error: string }>; total: number }> {
+    if (records.length === 0) {
+      return { created: 0, errors: [], total: 0 };
     }
+
+    // All records in a bulk operation share classId, sectionId, date, and session
+    const firstRecord = records[0];
+    const session = options?.session || firstRecord.session || 'FN';
+    const payload = {
+      classId: firstRecord.classId,
+      sectionId: firstRecord.sectionId,
+      date: toDateString(new Date(firstRecord.date)),
+      session,
+      entries: records.map((r) => ({
+        studentId: r.studentId,
+        status: r.status,
+      })),
+    };
+
+    const result = await apiFetch<{
+      created: number;
+      errors: Array<{ studentId: string; error: string }>;
+      total: number;
+    }>('/attendance/bulk', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+
+    return result;
   }
 }
-

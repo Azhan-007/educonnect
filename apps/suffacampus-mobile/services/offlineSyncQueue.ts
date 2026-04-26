@@ -1,4 +1,4 @@
-﻿import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiFetch } from "./api";
 
 const OFFLINE_QUEUE_KEY = "SuffaCampus.offlineMutationQueue.v1";
@@ -75,6 +75,30 @@ export async function enqueueOfflineMutation(input: {
 export async function getOfflineQueueSize(): Promise<number> {
   const queue = await readQueue();
   return queue.length;
+}
+
+/**
+ * Expose pending queue items so the UI can show what's waiting to sync.
+ * Returns a read-only snapshot — modifying the returned array has no effect.
+ */
+export async function getOfflineQueueItems(): Promise<ReadonlyArray<OfflineMutation>> {
+  return readQueue();
+}
+
+/**
+ * Remove mutations older than `maxAgeMs` (default: 7 days).
+ * Prevents the queue from growing unboundedly if a mutation is permanently
+ * un-flushable (e.g. the endpoint was removed).
+ */
+export async function clearExpiredItems(maxAgeMs = 7 * 24 * 60 * 60 * 1000): Promise<number> {
+  const queue = await readQueue();
+  const cutoff = Date.now() - maxAgeMs;
+  const kept = queue.filter((item) => new Date(item.createdAt).getTime() > cutoff);
+  const removed = queue.length - kept.length;
+  if (removed > 0) {
+    await writeQueue(kept);
+  }
+  return removed;
 }
 
 export async function flushOfflineQueue(options?: {

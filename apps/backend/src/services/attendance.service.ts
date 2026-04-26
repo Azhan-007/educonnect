@@ -3,6 +3,10 @@ import type { MarkAttendanceInput } from "../schemas/attendance.schema";
 import { writeAuditLog } from "./audit.service";
 import { assertSchoolScope } from "../lib/tenant-scope";
 import { dateTimeFrom } from "../utils/safe-fields";
+import { sendToUsers, PushTemplates } from "./push-notification.service";
+import pino from "pino";
+
+const log = pino({ name: "attendance-service" });
 
 export class AttendanceError extends Error {
   constructor(
@@ -109,6 +113,9 @@ export async function markAttendance(
     sectionId: record.sectionId,
   });
 
+  // Fire push notification to linked parents (non-blocking)
+  notifyParentsOfAttendance(schoolId, data.studentId, data.studentName ?? "", record.status).catch(() => {});
+
   return record;
 }
 
@@ -209,4 +216,42 @@ export async function deleteAttendance(
   });
 
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// Push notification helper (fire-and-forget)
+// ---------------------------------------------------------------------------
+
+async function notifyParentsOfAttendance(
+  schoolId: string,
+  studentId: string,
+  studentName: string,
+  status: string
+): Promise<void> {
+  try {
+    // Find parent users linked to this student
+    const parents = await prisma.user.findMany({
+      where: {
+        schoolId,
+        role: "Parent",
+        studentIds: { has: studentId },
+      },
+      select: { uid: true },
+    });
+
+    if (parents.length === 0) return;
+
+    const parentUids = parents.map((p) => p.uid);
+    const normalizedStatus = status.toLowerCase() as "present" | "absent" | "late";
+    const payload = PushTemplates.attendanceMarked(
+      studentName || "Your child",
+      normalizedStatus === "present" || normalizedStatus === "absent" || normalizedStatus === "late"
+        ? normalizedStatus
+        : "present"
+    );
+
+    await sendToUsers(parentUids, payload);
+  } catch (err) {
+    log.warn({ err, studentId, schoolId }, "Failed to send attendance push notification");
+  }
 }

@@ -113,8 +113,7 @@ export default async function attendanceRoutes(server: FastifyInstance) {
   validateAttendanceDate(result.data.date);
 
 
-      const { classId, sectionId, date, entries } = result.data;
-      const session = (result.data as any).session ?? "FN";
+      const { classId, sectionId, date, session, entries } = result.data;
       const schoolId = request.schoolId;
       const markedBy = request.user.uid;
       const attendanceDate = dateTimeFrom(date);

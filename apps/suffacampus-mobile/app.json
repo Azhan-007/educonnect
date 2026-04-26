@@ -3,6 +3,7 @@
     "name": "SuffaCampus",
     "slug": "suffacampus",
     "version": "1.0.0",
+    "runtimeVersion": "1.0.0",
     "orientation": "portrait",
     "icon": "assets/icon.png",
     "scheme": "suffacampus",
@@ -14,6 +15,7 @@
     },
     "android": {
       "package": "com.SuffaCampus.app",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "assets/adaptive-icon.png"
@@ -56,6 +58,9 @@
         "projectId": "cae77dd2-512a-400c-8fea-cb053738b488"
       }
     },
-    "owner": "azhanfizz"
+    "owner": "azhanfizz",
+    "updates": {
+      "url": "https://u.expo.dev/cae77dd2-512a-400c-8fea-cb053738b488"
+    }
   }
 }

@@ -1,5 +1,5 @@
 ﻿/**
- * Email templates â€” pre-built HTML emails for subscription lifecycle,
+ * Email templates — pre-built HTML emails for subscription lifecycle,
  * fee reminders, and system events.
  *
  * Each template returns `{ subject, html, text }` ready for sendEmail().
@@ -57,10 +57,10 @@ export function trialExpiringEmail(schoolName: string, daysLeft: number) {
     <p>Hi ${schoolName} Admin,</p>
     <p>Your free trial expires in <strong>${daysLeft} day(s)</strong>. After that, your account will be limited to the Free plan.</p>
     <div class="highlight">
-      <strong>Don't lose access</strong> â€” upgrade now to keep using all features including reports, timetable, library, and more.
+      <strong>Don't lose access</strong> — upgrade now to keep using all features including reports, timetable, library, and more.
     </div>
     <a href="https://app.SuffaCampus.in/pricing" class="cta">Upgrade Now</a>
-    <p>If you have questions, reply to this email â€” we're here to help.</p>
+    <p>If you have questions, reply to this email — we're here to help.</p>
   `);
   return { subject, html, text: stripHtml(html) };
 }
@@ -85,8 +85,8 @@ export function paymentReceivedEmail(
   amountPaise: number,
   periodEnd: string
 ) {
-  const amount = `â‚¹${(amountPaise / 100).toFixed(2)}`;
-  const subject = `âœ… Payment received â€” ${plan} plan active`;
+  const amount = `₹${(amountPaise / 100).toFixed(2)}`;
+  const subject = `âœ… Payment received — ${plan} plan active`;
   const html = layout(subject, `
     <h2>Payment Confirmed</h2>
     <p>Hi ${schoolName} Admin,</p>
@@ -101,7 +101,7 @@ export function paymentReceivedEmail(
 }
 
 export function paymentFailedEmail(schoolName: string, retryCount: number) {
-  const subject = `WARNING: Payment failed â€” action required`;
+  const subject = `WARNING: Payment failed — action required`;
   const html = layout(subject, `
     <h2>Payment Failed</h2>
     <p>Hi ${schoolName} Admin,</p>
@@ -124,7 +124,7 @@ export function planChangedEmail(
   effectiveDate: string
 ) {
   const direction = isUpgrade ? "Upgraded" : "Downgraded";
-  const subject = `ðŸ“‹ Plan ${direction.toLowerCase()} â€” ${oldPlan} â†’ ${newPlan}`;
+  const subject = `ðŸ“‹ Plan ${direction.toLowerCase()} — ${oldPlan} → ${newPlan}`;
   const html = layout(subject, `
     <h2>Plan ${direction}</h2>
     <p>Hi ${schoolName} Admin,</p>
@@ -169,8 +169,8 @@ export function feeReminderEmail(
   amountPaise: number,
   dueDate: string
 ) {
-  const amount = `â‚¹${(amountPaise / 100).toFixed(2)}`;
-  const subject = `ðŸ“„ Fee reminder for ${studentName} â€” ${amount} due ${dueDate}`;
+  const amount = `₹${(amountPaise / 100).toFixed(2)}`;
+  const subject = `ðŸ“„ Fee reminder for ${studentName} — ${amount} due ${dueDate}`;
   const html = layout(subject, `
     <h2>Fee Payment Reminder</h2>
     <p>Dear Parent/Guardian,</p>

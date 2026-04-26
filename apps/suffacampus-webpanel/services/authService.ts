@@ -48,6 +48,7 @@ function mapProfileToUser(profile: AuthProfileResponse): User {
     phone: profile.phone ?? undefined,
     photoURL: profile.photoURL ?? undefined,
     isActive: profile.isActive,
+    requirePasswordChange: profile.requirePasswordChange ?? false,
     createdAt: profile.createdAt ? new Date(profile.createdAt) : new Date(),
     lastLogin: profile.lastLogin ? new Date(profile.lastLogin) : undefined,
   };
@@ -237,6 +238,17 @@ export class AuthService {
       }
       throw new Error('Failed to send password reset email');
     }
+  }
+
+  /**
+   * Change password for the current user.
+   * Used after login when requirePasswordChange is true.
+   */
+  static async changePassword(newPassword: string): Promise<void> {
+    await apiFetch('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ newPassword }),
+    });
   }
 }
 
