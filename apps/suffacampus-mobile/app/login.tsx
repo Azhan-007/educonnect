@@ -231,7 +231,7 @@ export default function Login() {
       } else if (error.code === "auth/network-request-failed") {
         setError("Network error. Check your connection.");
       } else {
-        setError("Login failed. Please try again.");
+        setError("Login failed: " + (error?.message || error?.code || "Unknown error"));
       }
     } finally {
       setLoading(false);
