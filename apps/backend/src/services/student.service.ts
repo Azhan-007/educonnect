@@ -207,10 +207,19 @@ export async function createStudent(
     },
   });
 
-  // Auto-provision login credentials
-  const credentials = await provisionStudentAuth(student, schoolId);
+  // Pre-compute credentials so we can return them immediately
+  const username = buildUsername(student.firstName, student.lastName);
+  const email = `${username}.${schoolId}@SuffaCampus.internal`;
+  const password = buildSimplePassword(student.firstName);
+  const credentials: StudentCredentials = { username, email, password };
 
-  await writeStudentAuditLogSafe("STUDENT_CREATED", performedBy, schoolId, {
+  // Fire-and-forget: provision Firebase Auth + audit log in background
+  // This avoids 30-60s timeouts on Render free tier (0.1 CPU)
+  provisionStudentAuth(student, schoolId).catch((err) => {
+    log.error({ err, studentId: student.id }, "Background auth provisioning failed");
+  });
+
+  writeStudentAuditLogSafe("STUDENT_CREATED", performedBy, schoolId, {
     studentId: student.id,
     firstName: student.firstName,
     lastName: student.lastName,

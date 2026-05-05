@@ -105,15 +105,24 @@ export async function createTeacher(
     include: { assignedClasses: true },
   });
 
-  const credentials = await provisionTeacherAuth(teacher, schoolId);
+  // Pre-compute credentials so we can return them immediately
+  const username = buildTeacherUsername(teacher.firstName, teacher.lastName);
+  const tempPassword = buildSimplePassword(teacher.firstName);
+  const credentials: TeacherCredentials = { email: teacher.email, password: tempPassword, username };
 
-  await writeAuditLog("CREATE_TEACHER", performedBy, schoolId, {
+  // Fire-and-forget: provision Firebase Auth in background
+  // This avoids 30-60s timeouts on Render free tier (0.1 CPU)
+  provisionTeacherAuth(teacher, schoolId).catch((err) => {
+    console.error("Background teacher auth provisioning failed:", err);
+  });
+
+  writeAuditLog("CREATE_TEACHER", performedBy, schoolId, {
     teacherId: teacher.id,
     firstName: teacher.firstName,
     lastName: teacher.lastName,
     email: teacher.email,
     department: teacher.department,
-  });
+  }).catch(() => {});
 
   return { ...teacher, credentials };
 }
