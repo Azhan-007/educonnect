@@ -266,7 +266,18 @@ export default function StudentsPage() {
     modal.setIsSaving(true);
     try {
       const cleaned = Object.fromEntries(Object.entries(modal.formData).filter(([, v]) => v !== '')) as typeof modal.formData;
-      const payload = { ...cleaned, dateOfBirth: new Date(modal.formData.dateOfBirth), enrollmentDate: new Date(modal.formData.enrollmentDate) };
+      // Build payload — dates must be ISO strings (not Date objects) for the backend Zod schema
+      const payload: Record<string, unknown> = { ...cleaned };
+      if (modal.formData.dateOfBirth) {
+        payload.dateOfBirth = new Date(modal.formData.dateOfBirth).toISOString();
+      } else {
+        delete payload.dateOfBirth;
+      }
+      if (modal.formData.enrollmentDate) {
+        payload.enrollmentDate = new Date(modal.formData.enrollmentDate).toISOString();
+      } else {
+        delete payload.enrollmentDate;
+      }
       if (modal.editingEntity) {
         await StudentService.updateStudent(schoolId, modal.editingEntity.id, payload);
         toast.success('Student updated successfully');
