@@ -83,7 +83,7 @@ export async function createTeacher(
   performedBy: string
 ) {
   assertSchoolScope(schoolId);
-  await enforcePlanLimit("teachers", schoolId);
+  // Note: enforcePlanLimit is already handled by the enforceSubscription middleware
 
   const { assignedClasses, ...teacherData } = data;
 

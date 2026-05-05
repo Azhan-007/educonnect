@@ -49,6 +49,6 @@ export const createStudentSchema = z.object({
   enrollmentDate: z.string().optional(),
   isActive: z.boolean().optional(),
   studentId: z.string().optional(),
-}).strict();
+}).strip(); // strip unknown fields instead of rejecting — prevents webpanel/mobile drift from breaking
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;

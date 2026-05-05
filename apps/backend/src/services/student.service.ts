@@ -196,7 +196,7 @@ export async function createStudent(
   performedBy: string
 ) {
   assertSchoolScope(schoolId);
-  await enforcePlanLimit("students", schoolId);
+  // Note: enforcePlanLimit is already handled by the enforceSubscription middleware
 
   const student = await prisma.student.create({
     data: {

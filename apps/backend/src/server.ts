@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { env } from "./lib/env";          // â† validate env vars first
 import Fastify, { type FastifyError } from "fastify";
 import cors from "@fastify/cors";
@@ -117,8 +117,9 @@ export function buildServer() {
   const server = Fastify({
     logger: envToLogger[environment] ?? true,
     bodyLimit: 1_048_576, // 1 MB
-    requestTimeout: 30_000,    // 30 s — abort slow requests
-    connectionTimeout: 10_000, // 10 s — reject slow TCP handshakes
+    // Render free tier (0.1 CPU) needs generous timeouts for cold DB + Firebase SDK calls
+    requestTimeout: 120_000,   // 120 s — allow for cold starts
+    connectionTimeout: 30_000, // 30 s — allow for slow TCP on cold start
   });
 
   // --- Plugins ---
@@ -419,7 +420,16 @@ async function main() {
 
   try {
     await server.listen({ port, host });
-    server.log.info(`ðŸš€ API v1 ready at http://${host}:${port}/api/v1`);
+    server.log.info(`🚀 API v1 ready at http://${host}:${port}/api/v1`);
+
+    // Warm up Prisma connection pool — avoids 5-10s cold connect on first request
+    try {
+      const { prisma } = require("./lib/prisma");
+      await prisma.$queryRaw`SELECT 1`;
+      server.log.info("Prisma connection pool warmed up");
+    } catch (dbErr) {
+      server.log.warn({ err: dbErr }, "Prisma warm-up failed — first request may be slow");
+    }
 
     // Temporary testing deployment: force a single-service runtime.
     // API, cron jobs, and notification processing all run in this same process.
