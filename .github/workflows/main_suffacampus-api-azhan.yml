@@ -17,6 +17,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App - suffacampus-api-azhan
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
@@ -24,6 +43,7 @@ jobs:
           node-version: '22.x'
 
       - name: npm install, build, and test
+        working-directory: apps/backend
         run: |
           npm install
           npm run build --if-present
@@ -33,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: apps/backend
 
   deploy:
     runs-on: ubuntu-latest
