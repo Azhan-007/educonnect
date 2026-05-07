@@ -116,7 +116,7 @@ export function buildServer() {
 
   const server = Fastify({
     logger: envToLogger[environment] ?? true,
-    bodyLimit: 1_048_576, // 1 MB
+    bodyLimit: 10_485_760, // 10 MB
     // Render free tier (0.1 CPU) needs generous timeouts for cold DB + Firebase SDK calls
     requestTimeout: 120_000,   // 120 s — allow for cold starts
     connectionTimeout: 30_000, // 30 s — allow for slow TCP on cold start
