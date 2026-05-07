@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -105,13 +105,19 @@ export default function AttendanceScreen() {
     return "#6B7280";
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string): { name: string; lib: "mi" | "mci" } => {
     const s = (status || "").trim();
-    if (s === "Present") return "check-circle";
-    if (s === "Absent") return "cancel";
-    if (s === "Late") return "access-time";
-    if (s === "Excused") return "info";
-    return "help-outline";
+    if (s === "Present") return { name: "check-circle", lib: "mi" };
+    if (s === "Absent") return { name: "cancel", lib: "mi" };
+    if (s === "Late") return { name: "clock-outline", lib: "mci" };
+    if (s === "Excused") return { name: "info", lib: "mi" };
+    return { name: "help-outline", lib: "mi" };
+  };
+
+  const StatusIcon = ({ status, size, color }: { status: string; size: number; color: string }) => {
+    const icon = getStatusIcon(status);
+    if (icon.lib === "mci") return <MaterialCommunityIcons name={icon.name as any} size={size} color={color} />;
+    return <MaterialIcons name={icon.name as any} size={size} color={color} />;
   };
 
   const renderSessionCard = (title: string, session: "FN" | "AN", status: string) => {
@@ -122,7 +128,7 @@ export default function AttendanceScreen() {
       <Card style={styles.sessionCard}>
         <View style={styles.sessionContent}>
           <View style={[styles.sessionIconCircle, { backgroundColor: `${statusColor}15` }]}>
-            <MaterialIcons name={statusIcon as any} size={32} color={statusColor} />
+            <StatusIcon status={status} size={32} color={statusColor} />
           </View>
           <Text style={styles.sessionTitle}>{title}</Text>
           <Text style={styles.sessionLabel}>{session}</Text>

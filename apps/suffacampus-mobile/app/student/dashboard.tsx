@@ -373,11 +373,19 @@ export default function StudentDashboard() {
 
   const getAttendanceIcon = (status: string) => {
     const s = (status || "").trim();
-    if (s === "Present") return { name: "check-circle", color: "#10B981", bgColor: "rgba(16, 185, 129, 0.10)" };
-    if (s === "Absent") return { name: "cancel", color: "#EF4444", bgColor: "rgba(239, 68, 68, 0.10)" };
-    if (s === "Late") return { name: "access-time", color: "#F59E0B", bgColor: "rgba(245, 158, 11, 0.10)" };
-    if (s === "Excused") return { name: "info", color: "#3B82F6", bgColor: "rgba(59, 130, 246, 0.10)" };
-    return { name: "help-outline", color: "#94A3B8", bgColor: "rgba(148, 163, 184, 0.10)" }; // Not Marked
+    if (s === "Present") return { name: "check-circle", color: "#10B981", bgColor: "rgba(16, 185, 129, 0.10)", lib: "mi" as const };
+    if (s === "Absent") return { name: "cancel", color: "#EF4444", bgColor: "rgba(239, 68, 68, 0.10)", lib: "mi" as const };
+    if (s === "Late") return { name: "clock-outline", color: "#F59E0B", bgColor: "rgba(245, 158, 11, 0.10)", lib: "mci" as const };
+    if (s === "Excused") return { name: "info", color: "#3B82F6", bgColor: "rgba(59, 130, 246, 0.10)", lib: "mi" as const };
+    return { name: "help-outline", color: "#94A3B8", bgColor: "rgba(148, 163, 184, 0.10)", lib: "mi" as const }; // Not Marked
+  };
+
+  const AttendanceIcon = ({ status, size }: { status: string; size: number }) => {
+    const cfg = getAttendanceIcon(status);
+    if (cfg.lib === "mci") {
+      return <MaterialCommunityIcons name={cfg.name as any} size={size} color={cfg.color} />;
+    }
+    return <MaterialIcons name={cfg.name as any} size={size} color={cfg.color} />;
   };
 
   const fetchAssignmentStats = async () => {
@@ -578,11 +586,7 @@ export default function StudentDashboard() {
               {/* Forenoon */}
               <View style={styles.attendanceItem}>
                 <View style={[styles.attendanceIconCircle, { backgroundColor: getAttendanceIcon(attendanceData.todayFN).bgColor }]}>
-                  <MaterialIcons
-                    name={getAttendanceIcon(attendanceData.todayFN).name as any}
-                    size={22}
-                    color={getAttendanceIcon(attendanceData.todayFN).color}
-                  />
+                  <AttendanceIcon status={attendanceData.todayFN} size={22} />
                 </View>
                 <View style={styles.attendanceInfo}>
                   <Text style={styles.attendanceLabel}>Forenoon</Text>
@@ -597,11 +601,7 @@ export default function StudentDashboard() {
               {/* Afternoon */}
               <View style={styles.attendanceItem}>
                 <View style={[styles.attendanceIconCircle, { backgroundColor: getAttendanceIcon(attendanceData.todayAN).bgColor }]}>
-                  <MaterialIcons
-                    name={getAttendanceIcon(attendanceData.todayAN).name as any}
-                    size={22}
-                    color={getAttendanceIcon(attendanceData.todayAN).color}
-                  />
+                  <AttendanceIcon status={attendanceData.todayAN} size={22} />
                 </View>
                 <View style={styles.attendanceInfo}>
                   <Text style={styles.attendanceLabel}>Afternoon</Text>
