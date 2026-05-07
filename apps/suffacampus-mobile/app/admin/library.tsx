@@ -151,7 +151,7 @@ export default function AdminLibraryScreen() {
                   </View>
                 </View>
 
-                <Text style={styles.uploadedBy}>Uploaded by {book.uploadedBy}</Text>
+                <Text style={styles.uploadedBy}>Added {book.uploadedDate ? new Date(book.uploadedDate).toLocaleDateString() : "N/A"}</Text>
               </Card>
             );
           })}

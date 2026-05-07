@@ -37,6 +37,16 @@ export interface CarouselImage {
   order: number;
 }
 
+/** Backend shape returned by GET /events (Prisma Event model) */
+interface BackendDashboardEvent {
+  id: string;
+  title: string;
+  eventDate: string;
+  endDate?: string | null;
+  eventType: string;
+  isActive: boolean;
+}
+
 export interface DashboardEvent {
   id: string;
   title: string;
@@ -45,6 +55,31 @@ export interface DashboardEvent {
   color: string;
   isActive: boolean;
   startDate?: string;
+}
+
+/** Derive icon & color from eventType for the dashboard UI */
+function dashboardEventTypeToStyle(eventType: string): { icon: string; color: string } {
+  const t = (eventType ?? "").toLowerCase();
+  if (t === "academic") return { icon: "school", color: "#3B82F6" };
+  if (t === "sports") return { icon: "sports-soccer", color: "#10B981" };
+  if (t === "cultural") return { icon: "palette", color: "#8B5CF6" };
+  if (t === "holiday") return { icon: "beach-access", color: "#F59E0B" };
+  if (t === "exam") return { icon: "assignment", color: "#EF4444" };
+  if (t === "meeting") return { icon: "groups", color: "#6366F1" };
+  return { icon: "event", color: "#6B7280" };
+}
+
+function mapBackendDashboardEvent(e: BackendDashboardEvent): DashboardEvent {
+  const style = dashboardEventTypeToStyle(e.eventType);
+  return {
+    id: e.id,
+    title: e.title,
+    date: e.eventDate,
+    startDate: e.eventDate,
+    icon: style.icon,
+    color: style.color,
+    isActive: e.isActive,
+  };
 }
 
 export interface DashboardActivity {
@@ -61,14 +96,14 @@ export interface DashboardActivity {
 type ActivityApiResponse =
   | DashboardActivity[]
   | {
-      data?: DashboardActivity[];
-      pagination?: {
-        total?: number;
-        limit?: number;
-        skip?: number;
-        hasMore?: boolean;
-      };
+    data?: DashboardActivity[];
+    pagination?: {
+      total?: number;
+      limit?: number;
+      skip?: number;
+      hasMore?: boolean;
     };
+  };
 
 type ActivitySocketMessage = {
   type: "activity.connected" | "activity.created";
@@ -196,10 +231,10 @@ export async function getStudentInfo(studentId: string): Promise<StudentInfo> {
 
     // Cache classId and sectionId for other screens (timetable, assignments, etc.)
     if (raw.classId) {
-      AsyncStorage.setItem("classId", raw.classId).catch(() => {});
+      AsyncStorage.setItem("classId", raw.classId).catch(() => { });
     }
     if (raw.sectionId) {
-      AsyncStorage.setItem("sectionId", raw.sectionId).catch(() => {});
+      AsyncStorage.setItem("sectionId", raw.sectionId).catch(() => { });
     }
 
     return {
@@ -209,7 +244,8 @@ export async function getStudentInfo(studentId: string): Promise<StudentInfo> {
       section: sectionName,
       photoURL: raw.photoURL ?? "",
     };
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch student info:", error);
     return { name: "", admissionNumber: "", class: "", section: "", photoURL: "" };
   }
 }
@@ -218,7 +254,8 @@ export async function getStudentInfo(studentId: string): Promise<StudentInfo> {
 export async function getCarouselImages(): Promise<CarouselImage[]> {
   try {
     return await apiFetch<CarouselImage[]>("/carousel");
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch carousel images:", error);
     return [];
   }
 }
@@ -226,10 +263,13 @@ export async function getCarouselImages(): Promise<CarouselImage[]> {
 /** Fetch upcoming events. Backend supports ?upcoming=true&limit= */
 export async function getActiveEvents(limit = 5): Promise<DashboardEvent[]> {
   try {
-    return await apiFetch<DashboardEvent[]>("/events", {
+    const raw = await apiFetch<BackendDashboardEvent[]>("/events", {
       params: { upcoming: true, limit },
     });
-  } catch {
+    const list = Array.isArray(raw) ? raw : [];
+    return list.map(mapBackendDashboardEvent);
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch events:", error);
     return [];
   }
 }
@@ -247,11 +287,12 @@ export async function getStudentDashboardActivities(
     const list = Array.isArray(response)
       ? response
       : Array.isArray(response?.data)
-      ? response.data
-      : [];
+        ? response.data
+        : [];
 
     return list.map((item) => normalizeActivity(item));
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch activities:", error);
     return [];
   }
 }
@@ -261,7 +302,7 @@ export async function subscribeStudentDashboardActivities(
   onActivity: (activity: DashboardActivity) => void
 ): Promise<() => void> {
   const user = auth.currentUser;
-  if (!user) return () => {};
+  if (!user) return () => { };
 
   let socket: WebSocket | null = null;
   let keepAliveTimer: ReturnType<typeof setInterval> | null = null;
@@ -295,7 +336,7 @@ export async function subscribeStudentDashboardActivities(
       }, 25_000);
     };
   } catch {
-    return () => {};
+    return () => { };
   }
 
   return () => {
@@ -319,7 +360,8 @@ export async function getRecentResults(
       params: { studentId, limit },
     });
     return Array.isArray(data) ? data : [];
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch recent results:", error);
     return [];
   }
 }
@@ -337,7 +379,8 @@ export async function getAssignmentStats(
     const pending = arr.filter((a) => a.status === "active" && a.submissionStatus !== "submitted" && a.submissionStatus !== "graded").length;
     const submitted = arr.filter((a) => a.submissionStatus === "submitted" || a.submissionStatus === "graded").length;
     return { pending, submitted };
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch assignment stats:", error);
     return { pending: 0, submitted: 0 };
   }
 }
@@ -380,7 +423,8 @@ export async function getTodayAttendance(
       todayAN,
       monthlyPercentage: data.stats?.percentage ?? 0,
     };
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch attendance:", error);
     return { todayFN: "Not Marked", todayAN: "Not Marked", monthlyPercentage: 0 };
   }
 }
@@ -394,7 +438,8 @@ export async function getAppConfig(): Promise<AppConfig> {
         ? raw.resultsDisplayCount
         : 3,
     };
-  } catch {
+  } catch (error) {
+    console.warn("[Dashboard] Failed to fetch app config:", error);
     return { resultsDisplayCount: 3 };
   }
 }

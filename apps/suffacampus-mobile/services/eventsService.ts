@@ -101,7 +101,8 @@ export async function getEvents(params?: {
     const raw = await apiFetch<BackendEvent[]>("/events", { params: query });
     const list = Array.isArray(raw) ? raw : [];
     return list.map(mapBackendEvent);
-  } catch {
+  } catch (error) {
+    console.warn("[Events] Failed to fetch events:", error);
     return [];
   }
 }

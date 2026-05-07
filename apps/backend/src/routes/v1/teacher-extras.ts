@@ -19,15 +19,17 @@ export default async function teacherExtrasRoutes(server: FastifyInstance) {
     const userId = request.user.uid;
     const schoolId = request.schoolId;
 
-    // Find teacher record for this user
-    const teacher = await prisma.teacher.findFirst({
-      where: { userId, schoolId },
-      select: { id: true, name: true },
+    // Find teacher record via User → teacherId link
+    const user = await prisma.user.findUnique({
+      where: { uid: userId },
+      select: { teacherId: true },
     });
 
-    if (!teacher) {
+    if (!user?.teacherId) {
       return sendSuccess(request, reply, []);
     }
+
+    const teacherId = user.teacherId;
 
     const tasks: Array<{
       id: string;
@@ -43,7 +45,7 @@ export default async function teacherExtrasRoutes(server: FastifyInstance) {
       const pendingAssignments = await prisma.assignment.findMany({
         where: {
           schoolId,
-          teacherId: teacher.id,
+          teacherId,
           status: "Submitted",
         },
         take: 10,
@@ -65,40 +67,47 @@ export default async function teacherExtrasRoutes(server: FastifyInstance) {
       // Assignment model may not have teacherId — skip gracefully
     }
 
-    // 2. Today's unmarked classes (from timetable)
+    // 2. Today's unmarked classes (from timetable periods)
     try {
       const today = new Date();
       const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       const todayDay = dayNames[today.getDay()];
 
-      const timetableEntries = await prisma.timetable.findMany({
+      // Find periods for this teacher today (Period has teacherId, not Timetable)
+      const periods = await prisma.period.findMany({
         where: {
-          schoolId,
-          teacherId: teacher.id,
-          day: todayDay,
+          teacherId,
+          timetable: {
+            schoolId,
+            day: todayDay,
+          },
         },
-        select: { id: true, classId: true, subject: true },
+        select: {
+          id: true,
+          subject: true,
+          timetable: { select: { classId: true } },
+        },
       });
 
       // Check which classes have attendance marked today
       const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const todayEnd = new Date(todayStart.getTime() + 86400000);
 
-      for (const entry of timetableEntries) {
+      for (const period of periods) {
         const marked = await prisma.attendance.findFirst({
           where: {
             schoolId,
-            classId: entry.classId,
+            classId: period.timetable.classId,
             date: { gte: todayStart, lt: todayEnd },
           },
         });
 
         if (!marked) {
           tasks.push({
-            id: `att-${entry.id}`,
+            id: `att-${period.id}`,
             type: "mark_attendance",
-            title: `Mark attendance: ${entry.subject ?? entry.classId}`,
-            description: `Class ${entry.classId} — today's attendance not marked`,
+            title: `Mark attendance: ${period.subject}`,
+            description: `Class ${period.timetable.classId} — today's attendance not marked`,
             priority: "high",
             createdAt: today.toISOString(),
           });

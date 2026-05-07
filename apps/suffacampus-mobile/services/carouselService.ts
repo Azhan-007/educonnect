@@ -33,7 +33,8 @@ export interface CarouselPayload {
 export async function getCarouselItems(): Promise<CarouselItem[]> {
   try {
     return await apiFetch<CarouselItem[]>("/carousel");
-  } catch {
+  } catch (error) {
+    console.warn("[Carousel] Failed to fetch carousel items:", error);
     return [];
   }
 }

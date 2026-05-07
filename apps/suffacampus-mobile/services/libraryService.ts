@@ -77,7 +77,8 @@ export async function getLibraryItems(): Promise<LibraryItem[]> {
     const raw = await apiFetch<BackendBook[]>("/library/books");
     const list = Array.isArray(raw) ? raw : [];
     return list.map(mapBackendBook);
-  } catch {
+  } catch (error) {
+    console.warn("[Library] Failed to fetch books:", error);
     return [];
   }
 }

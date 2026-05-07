@@ -8,11 +8,11 @@ import { LibraryForm, LibraryFormData } from "../../components/LibraryForm";
 import { useModalPortal } from "../../components/ModalPortal";
 import Screen from "../../components/Screen";
 import {
-    createLibraryItem,
-    deleteLibraryItem,
-    getLibraryItems,
-    LibraryItem,
-    updateLibraryItem,
+  createLibraryItem,
+  deleteLibraryItem,
+  getLibraryItems,
+  LibraryItem,
+  updateLibraryItem,
 } from "../../services/libraryService";
 
 type LibraryBook = LibraryItem;
@@ -29,7 +29,7 @@ export default function TeacherLibraryScreen() {
 
   useEffect(() => {
     fetchBooks();
-    AsyncStorage.getItem("userName").then(name => { if (name) setTeacherName(name); }).catch(() => {});
+    AsyncStorage.getItem("userName").then(name => { if (name) setTeacherName(name); }).catch(() => { });
   }, []);
 
   const fetchBooks = async () => {
@@ -51,7 +51,7 @@ export default function TeacherLibraryScreen() {
       title: book.title,
       author: book.author,
       subject: book.subject,
-      type: book.type,
+      type: (book.type as LibraryFormData["type"]) || "Book",
       fileUrl: book.fileUrl || "",
       availableCopies: (book.availableCopies || 1).toString(),
       totalCopies: (book.totalCopies || 1).toString(),
@@ -92,14 +92,12 @@ export default function TeacherLibraryScreen() {
       const bookData = {
         title: data.title,
         author: data.author,
-        subject: data.subject,
-        type: data.type,
-        fileUrl: data.fileUrl,
+        category: data.subject,
+        isbn: `ISBN-${Date.now()}`,
         availableCopies: parseInt(data.availableCopies) || 1,
         totalCopies: parseInt(data.totalCopies) || 1,
-        uploadedBy: teacherName,
-        uploadedDate: new Date().toISOString(),
-      } as Parameters<typeof createLibraryItem>[0];
+        coverImageURL: data.fileUrl || undefined,
+      };
 
       if (editingId) {
         await updateLibraryItem(editingId, { ...bookData });

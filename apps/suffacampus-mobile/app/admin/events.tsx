@@ -3,14 +3,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createEvent, deleteEvent, Event, getEvents, updateEvent } from "../../services/eventsService";
@@ -27,7 +27,7 @@ const iconOptions = [
 ];
 
 const colorOptions = [
-  "#4C6EF5", "#10B981", "#F59E0B", "#EF4444", 
+  "#4C6EF5", "#10B981", "#F59E0B", "#EF4444",
   "#8B5CF6", "#EC4899", "#06B6D4", "#6366F1"
 ];
 
@@ -101,21 +101,20 @@ export default function AdminEventsScreen() {
   };
 
   const handleSave = async () => {
-    if (!title.trim() || !date.trim() || !startDate.trim()) {
-      Alert.alert("Error", "Please fill in all required fields (Title, Date, Start Date)");
+    if (!title.trim() || !startDate.trim()) {
+      Alert.alert("Error", "Please fill in all required fields (Title, Start Date)");
       return;
     }
 
     try {
       const eventData = {
         title: title.trim(),
-        description: description.trim(),
-        date: date.trim(),
-        startDate: startDate.trim(),
+        description: description.trim() || "No description",
+        eventDate: startDate.trim(),
         endDate: endDate.trim() || undefined,
+        eventType: "Other" as const,
+        targetAudience: ["All"],
         location: location.trim() || undefined,
-        icon: selectedIcon,
-        color: selectedColor,
         isActive,
       };
 
@@ -177,272 +176,272 @@ export default function AdminEventsScreen() {
 
   return (
     <>
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#1E293B" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Manage Events</Text>
-        <TouchableOpacity onPress={openAddModal} style={styles.addButton}>
-          <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterTab, filterStatus === "all" && styles.filterTabActive]}
-          onPress={() => setFilterStatus("all")}
-        >
-          <Text style={[styles.filterText, filterStatus === "all" && styles.filterTextActive]}>
-            All ({events.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterTab, filterStatus === "active" && styles.filterTabActive]}
-          onPress={() => setFilterStatus("active")}
-        >
-          <Text style={[styles.filterText, filterStatus === "active" && styles.filterTextActive]}>
-            Active ({events.filter(e => e.isActive).length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.filterTab, filterStatus === "past" && styles.filterTabActive]}
-          onPress={() => setFilterStatus("past")}
-        >
-          <Text style={[styles.filterText, filterStatus === "past" && styles.filterTextActive]}>
-            Past ({events.filter(e => !e.isActive).length})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Events List */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {loading ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Loading events...</Text>
-          </View>
-        ) : filteredEvents.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <MaterialCommunityIcons name="calendar-blank" size={64} color="#CBD5E1" />
-            <Text style={styles.emptyText}>No events found</Text>
-            <Text style={styles.emptySubtext}>Tap + to add a new event</Text>
-          </View>
-        ) : (
-          filteredEvents.map((event) => (
-            <TouchableOpacity
-              key={event.id}
-              style={styles.eventCard}
-              onPress={() => openEditModal(event)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.eventCardContent}>
-                <View style={[styles.eventIconCircle, { backgroundColor: `${event.color}15` }]}>
-                  <MaterialCommunityIcons name={event.icon as any} size={28} color={event.color} />
-                </View>
-                <View style={styles.eventDetails}>
-                  <View style={styles.eventHeader}>
-                    <Text style={styles.eventTitle}>{event.title}</Text>
-                    {!event.isActive && (
-                      <View style={styles.pastBadge}>
-                        <Text style={styles.pastBadgeText}>Past</Text>
-                      </View>
-                    )}
-                  </View>
-                  {event.description && (
-                    <Text style={styles.eventDescription} numberOfLines={2}>{event.description}</Text>
-                  )}
-                  <View style={styles.eventMetaRow}>
-                    <MaterialCommunityIcons name="calendar-outline" size={14} color="#64748B" />
-                    <Text style={styles.eventDate}>{event.date}</Text>
-                    {event.location && (
-                      <>
-                        <Text style={styles.eventMetaDot}>•</Text>
-                        <MaterialCommunityIcons name="map-marker" size={14} color="#64748B" />
-                        <Text style={styles.eventLocation}>{event.location}</Text>
-                      </>
-                    )}
-                  </View>
-                </View>
-                <View style={styles.eventActions}>
-                  <TouchableOpacity
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      handleDelete(event);
-                    }}
-                    style={styles.deleteButton}
-                  >
-                    <MaterialCommunityIcons name="delete-outline" size={20} color="#EF4444" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
-        <View style={{ height: 20 }} />
-      </ScrollView>
-
-      {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{editingEvent ? "Edit Event" : "Add Event"}</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <MaterialCommunityIcons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Title */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Title *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Event title"
-                  value={title}
-                  onChangeText={setTitle}
-                />
-              </View>
-
-              {/* Description */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Description</Text>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Event description"
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  numberOfLines={3}
-                />
-              </View>
-
-              {/* Date Display */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Display Date *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g., Jan 25 or Jan 25-27"
-                  value={date}
-                  onChangeText={setDate}
-                />
-              </View>
-
-              {/* Start Date */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Start Date * (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="2026-01-25"
-                  value={startDate}
-                  onChangeText={setStartDate}
-                />
-              </View>
-
-              {/* End Date */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>End Date (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="2026-01-27 (optional)"
-                  value={endDate}
-                  onChangeText={setEndDate}
-                />
-              </View>
-
-              {/* Location */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Location</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Event location"
-                  value={location}
-                  onChangeText={setLocation}
-                />
-              </View>
-
-              {/* Icon Selection */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Icon</Text>
-                <View style={styles.iconGrid}>
-                  {iconOptions.map((icon) => (
-                    <TouchableOpacity
-                      key={icon.name}
-                      style={[
-                        styles.iconOption,
-                        selectedIcon === icon.name && styles.iconOptionSelected,
-                      ]}
-                      onPress={() => setSelectedIcon(icon.name)}
-                    >
-                      <MaterialCommunityIcons
-                        name={icon.name as any}
-                        size={24}
-                        color={selectedIcon === icon.name ? "#4C6EF5" : "#64748B"}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Color Selection */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Color</Text>
-                <View style={styles.colorGrid}>
-                  {colorOptions.map((color) => (
-                    <TouchableOpacity
-                      key={color}
-                      style={[
-                        styles.colorOption,
-                        { backgroundColor: color },
-                        selectedColor === color && styles.colorOptionSelected,
-                      ]}
-                      onPress={() => setSelectedColor(color)}
-                    >
-                      {selectedColor === color && (
-                        <MaterialCommunityIcons name="check" size={20} color="#FFFFFF" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Status Toggle */}
-              <View style={styles.inputGroup}>
-                <View style={styles.toggleRow}>
-                  <View>
-                    <Text style={styles.inputLabel}>Active Status</Text>
-                    <Text style={styles.toggleSubtext}>Show this event on dashboard</Text>
-                  </View>
-                  <TouchableOpacity
-                    style={[styles.toggleButton, isActive && styles.toggleButtonActive]}
-                    onPress={() => setIsActive(!isActive)}
-                  >
-                    <View style={[styles.toggleThumb, isActive && styles.toggleThumbActive]} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSave}>
-                  <LinearGradient colors={["#4C6EF5", "#6B8AFF"]} style={styles.saveButtonGradient}>
-                    <Text style={styles.saveButtonText}>{editingEvent ? "Update" : "Add"} Event</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <MaterialCommunityIcons name="arrow-left" size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Manage Events</Text>
+          <TouchableOpacity onPress={openAddModal} style={styles.addButton}>
+            <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </SafeAreaView>
+
+        {/* Filter Tabs */}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={[styles.filterTab, filterStatus === "all" && styles.filterTabActive]}
+            onPress={() => setFilterStatus("all")}
+          >
+            <Text style={[styles.filterText, filterStatus === "all" && styles.filterTextActive]}>
+              All ({events.length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterTab, filterStatus === "active" && styles.filterTabActive]}
+            onPress={() => setFilterStatus("active")}
+          >
+            <Text style={[styles.filterText, filterStatus === "active" && styles.filterTextActive]}>
+              Active ({events.filter(e => e.isActive).length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterTab, filterStatus === "past" && styles.filterTabActive]}
+            onPress={() => setFilterStatus("past")}
+          >
+            <Text style={[styles.filterText, filterStatus === "past" && styles.filterTextActive]}>
+              Past ({events.filter(e => !e.isActive).length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Events List */}
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {loading ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>Loading events...</Text>
+            </View>
+          ) : filteredEvents.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="calendar-blank" size={64} color="#CBD5E1" />
+              <Text style={styles.emptyText}>No events found</Text>
+              <Text style={styles.emptySubtext}>Tap + to add a new event</Text>
+            </View>
+          ) : (
+            filteredEvents.map((event) => (
+              <TouchableOpacity
+                key={event.id}
+                style={styles.eventCard}
+                onPress={() => openEditModal(event)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.eventCardContent}>
+                  <View style={[styles.eventIconCircle, { backgroundColor: `${event.color}15` }]}>
+                    <MaterialCommunityIcons name={event.icon as any} size={28} color={event.color} />
+                  </View>
+                  <View style={styles.eventDetails}>
+                    <View style={styles.eventHeader}>
+                      <Text style={styles.eventTitle}>{event.title}</Text>
+                      {!event.isActive && (
+                        <View style={styles.pastBadge}>
+                          <Text style={styles.pastBadgeText}>Past</Text>
+                        </View>
+                      )}
+                    </View>
+                    {event.description && (
+                      <Text style={styles.eventDescription} numberOfLines={2}>{event.description}</Text>
+                    )}
+                    <View style={styles.eventMetaRow}>
+                      <MaterialCommunityIcons name="calendar-outline" size={14} color="#64748B" />
+                      <Text style={styles.eventDate}>{event.date}</Text>
+                      {event.location && (
+                        <>
+                          <Text style={styles.eventMetaDot}>•</Text>
+                          <MaterialCommunityIcons name="map-marker" size={14} color="#64748B" />
+                          <Text style={styles.eventLocation}>{event.location}</Text>
+                        </>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.eventActions}>
+                    <TouchableOpacity
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleDelete(event);
+                      }}
+                      style={styles.deleteButton}
+                    >
+                      <MaterialCommunityIcons name="delete-outline" size={20} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
+          <View style={{ height: 20 }} />
+        </ScrollView>
+
+        {/* Add/Edit Modal */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{editingEvent ? "Edit Event" : "Add Event"}</Text>
+                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                  <MaterialCommunityIcons name="close" size={24} color="#64748B" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Title */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Title *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Event title"
+                    value={title}
+                    onChangeText={setTitle}
+                  />
+                </View>
+
+                {/* Description */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Description</Text>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Event description"
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+
+                {/* Date Display */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Display Date *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="e.g., Jan 25 or Jan 25-27"
+                    value={date}
+                    onChangeText={setDate}
+                  />
+                </View>
+
+                {/* Start Date */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Start Date * (YYYY-MM-DD)</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="2026-01-25"
+                    value={startDate}
+                    onChangeText={setStartDate}
+                  />
+                </View>
+
+                {/* End Date */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>End Date (YYYY-MM-DD)</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="2026-01-27 (optional)"
+                    value={endDate}
+                    onChangeText={setEndDate}
+                  />
+                </View>
+
+                {/* Location */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Location</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Event location"
+                    value={location}
+                    onChangeText={setLocation}
+                  />
+                </View>
+
+                {/* Icon Selection */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Icon</Text>
+                  <View style={styles.iconGrid}>
+                    {iconOptions.map((icon) => (
+                      <TouchableOpacity
+                        key={icon.name}
+                        style={[
+                          styles.iconOption,
+                          selectedIcon === icon.name && styles.iconOptionSelected,
+                        ]}
+                        onPress={() => setSelectedIcon(icon.name)}
+                      >
+                        <MaterialCommunityIcons
+                          name={icon.name as any}
+                          size={24}
+                          color={selectedIcon === icon.name ? "#4C6EF5" : "#64748B"}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Color Selection */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Color</Text>
+                  <View style={styles.colorGrid}>
+                    {colorOptions.map((color) => (
+                      <TouchableOpacity
+                        key={color}
+                        style={[
+                          styles.colorOption,
+                          { backgroundColor: color },
+                          selectedColor === color && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setSelectedColor(color)}
+                      >
+                        {selectedColor === color && (
+                          <MaterialCommunityIcons name="check" size={20} color="#FFFFFF" />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Status Toggle */}
+                <View style={styles.inputGroup}>
+                  <View style={styles.toggleRow}>
+                    <View>
+                      <Text style={styles.inputLabel}>Active Status</Text>
+                      <Text style={styles.toggleSubtext}>Show this event on dashboard</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.toggleButton, isActive && styles.toggleButtonActive]}
+                      onPress={() => setIsActive(!isActive)}
+                    >
+                      <View style={[styles.toggleThumb, isActive && styles.toggleThumbActive]} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Action Buttons */}
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.cancelButton]}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.modalButton, styles.saveButton]} onPress={handleSave}>
+                    <LinearGradient colors={["#4C6EF5", "#6B8AFF"]} style={styles.saveButtonGradient}>
+                      <Text style={styles.saveButtonText}>{editingEvent ? "Update" : "Add"} Event</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
     </>
   );
 }
@@ -477,13 +476,13 @@ const styles = StyleSheet.create({
   eventLocation: { fontSize: 13, color: "#64748B" },
   eventActions: { marginLeft: 8 },
   deleteButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#FEF2F2", alignItems: "center", justifyContent: "center" },
-  modalOverlay: { 
+  modalOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)", 
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
     zIndex: 9999,
     elevation: 50,
