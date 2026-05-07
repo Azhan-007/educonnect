@@ -60,11 +60,14 @@ export default function AttendancePage() {
   const schoolId = currentSchool?.id || user?.schoolId || '';
   const queryClient = useQueryClient();
 
+  // Date filter must be declared early because the API query depends on it
+  const [filterDate, setFilterDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+
   // "" Data fetching via React Query ""
   const { data: attendance = [], isLoading: attendanceLoading, dataUpdatedAt } = useApiQuery<Attendance[]>({
-    queryKey: ['attendance', schoolId],
-    path: '/attendance',
-    enabled: !!schoolId,
+    queryKey: ['attendance', schoolId, filterDate],
+    path: `/attendance?date=${filterDate}`,
+    enabled: !!schoolId && !!filterDate,
   });
 
   const { data: students = [], isLoading: studentsLoading } = useApiQuery<Student[]>({
@@ -111,7 +114,7 @@ export default function AttendancePage() {
   const [filterClass, setFilterClass] = useState('');
   const [filterSection, setFilterSection] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [filterDate, setFilterDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [filterSession, setFilterSession] = useState('');
 
   // "" Sort & pagination ""
   const [sortField, setSortField] = useState<SortField>('studentName');
@@ -123,6 +126,7 @@ export default function AttendancePage() {
   const [markClass, setMarkClass] = useState('');
   const [markSection, setMarkSection] = useState('');
   const [markDate, setMarkDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [markSession, setMarkSession] = useState<'FN' | 'AN'>('FN');
   const [bulkStatuses, setBulkStatuses] = useState<Record<string, Attendance['status']>>({});
   const [bulkRemarks, setBulkRemarks] = useState<Record<string, string>>({});
 
@@ -146,12 +150,7 @@ export default function AttendancePage() {
   const filteredRecords = useMemo(() => {
     let list = attendance;
 
-    // Date filter
-    if (filterDate) {
-      list = list.filter((a) => {
-        try { return format(new Date(a.date), 'yyyy-MM-dd') === filterDate; } catch { return false; }
-      });
-    }
+    // Date filtering is now server-side (via API query param)
 
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
@@ -160,9 +159,10 @@ export default function AttendancePage() {
     if (filterClass) list = list.filter((a) => a.classId === filterClass);
     if (filterSection) list = list.filter((a) => a.sectionId === filterSection);
     if (filterStatus) list = list.filter((a) => a.status === filterStatus);
+    if (filterSession) list = list.filter((a) => a.session === filterSession);
 
     return list;
-  }, [attendance, searchTerm, filterClass, filterSection, filterStatus, filterDate]);
+  }, [attendance, searchTerm, filterClass, filterSection, filterStatus, filterSession, filterDate]);
 
   const sortedRecords = useMemo(() => {
     const sorted = [...filteredRecords];
@@ -185,7 +185,7 @@ export default function AttendancePage() {
     return sortedRecords.slice(s, s + pageSize);
   }, [sortedRecords, page, pageSize]);
 
-  useEffect(() => { setPage(1); }, [searchTerm, filterClass, filterSection, filterStatus, filterDate, sortField, sortDir]);
+  useEffect(() => { setPage(1); }, [searchTerm, filterClass, filterSection, filterStatus, filterSession, filterDate, sortField, sortDir]);
 
   // "" Sort helpers ""
   const toggleSort = (f: SortField) => {
@@ -206,12 +206,13 @@ export default function AttendancePage() {
       chips.push({ key: 'class', label: cl?.label || filterClass, clear: () => setFilterClass('') });
     }
     if (filterSection) chips.push({ key: 'section', label: `Section ${filterSection}`, clear: () => setFilterSection('') });
+    if (filterSession) chips.push({ key: 'session', label: filterSession === 'FN' ? 'Forenoon' : 'Afternoon', clear: () => setFilterSession('') });
     if (filterStatus) chips.push({ key: 'status', label: filterStatus, clear: () => setFilterStatus('') });
     if (searchTerm) chips.push({ key: 'search', label: `"${searchTerm}"`, clear: () => setSearchTerm('') });
     return chips;
-  }, [filterClass, filterSection, filterStatus, searchTerm, CLASS_OPTIONS]);
+  }, [filterClass, filterSection, filterSession, filterStatus, searchTerm, CLASS_OPTIONS]);
 
-  const clearAllFilters = () => { setSearchTerm(''); setFilterClass(''); setFilterSection(''); setFilterStatus(''); };
+  const clearAllFilters = () => { setSearchTerm(''); setFilterClass(''); setFilterSection(''); setFilterSession(''); setFilterStatus(''); };
 
   // "" Mark attendance modal handlers ""
   const studentsForMark = useMemo(() => {
@@ -225,6 +226,7 @@ export default function AttendancePage() {
     setMarkClass('');
     setMarkSection('');
     setMarkDate(format(new Date(), 'yyyy-MM-dd'));
+    setMarkSession('FN');
     setBulkStatuses({});
     setBulkRemarks({});
     setIsMarkModalOpen(true);
@@ -255,7 +257,7 @@ export default function AttendancePage() {
 
     setIsSaving(true);
     try {
-      await AttendanceService.bulkMarkAttendance(schoolId, records);
+      await AttendanceService.bulkMarkAttendance(schoolId, records, { session: markSession });
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
       toast.success(`Attendance marked for ${records.length} students`);
       setIsMarkModalOpen(false);
@@ -408,6 +410,12 @@ export default function AttendancePage() {
                 placeholder="Section"
               />
               <Select
+                value={filterSession}
+                onChange={(e) => setFilterSession(e.target.value)}
+                options={[{ value: 'FN', label: 'Forenoon' }, { value: 'AN', label: 'Afternoon' }]}
+                placeholder="Session"
+              />
+              <Select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
                 options={STATUS_OPTIONS.map((s) => ({ value: s.value, label: s.label }))}
@@ -462,6 +470,9 @@ export default function AttendancePage() {
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Section</span>
                       </th>
                       <th className="text-left px-6 py-3">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Session</span>
+                      </th>
+                      <th className="text-left px-6 py-3">
                         <button onClick={() => toggleSort('date')} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 uppercase tracking-wider hover:text-slate-700">
                           Date <SortIcon field="date" />
                         </button>
@@ -504,6 +515,13 @@ export default function AttendancePage() {
                               {classMap[record.classId] || record.classId}
                             </td>
                             <td className="px-6 py-4 text-sm text-slate-600">{record.sectionId}</td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-md ${
+                                record.session === 'AN' ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-700'
+                              }`}>
+                                {record.session === 'AN' ? 'AN' : 'FN'}
+                              </span>
+                            </td>
                             <td className="px-6 py-4 text-sm text-slate-500">
                               {format(new Date(record.date), 'dd MMM yyyy')}
                             </td>
@@ -613,6 +631,35 @@ export default function AttendancePage() {
                 onChange={(e) => setMarkDate(e.target.value)}
                 className="w-full h-11 px-3 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
+            </div>
+          </div>
+
+          {/* Session Toggle */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Session</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMarkSession('FN')}
+                className={`flex-1 h-10 rounded-lg text-sm font-medium transition-all ${
+                  markSession === 'FN'
+                    ? 'bg-amber-100 text-amber-800 ring-2 ring-amber-300'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                ☀️ Forenoon (FN)
+              </button>
+              <button
+                type="button"
+                onClick={() => setMarkSession('AN')}
+                className={`flex-1 h-10 rounded-lg text-sm font-medium transition-all ${
+                  markSession === 'AN'
+                    ? 'bg-indigo-100 text-indigo-800 ring-2 ring-indigo-300'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                🌙 Afternoon (AN)
+              </button>
             </div>
           </div>
 

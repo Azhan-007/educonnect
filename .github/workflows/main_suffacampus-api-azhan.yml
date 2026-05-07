@@ -24,12 +24,21 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Install, build, and prune
+      - name: Install and build
         working-directory: apps/backend
         run: |
           npm ci
           npm run build
-          npm prune --production
+
+      - name: Run database migrations
+        working-directory: apps/backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate deploy
+
+      - name: Prune dev dependencies
+        working-directory: apps/backend
+        run: npm prune --production
 
       - name: Create deployment package
         run: |
